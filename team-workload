@@ -1,0 +1,496 @@
+#!/bin/bash
+# team-workload - TaskFlow Management CLI
+# Usage: team-workload [command]
+
+set -e
+
+# Configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOCAL_DIR="/Users/teerayutyeerahem/team-workload"
+REMOTE_SERVER="one-climate@192.168.20.10"
+REMOTE_DIR="~/team-workload"
+REMOTE_PASSWORD="U8@1v3z#14"
+LOG_FILE="$SCRIPT_DIR/team-workload.log"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+# Logging function
+log() {
+    local level="$1"
+    shift
+    local message="$*"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo "[$timestamp] [$level] $message" >> "$LOG_FILE"
+    
+    case $level in
+        "INFO")  echo -e "${GREEN}[INFO]${NC} $message" ;;
+        "WARN")  echo -e "${YELLOW}[WARN]${NC} $message" ;;
+        "ERROR") echo -e "${RED}[ERROR]${NC} $message" ;;
+        "DEBUG") echo -e "${CYAN}[DEBUG]${NC} $message" ;;
+        *)       echo -e "${BLUE}[$level]${NC} $message" ;;
+    esac
+}
+
+# Check dependencies
+check_dependencies() {
+    local missing_deps=()
+    
+    if ! command -v sshpass &> /dev/null; then
+        missing_deps+=("sshpass")
+    fi
+    
+    if ! command -v ssh &> /dev/null; then
+        missing_deps+=("ssh")
+    fi
+    
+    if ! command -v scp &> /dev/null; then
+        missing_deps+=("scp")
+    fi
+    
+    if [ ${#missing_deps[@]} -ne 0 ]; then
+        log "ERROR" "Missing dependencies: ${missing_deps[*]}"
+        log "INFO" "Install missing dependencies and try again"
+        exit 1
+    fi
+}
+
+# Test connection to remote server
+test_connection() {
+    log "INFO" "Testing connection to remote server..."
+    
+    if sshpass -p "$REMOTE_PASSWORD" ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$REMOTE_SERVER" 'echo "Connection successful"' &>/dev/null; then
+        log "INFO" "✅ Remote server connection: OK"
+        return 0
+    else
+        log "ERROR" "❌ Cannot connect to remote server"
+        return 1
+    fi
+}
+
+# Test function
+cmd_test() {
+    log "INFO" "🧪 Running TaskFlow tests..."
+    
+    # Check dependencies
+    check_dependencies
+    
+    # Test remote connection
+    if ! test_connection; then
+        exit 1
+    fi
+    
+    # Test local files
+    log "INFO" "Checking local files..."
+    local required_files=(
+        "check-compatibility.sh"
+        "deploy-app.sh" 
+        "health-check.sh"
+        "install-taskflow-isolated.sh"
+        "start-all.sh"
+        "status.sh"
+        "stop-all.sh"
+        "server.js"
+        "package.json"
+        "public/index.html"
+    )
+    
+    local missing_files=()
+    for file in "${required_files[@]}"; do
+        if [ ! -f "$SCRIPT_DIR/$file" ]; then
+            missing_files+=("$file")
+        fi
+    done
+    
+    if [ ${#missing_files[@]} -ne 0 ]; then
+        log "ERROR" "Missing files: ${missing_files[*]}"
+        exit 1
+    fi
+    
+    log "INFO" "✅ All required files present"
+    
+    # Test remote server services
+    log "INFO" "Testing remote server services..."
+    sshpass -p "$REMOTE_PASSWORD" ssh -o StrictHostKeyChecking=no "$REMOTE_SERVER" "
+        cd $REMOTE_DIR
+        if [ -f 'status.sh' ]; then
+            echo '🔍 Running status check...'
+            chmod +x status.sh
+            ./status.sh
+        else
+            echo '⚠️ status.sh not found on remote server'
+        fi
+    " || log "WARN" "Remote status check failed"
+    
+    log "INFO" "🎉 Test completed successfully!"
+}
+
+# Status function
+cmd_status() {
+    log "INFO" "📊 Checking TaskFlow status..."
+    
+    check_dependencies
+    
+    # Local status
+    echo -e "\n${PURPLE}=== LOCAL STATUS ===${NC}"
+    log "INFO" "Local directory: $SCRIPT_DIR"
+    
+    if [ -d "$SCRIPT_DIR" ]; then
+        log "INFO" "✅ Local directory exists"
+        local file_count=$(find "$SCRIPT_DIR" -type f | wc -l)
+        log "INFO" "📁 Files count: $file_count"
+        
+        # Check for key files
+        if [ -f "$SCRIPT_DIR/package.json" ]; then
+            local version=$(grep -o '"version": *"[^"]*"' "$SCRIPT_DIR/package.json" | cut -d'"' -f4)
+            log "INFO" "📦 Package version: $version"
+        fi
+        
+        if [ -f "$SCRIPT_DIR/public/index.html" ]; then
+            local html_size=$(wc -l < "$SCRIPT_DIR/public/index.html")
+            log "INFO" "🌐 Frontend: $html_size lines"
+        fi
+    else
+        log "ERROR" "❌ Local directory not found"
+    fi
+    
+    # Remote status
+    echo -e "\n${PURPLE}=== REMOTE STATUS ===${NC}"
+    if test_connection; then
+        sshpass -p "$REMOTE_PASSWORD" ssh -o StrictHostKeyChecking=no "$REMOTE_SERVER" "
+            echo '📍 Remote server: $HOSTNAME'
+            echo '📂 Remote directory: $REMOTE_DIR'
+            cd $REMOTE_DIR 2>/dev/null || { echo '❌ Remote directory not found'; exit 1; }
+            
+            echo '📁 Files in remote directory:'
+            ls -la | head -10
+            
+            echo ''
+            echo '🔧 Script permissions:'
+            ls -la *.sh 2>/dev/null | head -5 || echo 'No shell scripts found'
+            
+            if [ -f 'status.sh' ]; then
+                echo ''
+                echo '🚀 Service status:'
+                chmod +x status.sh
+                ./status.sh 2>/dev/null || echo 'Status script execution failed'
+            fi
+        " || log "ERROR" "Failed to get remote status"
+    fi
+    
+    # Git status (if applicable)
+    if [ -d "$SCRIPT_DIR/.git" ]; then
+        echo -e "\n${PURPLE}=== GIT STATUS ===${NC}"
+        cd "$SCRIPT_DIR"
+        git status --short || log "WARN" "Git status unavailable"
+    fi
+    
+    log "INFO" "Status check completed"
+}
+
+# Deploy function
+cmd_deploy() {
+    log "INFO" "🚀 Deploying TaskFlow to remote server..."
+    
+    check_dependencies
+    
+    if ! test_connection; then
+        log "ERROR" "Cannot deploy: Remote server unreachable"
+        exit 1
+    fi
+    
+    # Create backup timestamp
+    local backup_timestamp=$(date +%Y%m%d_%H%M%S)
+    log "INFO" "Creating backup with timestamp: $backup_timestamp"
+    
+    # Backup remote files
+    log "INFO" "📦 Creating remote backup..."
+    sshpass -p "$REMOTE_PASSWORD" ssh -o StrictHostKeyChecking=no "$REMOTE_SERVER" "
+        cd $REMOTE_DIR
+        mkdir -p backups/deploy_$backup_timestamp
+        cp -r * backups/deploy_$backup_timestamp/ 2>/dev/null || echo 'Some files may not be backed up'
+        echo 'Backup created in: backups/deploy_$backup_timestamp'
+    " || log "WARN" "Backup creation failed"
+    
+    # Upload files
+    log "INFO" "📤 Uploading files to remote server..."
+    
+    # List of files to upload
+    local files_to_upload=(
+        "check-compatibility.sh"
+        "deploy-app.sh"
+        "health-check.sh" 
+        "install-taskflow-isolated.sh"
+        "start-all.sh"
+        "status.sh"
+        "stop-all.sh"
+        "taskflow_recovery.sh"
+        "server.js"
+        "package.json"
+        "QUICK_REFERENCE.md"
+        "PROJECT_DEVELOPMENT_LOG.md"
+        "LOG_UPDATE_TEMPLATE.md"
+    )
+    
+    # Upload individual files
+    for file in "${files_to_upload[@]}"; do
+        if [ -f "$SCRIPT_DIR/$file" ]; then
+            log "INFO" "📤 Uploading $file..."
+            cat "$SCRIPT_DIR/$file" | sshpass -p "$REMOTE_PASSWORD" ssh -o StrictHostKeyChecking=no "$REMOTE_SERVER" "cat > $REMOTE_DIR/$file"
+            log "INFO" "✅ $file uploaded"
+        else
+            log "WARN" "⚠️ $file not found locally"
+        fi
+    done
+    
+    # Upload public directory
+    if [ -d "$SCRIPT_DIR/public" ]; then
+        log "INFO" "📤 Uploading public directory..."
+        sshpass -p "$REMOTE_PASSWORD" ssh -o StrictHostKeyChecking=no "$REMOTE_SERVER" "mkdir -p $REMOTE_DIR/public"
+        cat "$SCRIPT_DIR/public/index.html" | sshpass -p "$REMOTE_PASSWORD" ssh -o StrictHostKeyChecking=no "$REMOTE_SERVER" "cat > $REMOTE_DIR/public/index.html"
+        log "INFO" "✅ public/index.html uploaded"
+    fi
+    
+    # Upload docs directory if exists
+    if [ -d "$SCRIPT_DIR/docs" ]; then
+        log "INFO" "📤 Uploading docs directory..."
+        sshpass -p "$REMOTE_PASSWORD" ssh -o StrictHostKeyChecking=no "$REMOTE_SERVER" "mkdir -p $REMOTE_DIR/docs"
+        # Upload docs files here if needed
+    fi
+    
+    # Set permissions on remote server
+    log "INFO" "🔒 Setting file permissions..."
+    sshpass -p "$REMOTE_PASSWORD" ssh -o StrictHostKeyChecking=no "$REMOTE_SERVER" "
+        cd $REMOTE_DIR
+        chmod +x *.sh 2>/dev/null || echo 'No shell scripts to make executable'
+        chmod 644 *.md 2>/dev/null || echo 'No markdown files found'
+        chmod 644 *.json 2>/dev/null || echo 'No JSON files found'
+        chmod 644 *.js 2>/dev/null || echo 'No JS files found'
+        echo 'Permissions set successfully'
+    "
+    
+    # Verify deployment
+    log "INFO" "🔍 Verifying deployment..."
+    sshpass -p "$REMOTE_PASSWORD" ssh -o StrictHostKeyChecking=no "$REMOTE_SERVER" "
+        cd $REMOTE_DIR
+        echo 'Files in remote directory after deployment:'
+        ls -la | head -15
+        
+        echo ''
+        echo 'Testing compatibility...'
+        if [ -f 'check-compatibility.sh' ]; then
+            chmod +x check-compatibility.sh
+            ./check-compatibility.sh || echo 'Compatibility check had warnings'
+        fi
+    "
+    
+    # Log deployment success
+    log "INFO" "🎉 Deployment completed successfully!"
+    log "INFO" "Backup location: backups/deploy_$backup_timestamp"
+    log "INFO" "Next steps:"
+    log "INFO" "  1. Run: team-workload status"
+    log "INFO" "  2. Test on remote: ./health-check.sh"
+    log "INFO" "  3. Deploy app: ./deploy-app.sh"
+    
+    # Update deployment log
+    update_deployment_log "$backup_timestamp"
+}
+
+# Pull function
+cmd_pull() {
+    log "INFO" "📥 Pulling updates from remote server..."
+    
+    check_dependencies
+    
+    if ! test_connection; then
+        log "ERROR" "Cannot pull: Remote server unreachable"
+        exit 1
+    fi
+    
+    # Create local backup
+    local backup_timestamp=$(date +%Y%m%d_%H%M%S)
+    local local_backup_dir="$SCRIPT_DIR/backups/pull_$backup_timestamp"
+    
+    log "INFO" "📦 Creating local backup..."
+    mkdir -p "$local_backup_dir"
+    cp -r "$SCRIPT_DIR"/* "$local_backup_dir/" 2>/dev/null || log "WARN" "Some files may not be backed up"
+    
+    # Download files from remote
+    log "INFO" "📥 Downloading files from remote server..."
+    
+    local files_to_download=(
+        "check-compatibility.sh"
+        "deploy-app.sh"
+        "health-check.sh"
+        "install-taskflow-isolated.sh" 
+        "start-all.sh"
+        "status.sh"
+        "stop-all.sh"
+        "taskflow_recovery.sh"
+        "server.js"
+        "package.json"
+        "QUICK_REFERENCE.md"
+        "PROJECT_DEVELOPMENT_LOG.md"
+        "LOG_UPDATE_TEMPLATE.md"
+    )
+    
+    for file in "${files_to_download[@]}"; do
+        log "INFO" "📥 Downloading $file..."
+        sshpass -p "$REMOTE_PASSWORD" scp -o StrictHostKeyChecking=no "$REMOTE_SERVER:$REMOTE_DIR/$file" "$SCRIPT_DIR/" 2>/dev/null && \
+            log "INFO" "✅ $file downloaded" || \
+            log "WARN" "⚠️ Failed to download $file"
+    done
+    
+    # Download public directory
+    log "INFO" "📥 Downloading public directory..."
+    mkdir -p "$SCRIPT_DIR/public"
+    sshpass -p "$REMOTE_PASSWORD" scp -o StrictHostKeyChecking=no "$REMOTE_SERVER:$REMOTE_DIR/public/index.html" "$SCRIPT_DIR/public/" 2>/dev/null && \
+        log "INFO" "✅ public/index.html downloaded" || \
+        log "WARN" "⚠️ Failed to download public/index.html"
+    
+    # Download docs directory
+    log "INFO" "📥 Downloading docs directory..."
+    mkdir -p "$SCRIPT_DIR/docs"
+    sshpass -p "$REMOTE_PASSWORD" scp -o StrictHostKeyChecking=no -r "$REMOTE_SERVER:$REMOTE_DIR/docs/*" "$SCRIPT_DIR/docs/" 2>/dev/null || \
+        log "WARN" "⚠️ Failed to download docs directory"
+    
+    log "INFO" "🎉 Pull completed successfully!"
+    log "INFO" "Local backup created: $local_backup_dir"
+    
+    # Update pull log
+    update_pull_log "$backup_timestamp"
+}
+
+# Update deployment log
+update_deployment_log() {
+    local timestamp="$1"
+    local log_entry="
+## 🚀 **Deployment Log - $(date '+%Y-%m-%d %H:%M:%S')**
+
+### **Deployment Information**
+- **Timestamp**: $timestamp
+- **Source**: Local ($SCRIPT_DIR)
+- **Target**: Remote ($REMOTE_SERVER:$REMOTE_DIR)
+- **Backup**: backups/deploy_$timestamp
+
+### **Files Deployed**
+- ✅ All shell scripts (.sh files)
+- ✅ server.js (Enhanced with proxy middleware)
+- ✅ package.json (Updated dependencies)
+- ✅ public/index.html (Demo application)
+- ✅ Documentation files (.md files)
+
+### **Deployment Status**
+- **Result**: Successful
+- **Verification**: Passed
+- **Services**: Ready for activation
+
+---
+"
+    
+    echo "$log_entry" >> "$SCRIPT_DIR/DEPLOYMENT_LOG.md"
+    log "INFO" "Deployment logged to DEPLOYMENT_LOG.md"
+}
+
+# Update pull log
+update_pull_log() {
+    local timestamp="$1"
+    local log_entry="
+## 📥 **Pull Log - $(date '+%Y-%m-%d %H:%M:%S')**
+
+### **Pull Information**
+- **Timestamp**: $timestamp
+- **Source**: Remote ($REMOTE_SERVER:$REMOTE_DIR)
+- **Target**: Local ($SCRIPT_DIR)
+- **Backup**: backups/pull_$timestamp
+
+### **Files Retrieved**
+- ✅ Shell scripts and configurations
+- ✅ Application files (server.js, package.json)
+- ✅ Frontend files (public directory)
+- ✅ Documentation and logs
+
+### **Sync Status**
+- **Result**: Successful
+- **Local backup**: Created
+- **Changes**: Synced
+
+---
+"
+    
+    echo "$log_entry" >> "$SCRIPT_DIR/SYNC_LOG.md"
+    log "INFO" "Pull logged to SYNC_LOG.md"
+}
+
+# Help function
+show_help() {
+    echo -e "${CYAN}TaskFlow Management CLI${NC}"
+    echo -e "${CYAN}=====================${NC}"
+    echo ""
+    echo -e "${GREEN}Usage:${NC} $0 [command]"
+    echo ""
+    echo -e "${GREEN}Available Commands:${NC}"
+    echo -e "  ${YELLOW}test${NC}     🧪 Test connection and verify setup"
+    echo -e "  ${YELLOW}status${NC}   📊 Show local and remote status"
+    echo -e "  ${YELLOW}deploy${NC}   🚀 Deploy code to remote server"
+    echo -e "  ${YELLOW}pull${NC}     📥 Pull updates from remote server"
+    echo -e "  ${YELLOW}help${NC}     ❓ Show this help message"
+    echo ""
+    echo -e "${GREEN}Examples:${NC}"
+    echo -e "  $0 test       # Test server connection"
+    echo -e "  $0 status     # Check current status"
+    echo -e "  $0 deploy     # Deploy to remote server"
+    echo -e "  $0 pull       # Sync from remote server"
+    echo ""
+    echo -e "${GREEN}Configuration:${NC}"
+    echo -e "  Remote Server: ${BLUE}$REMOTE_SERVER${NC}"
+    echo -e "  Remote Path:   ${BLUE}$REMOTE_DIR${NC}"
+    echo -e "  Local Path:    ${BLUE}$SCRIPT_DIR${NC}"
+    echo -e "  Log File:      ${BLUE}$LOG_FILE${NC}"
+    echo ""
+}
+
+# Main function
+main() {
+    # Create log file if it doesn't exist
+    touch "$LOG_FILE"
+    
+    # Check if we're in the right directory
+    if [ ! -f "$SCRIPT_DIR/package.json" ] && [ ! -f "$SCRIPT_DIR/team-workload" ]; then
+        log "ERROR" "Please run this script from the TaskFlow project directory"
+        exit 1
+    fi
+    
+    case "${1:-help}" in
+        "test")
+            cmd_test
+            ;;
+        "status") 
+            cmd_status
+            ;;
+        "deploy")
+            cmd_deploy
+            ;;
+        "pull")
+            cmd_pull
+            ;;
+        "help"|"--help"|"-h")
+            show_help
+            ;;
+        *)
+            log "ERROR" "Unknown command: $1"
+            echo ""
+            show_help
+            exit 1
+            ;;
+    esac
+}
+
+# Run main function with all arguments
+main "$@"

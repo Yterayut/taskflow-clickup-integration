@@ -1,0 +1,44 @@
+{
+  "name": "taskflow-clickup-integration",
+  "version": "1.0.0-baseline",
+  "description": "TaskFlow Team Management Dashboard with ClickUp Integration",
+  "main": "backend.js",
+  "scripts": {
+    "start": "node backend.js",
+    "dev": "nodemon backend.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "clickup",
+    "team-management", 
+    "dashboard",
+    "react",
+    "nodejs",
+    "oauth2"
+  ],
+  "author": "Teerayut Yeerahem <yterayut@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Yterayut/taskflow-clickup-integration.git"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6",
+    "dotenv": "^16.3.1",
+    "axios": "^1.6.0",
+    "cors": "^2.8.5",
+    "jsonwebtoken": "^9.0.2",
+    "crypto": "^1.0.1",
+    "redis": "^4.6.0",
+    "express-rate-limit": "^7.1.0",
+    "helmet": "^7.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}
