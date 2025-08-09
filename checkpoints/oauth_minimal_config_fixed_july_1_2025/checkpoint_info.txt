@@ -1,0 +1,14 @@
+Checkpoint Name: oauth_minimal_config_fixed_july_1_2025
+Created: Tue  1 Jul 2025 14:07:27 +07
+Server: 192.168.20.10
+Path: /home/one-climate/team-workload
+Created By: Automated Checkpoint Script
+Purpose: Production state backup for rollback capability
+Files Backed Up:
+- backend_comprehensive_enhanced.js
+- index.html
+- package.json
+- node_modules/ (if exists)
+- *.log files
+- process_state.txt
+- health_check.json

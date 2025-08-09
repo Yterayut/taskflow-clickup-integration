@@ -1,0 +1,109 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "yterayut@gmail.com",
+      "auth_type": "oauth",
+      "name": "Teerayut Yeerahem",
+      "role": "Manager",
+      "permissions": ["dashboard", "analytics", "team", "projects", "reports", "settings"]
+    },
+    {
+      "id": 2,
+      "email": "chaiwutwck@gmail.com",
+      "password": "12345",
+      "name": "ชัยวุฒิ ไวเชิงค้า",
+      "role": "Team Lead",
+      "permissions": ["dashboard", "analytics", "team", "projects", "reports"]
+    },
+    {
+      "id": 3,
+      "email": "atthakorn.na@ku.th",
+      "password": "12345",
+      "name": "Athakorn NATUNG",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    },
+    {
+      "id": 4,
+      "email": "sahassavas.rim@gmail.com",
+      "password": "12345",
+      "name": "Sahatsawat Rimphongern",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    },
+    {
+      "id": 5,
+      "email": "primshi1719@gmail.com",
+      "password": "12345",
+      "name": "มัทนพร แก้วอําไพ",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    },
+    {
+      "id": 6,
+      "email": "panuwantung@gmail.com",
+      "password": "12345",
+      "name": "PANUWAT PROMRAKSA",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    },
+    {
+      "id": 7,
+      "email": "jirapat.sripanya@gmail.com",
+      "password": "12345",
+      "name": "Jirapat Sripanya",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    },
+    {
+      "id": 8,
+      "email": "chutithep_ar@kkumail.com",
+      "password": "12345",
+      "name": "Chutithep Phakdeebut",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    },
+    {
+      "id": 9,
+      "email": "pongsanzakom@gmail.com",
+      "password": "12345",
+      "name": "Pong",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    },
+    {
+      "id": 10,
+      "email": "nisareen.dk@gmail.com",
+      "password": "12345",
+      "name": "Nisareen Daklee",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    },
+    {
+      "id": 11,
+      "email": "jthammakit2546@gmail.com",
+      "password": "12345",
+      "name": "Thammakit Ch",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    }
+  ],
+  "roles": {
+    "Manager": {
+      "description": "Full system access with administrative privileges",
+      "permissions": ["dashboard", "analytics", "team", "projects", "reports", "settings"],
+      "level": 3
+    },
+    "Team Lead": {
+      "description": "Team management with limited administrative access",
+      "permissions": ["dashboard", "analytics", "team", "projects", "reports"],
+      "level": 2
+    },
+    "Employee": {
+      "description": "Basic access to view tasks and team information",
+      "permissions": ["dashboard", "team", "projects"],
+      "level": 1
+    }
+  }
+}

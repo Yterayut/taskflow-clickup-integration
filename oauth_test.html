@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ClickUp OAuth Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-case { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔧 ClickUp OAuth Troubleshooting</h1>
+    
+    <div class="test-case">
+        <h3>Current Configuration</h3>
+        <pre id="config">Loading...</pre>
+    </div>
+    
+    <div class="test-case">
+        <h3>OAuth URL Tests</h3>
+        <button onclick="testOriginalURL()">Test Original (/api/oauth)</button>
+        <button onclick="testNewURL()">Test New (/oauth)</button>
+        <button onclick="testWithHTTPS()">Test with HTTPS Redirect</button>
+        <div id="test-results"></div>
+    </div>
+    
+    <div class="test-case">
+        <h3>Direct OAuth Attempts</h3>
+        <button onclick="goToOAuth1()">Original Endpoint</button>
+        <button onclick="goToOAuth2()">New Endpoint</button>
+        <button onclick="goToOAuth3()">HTTPS Redirect</button>
+    </div>
+
+    <script>
+        // Load current configuration
+        fetch('/health')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('config').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('config').textContent = 'Error loading config: ' + error;
+            });
+
+        function testOriginalURL() {
+            testOAuthURL('https://app.clickup.com/api/oauth/authorize?client_id=DA3L6I2MS7RC39PFH7PZGRZAG4A1J8LL&redirect_uri=http%3A%2F%2Flocalhost%3A7810%2Fauth%2Fcallback&response_type=code', 'Original');
+        }
+
+        function testNewURL() {
+            testOAuthURL('https://app.clickup.com/oauth/authorize?client_id=DA3L6I2MS7RC39PFH7PZGRZAG4A1J8LL&redirect_uri=http%3A%2F%2Flocalhost%3A7810%2Fauth%2Fcallback&response_type=code', 'New');
+        }
+
+        function testWithHTTPS() {
+            testOAuthURL('https://app.clickup.com/oauth/authorize?client_id=DA3L6I2MS7RC39PFH7PZGRZAG4A1J8LL&redirect_uri=https%3A%2F%2F192.168.20.10%3A7810%2Fauth%2Fcallback&response_type=code', 'HTTPS');
+        }
+
+        function testOAuthURL(url, name) {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML += `<p>Testing ${name} endpoint...</p>`;
+            
+            fetch(url, { mode: 'no-cors' })
+                .then(() => {
+                    resultsDiv.innerHTML += `<p class="success">✅ ${name}: Accessible</p>`;
+                })
+                .catch(error => {
+                    resultsDiv.innerHTML += `<p class="error">❌ ${name}: ${error.message}</p>`;
+                });
+        }
+
+        function goToOAuth1() {
+            window.open('https://app.clickup.com/api/oauth/authorize?client_id=DA3L6I2MS7RC39PFH7PZGRZAG4A1J8LL&redirect_uri=http%3A%2F%2Flocalhost%3A7810%2Fauth%2Fcallback&response_type=code', '_blank');
+        }
+
+        function goToOAuth2() {
+            window.open('https://app.clickup.com/oauth/authorize?client_id=DA3L6I2MS7RC39PFH7PZGRZAG4A1J8LL&redirect_uri=http%3A%2F%2Flocalhost%3A7810%2Fauth%2Fcallback&response_type=code', '_blank');
+        }
+
+        function goToOAuth3() {
+            window.open('https://app.clickup.com/oauth/authorize?client_id=DA3L6I2MS7RC39PFH7PZGRZAG4A1J8LL&redirect_uri=https%3A%2F%2F192.168.20.10%3A7810%2Fauth%2Fcallback&response_type=code', '_blank');
+        }
+    </script>
+</body>
+</html>

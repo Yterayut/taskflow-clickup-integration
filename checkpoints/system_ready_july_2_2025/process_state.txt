@@ -1,0 +1,4 @@
+one-cli+ 1825719  0.0  0.0   7372  1684 ?        S    Jul01   0:00 bash -c ps aux | grep taskflow_auth_backend | grep -v grep | awk '{print $2}' | xargs kill && sleep 2 && cd /home/one-climate/team-workload && PORT=7812 nohup node taskflow_auth_backend.js > auth_backend.log 2>&1 & echo 'Backend restarted with real ClickUp data fetching\!'
+one-cli+ 1825728  0.0  1.0 11794352 81304 ?      Sl   Jul01   0:02 node taskflow_auth_backend.js
+one-cli+ 1846737  0.0  0.0   7372  3656 ?        Ss   02:03   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/system_ready_july_2_2025/process_state.txt
+one-cli+ 1846739  0.0  0.0   6480  2332 ?        R    02:03   0:00 grep backend

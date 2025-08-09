@@ -1,0 +1,19 @@
+[Unit]
+Description=TaskFlow Pro Backend Service
+After=network.target
+
+[Service]
+Type=simple
+User=one-climate
+WorkingDirectory=/home/one-climate/team-workload
+ExecStart=/usr/bin/node master_auth_service.js
+Restart=always
+RestartSec=10
+Environment=NODE_ENV=production
+
+# Logging
+StandardOutput=append:/home/one-climate/team-workload/master_auth.log
+StandardError=append:/home/one-climate/team-workload/master_auth.log
+
+[Install]
+WantedBy=multi-user.target

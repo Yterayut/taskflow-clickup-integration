@@ -1,0 +1,85 @@
+.dashboard-layout {
+  min-height: 100vh;
+}
+
+.dashboard-layout .logo {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 16px;
+  border-radius: 6px;
+}
+
+.dashboard-layout .logo h3 {
+  color: white;
+  margin: 0;
+  font-weight: 600;
+}
+
+.dashboard-layout .ant-layout-sider-collapsed .logo h3 {
+  font-size: 18px;
+}
+
+.dashboard-layout .ant-menu-dark.ant-menu-inline .ant-menu-item-selected {
+  background-color: #1890ff;
+}
+
+.dashboard-layout .ant-layout-header {
+  padding: 0 24px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dashboard-layout .ant-layout-content {
+  margin: 24px;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-layout .user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.dashboard-layout .user-info:hover {
+  background-color: #f5f5f5;
+}
+
+.dashboard-layout .status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-layout .status-indicator.online {
+  color: #52c41a;
+}
+
+.dashboard-layout .status-indicator.offline {
+  color: #f5222d;
+}
+
+.dashboard-layout .notification-badge {
+  position: relative;
+}
+
+.dashboard-layout .notification-badge .ant-badge-count {
+  right: -2px;
+  top: -2px;
+}

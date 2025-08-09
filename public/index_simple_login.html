@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - เข้าสู่ระบบ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .login-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: #64748b;
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        .role-button {
+            width: 100%;
+            padding: 1.2rem;
+            margin: 0.8rem 0;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            text-decoration: none;
+            color: white;
+        }
+
+        .role-button.manager {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+        }
+
+        .role-button.teamlead {
+            background: linear-gradient(45deg, #48cae4, #023e8a);
+        }
+
+        .role-button.employee {
+            background: linear-gradient(45deg, #06ffa5, #0d7377);
+        }
+
+        .role-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .features {
+            margin-top: 2rem;
+            padding: 1.2rem;
+            background: #f8fafc;
+            borderRadius: 12px;
+            font-size: 0.9rem;
+            color: #64748b;
+            text-align: left;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 1rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .error {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #fee2e2;
+            color: #dc2626;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .success {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #dcfce7;
+            color: #059669;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1 class="login-title">📊 TaskFlow Pro</h1>
+        <p class="login-subtitle">ระบบจัดการทีมงานขั้นสูง</p>
+        
+        <button class="role-button manager" onclick="login('manager')">
+            👨‍💼 เข้าสู่ระบบในฐานะ ผู้จัดการ
+        </button>
+        
+        <button class="role-button teamlead" onclick="login('teamlead')">
+            👨‍💻 เข้าสู่ระบบในฐานะ หัวหน้าทีม
+        </button>
+        
+        <button class="role-button employee" onclick="login('employee')">
+            👨‍🔧 เข้าสู่ระบบในฐานะ พนักงาน
+        </button>
+
+        <div class="loading" id="loading">
+            🔄 กำลังเข้าสู่ระบบ...
+        </div>
+
+        <div class="error" id="error">
+            ❌ ไม่สามารถเข้าสู่ระบบได้ กรุณาลองอีกครั้ง
+        </div>
+
+        <div class="success" id="success">
+            ✅ เข้าสู่ระบบสำเร็จ กำลังเปลี่ยนหน้า...
+        </div>
+
+        <div class="features">
+            <strong>🚀 ฟีเจอร์ขั้นสูง:</strong><br />
+            ✅ ระบบควบคุมการเข้าถึงตามบทบาท<br />
+            ✅ เชื่อมต่อกับ ClickUp พร้อมใช้งาน<br />
+            ✅ วิเคราะห์ทีมแบบ Real-time<br />
+            ✅ จัดการภาระงานขั้นสูง<br />
+            ✅ ข้อมูลทีมจริง: กิตติพงษ์, นภัสสร, สมชาย, วิทยา
+        </div>
+    </div>
+
+    <script>
+        function showElement(id) {
+            document.getElementById(id).style.display = 'block';
+        }
+
+        function hideElement(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function hideAllMessages() {
+            hideElement('loading');
+            hideElement('error');
+            hideElement('success');
+        }
+
+        async function login(role) {
+            hideAllMessages();
+            showElement('loading');
+
+            try {
+                const response = await fetch('/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ role: role })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // เก็บข้อมูลการเข้าสู่ระบบ
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userData', JSON.stringify(data.user));
+                    
+                    hideElement('loading');
+                    showElement('success');
+                    
+                    // เปลี่ยนไปหน้า dashboard หลังจาก 1.5 วินาที
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    hideElement('loading');
+                    showElement('error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                hideElement('loading');
+                showElement('error');
+            }
+        }
+
+        // ตรวจสอบว่าเข้าสู่ระบบแล้วหรือยัง
+        window.onload = function() {
+            const token = localStorage.getItem('authToken');
+            const userData = localStorage.getItem('userData');
+            
+            if (token && userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    document.body.innerHTML = `
+                        <div class="login-container">
+                            <h1 class="login-title">🎉 ยินดีต้อนรับ!</h1>
+                            <p class="login-subtitle">สวัสดี, ${user.name}</p>
+                            <div style="padding: 2rem; background: #f0fdf4; border-radius: 12px; margin: 2rem 0;">
+                                <h3 style="color: #15803d; margin-bottom: 1rem;">✅ เข้าสู่ระบบสำเร็จแล้ว</h3>
+                                <p style="color: #166534; margin-bottom: 1rem;">บทบาท: ${user.role}</p>
+                                <p style="color: #166534; margin-bottom: 1rem;">อีเมล: ${user.email}</p>
+                                <p style="color: #166534;">สิทธิ์: ${user.permissions ? user.permissions.join(', ') : 'ไม่ระบุ'}</p>
+                            </div>
+                            <button class="role-button manager" onclick="logout()" style="background: linear-gradient(45deg, #6b7280, #374151);">
+                                🚪 ออกจากระบบ
+                            </button>
+                            <div class="features">
+                                <strong>📊 ระบบ Dashboard:</strong><br />
+                                🔧 ระบบกำลังพัฒนา Dashboard แบบเต็มรูปแบบ<br />
+                                📈 แสดง KPI และข้อมูลตามบทบาทของคุณ<br />
+                                👥 จัดการทีมและงานได้ตามสิทธิ์ที่กำหนด<br />
+                                🔄 ข้อมูล Real-time จากเซิร์ฟเวอร์
+                            </div>
+                        </div>
+                    `;
+                } catch (error) {
+                    console.error('Error parsing user data:', error);
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userData');
+                }
+            }
+        };
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
+            localStorage.removeItem('dashboardData');
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>

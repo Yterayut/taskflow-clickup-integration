@@ -1,0 +1,2 @@
+one-cli+ 1489580  0.0  0.0   7372  3664 ?        Ss   00:20   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/clickup_only_url_routing_fixed_29_june_2025/process_state.txt
+one-cli+ 1489582  0.0  0.0   6480  2308 ?        S    00:20   0:00 grep backend

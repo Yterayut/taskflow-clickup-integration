@@ -1,0 +1,3904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - Team Management Dashboard</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            /* Light theme */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #64748b;
+            --border-color: #e2e8f0;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        
+        [data-theme="dark"] {
+            /* Dark theme */
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --border-color: #475569;
+            --accent-color: #60a5fa;
+            --accent-hover: #3b82f6;
+            --success-color: #34d399;
+            --warning-color: #fbbf24;
+            --danger-color: #f87171;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+        
+        /* Login Page Styles */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: var(--bg-primary);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 2rem;
+            background: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .login-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .login-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .login-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+        
+        /* Header */
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-right: 3rem;
+        }
+        
+        .header-logo img {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+        
+        .header-search {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+            margin-right: 2rem;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            padding-right: 3rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .theme-toggle {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+        }
+        
+        .theme-toggle:hover {
+            background: var(--bg-tertiary);
+            color: var(--accent-color);
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .user-profile:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 70px;
+            width: 280px;
+            height: calc(100vh - 70px);
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 0;
+            overflow-y: auto;
+            z-index: 50;
+        }
+        
+        .sidebar-nav {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin: 0.25rem 1rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: var(--text-secondary);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: var(--bg-secondary);
+            color: var(--accent-color);
+        }
+        
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            margin-top: 70px;
+            padding: 2rem;
+            min-height: calc(100vh - 70px);
+        }
+        
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 1rem;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .card-action {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .card-action:hover {
+            background: var(--bg-secondary);
+            color: var(--accent-color);
+        }
+        
+        /* KPI Cards */
+        .kpi-card {
+            text-align: center;
+            padding: 2rem 1.5rem;
+        }
+        
+        .kpi-value {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .kpi-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .kpi-change {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .kpi-change.positive {
+            color: var(--success-color);
+        }
+        
+        .kpi-change.negative {
+            color: var(--danger-color);
+        }
+        
+        /* Task Management */
+        .task-form {
+            background: var(--bg-primary);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+        
+        /* Task List */
+        .task-list {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        
+        .task-header {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr auto;
+            gap: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .task-row {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr auto;
+            gap: 1rem;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .task-row:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .task-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .task-assignee {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .assignee-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .priority-badge, .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .priority-high {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .priority-medium {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .priority-low {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+        
+        .status-todo {
+            background: rgba(107, 114, 128, 0.1);
+            color: var(--text-tertiary);
+        }
+        
+        .status-progress {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-color);
+        }
+        
+        .status-done {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .task-action {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            background: var(--bg-secondary);
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .task-action:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        /* Team Grid */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .team-member-card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .team-member-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .member-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0 auto 1rem;
+        }
+        
+        .member-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .member-role {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .member-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Ranking Component */
+        .ranking-card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .ranking-item:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .rank-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .rank-number.gold {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #92400e;
+        }
+        
+        .rank-number.silver {
+            background: linear-gradient(135deg, #c0c0c0, #e5e7eb);
+            color: #374151;
+        }
+        
+        .rank-number.bronze {
+            background: linear-gradient(135deg, #cd7f32, #d97706);
+            color: white;
+        }
+        
+        .rank-info {
+            flex: 1;
+        }
+        
+        .rank-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .rank-score {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .rank-points {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .header {
+                padding: 0 1rem;
+            }
+            
+            .header-search {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .login-card {
+                padding: 2rem;
+                margin: 1rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .task-header, .task-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            
+            .task-header {
+                display: none;
+            }
+            
+            .task-row {
+                display: block;
+                padding: 1rem;
+            }
+            
+            .task-row > div {
+                margin-bottom: 0.5rem;
+            }
+            
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+        
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Sync Status */
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .sync-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-color);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .sync-indicator.syncing {
+            background: var(--warning-color);
+            animation: spin 1s linear infinite;
+        }
+        
+        .sync-indicator.error {
+            background: var(--danger-color);
+            animation: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Theme Context
+        const ThemeContext = React.createContext();
+
+        // Main App Component
+        function App() {
+            const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+            const [isAuthenticated, setIsAuthenticated] = useState(false);
+            const [currentUser, setCurrentUser] = useState(null);
+            const [loading, setLoading] = useState(true);
+            const [currentView, setCurrentView] = useState('dashboard');
+            const [sidebarOpen, setSidebarOpen] = useState(false);
+            const [syncStatus, setSyncStatus] = useState({ status: 'idle', lastSync: null });
+
+            useEffect(() => {
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+            }, [theme]);
+
+            useEffect(() => {
+                checkAuthStatus();
+                if (isAuthenticated) {
+                    startAutoSync();
+                }
+            }, [isAuthenticated]);
+
+            const checkAuthStatus = async () => {
+                try {
+                    // Check URL parameters for auth status
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const authStatus = urlParams.get('auth');
+                    const token = urlParams.get('token');
+                    
+                    if (authStatus === 'success' && token) {
+                        // Store the token and set authenticated
+                        localStorage.setItem('authToken', token);
+                        localStorage.setItem('loginMode', 'clickup');
+                        setIsAuthenticated(true);
+                        setCurrentUser({ name: 'ClickUp User', token: token });
+                        // Clean URL
+                        window.history.replaceState({}, '', window.location.pathname);
+                        setLoading(false);
+                        return;
+                    }
+                    
+                    if (authStatus === 'error') {
+                        console.error('Authentication failed');
+                        setLoading(false);
+                        return;
+                    }
+                    
+                    // Check for existing token
+                    const existingToken = localStorage.getItem('authToken');
+                    const existingUser = localStorage.getItem('currentUser');
+                    const loginMode = localStorage.getItem('loginMode');
+                    
+                    if (existingToken) {
+                        if ((loginMode === 'token' || loginMode === 'credentials') && existingUser) {
+                            // Token/Credentials mode authentication
+                            const userData = JSON.parse(existingUser);
+                            setIsAuthenticated(true);
+                            setCurrentUser(userData);
+                            setLoading(false);
+                            return;
+                        } else if (loginMode === 'clickup') {
+                            // ClickUp OAuth mode authentication
+                            setIsAuthenticated(true);
+                            setCurrentUser({ name: 'ClickUp User', token: existingToken });
+                            setLoading(false);
+                            return;
+                        }
+                    }
+                    
+                    // Try API auth status check for ClickUp mode
+                    try {
+                        const response = await fetch('http://192.168.20.10:777/api/v1/auth/status');
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.authenticated) {
+                                setIsAuthenticated(data.authenticated);
+                                setCurrentUser(data.user);
+                                localStorage.setItem('loginMode', 'clickup');
+                            }
+                        }
+                    } catch (apiError) {
+                        console.log('API auth check skipped:', apiError.message);
+                    }
+                } catch (error) {
+                    console.error('Auth check failed:', error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const startAutoSync = () => {
+                // Auto-sync every 30 minutes
+                const interval = setInterval(async () => {
+                    await syncData();
+                }, 30 * 60 * 1000);
+
+                return () => clearInterval(interval);
+            };
+
+            const syncData = async () => {
+                setSyncStatus({ status: 'syncing', lastSync: syncStatus.lastSync });
+                try {
+                    const response = await fetch('http://192.168.20.10:777/api/v1/test/clickup-data', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        setSyncStatus({ 
+                            status: 'success', 
+                            lastSync: new Date().toISOString() 
+                        });
+                    } else {
+                        setSyncStatus({ 
+                            status: 'error', 
+                            lastSync: syncStatus.lastSync 
+                        });
+                    }
+                } catch (error) {
+                    console.error('Sync failed:', error);
+                    setSyncStatus({ 
+                        status: 'error', 
+                        lastSync: syncStatus.lastSync 
+                    });
+                }
+            };
+
+            const toggleTheme = () => {
+                setTheme(theme === 'light' ? 'dark' : 'light');
+            };
+
+            const login = async (userData = null) => {
+                try {
+                    if (userData) {
+                        // Direct login with credentials
+                        setIsAuthenticated(true);
+                        setCurrentUser(userData);
+                        return;
+                    }
+                    
+                    // ClickUp OAuth fallback
+                    const response = await fetch('http://192.168.20.10:777/api/v1/auth/clickup/auth-url');
+                    const data = await response.json();
+                    if (data.authorization_url) {
+                        window.location.href = data.authorization_url;
+                    }
+                } catch (error) {
+                    console.error('Failed to get auth URL:', error);
+                }
+            };
+
+            const logout = async () => {
+                try {
+                    await fetch('http://192.168.20.10:777/api/v1/auth/logout', { method: 'POST' });
+                } catch (error) {
+                    console.error('Logout failed:', error);
+                } finally {
+                    // Clear all authentication data
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('currentUser');
+                    localStorage.removeItem('loginMode');
+                    setIsAuthenticated(false);
+                    setCurrentUser(null);
+                }
+            };
+
+            if (loading) {
+                return (
+                    <div className="loading">
+                        <div className="spinner"></div>
+                        Loading...
+                    </div>
+                );
+            }
+
+            if (!isAuthenticated) {
+                return <LoginPage onLogin={login} theme={theme} onToggleTheme={toggleTheme} />;
+            }
+
+            return (
+                <ThemeContext.Provider value={{ theme, toggleTheme }}>
+                    <div className="app">
+                        <Header 
+                            user={currentUser} 
+                            onLogout={logout} 
+                            onToggleTheme={toggleTheme}
+                            theme={theme}
+                            syncStatus={syncStatus}
+                            onManualSync={syncData}
+                        />
+                        <Sidebar 
+                            currentView={currentView} 
+                            onViewChange={setCurrentView}
+                            isOpen={sidebarOpen}
+                            onToggle={() => setSidebarOpen(!sidebarOpen)}
+                            userRole={currentUser?.role}
+                        />
+                        <main className="main-content">
+                            <MainContent 
+                                currentView={currentView} 
+                                user={currentUser}
+                                onSync={syncData}
+                                syncStatus={syncStatus}
+                            />
+                        </main>
+                    </div>
+                </ThemeContext.Provider>
+            );
+        }
+
+        // User Database
+        const userDatabase = {
+            'yterayut@gmail.com': {
+                name: 'Teerayut Yeerahem',
+                email: 'yterayut@gmail.com',
+                role: 'Manager',
+                password: '12345'
+            },
+            'chaiwutwck@gmail.com': {
+                name: 'ชัยวุฒิ ไวเชิงค้า',
+                email: 'chaiwutwck@gmail.com',
+                role: 'Team Lead',
+                password: '12345'
+            },
+            'atthakorn.na@ku.th': {
+                name: 'Athakorn NATUNG',
+                email: 'atthakorn.na@ku.th',
+                role: 'Employee',
+                password: '12345'
+            },
+            'sahassavas.rim@gmail.com': {
+                name: 'Sahatsawat Rimphongern',
+                email: 'sahassavas.rim@gmail.com',
+                role: 'Employee',
+                password: '12345'
+            },
+            'primshi1719@gmail.com': {
+                name: 'มัทนพร แก้วอําไพ',
+                email: 'primshi1719@gmail.com',
+                role: 'Employee',
+                password: '12345'
+            },
+            'panuwantung@gmail.com': {
+                name: 'PANUWAT PROMRAKSA',
+                email: 'panuwantung@gmail.com',
+                role: 'Employee',
+                password: '12345'
+            },
+            'jirapat.sripanya@gmail.com': {
+                name: 'Jirapat Sripanya',
+                email: 'jirapat.sripanya@gmail.com',
+                role: 'Employee',
+                password: '12345'
+            },
+            'chutithep_ar@kkumail.com': {
+                name: 'Chutithep Phakdeebut',
+                email: 'chutithep_ar@kkumail.com',
+                role: 'Employee',
+                password: '12345'
+            },
+            'pongsanzakom@gmail.com': {
+                name: 'Pong',
+                email: 'pongsanzakom@gmail.com',
+                role: 'Employee',
+                password: '12345'
+            },
+            'nisareen.dk@gmail.com': {
+                name: 'Nisareen Daklee',
+                email: 'nisareen.dk@gmail.com',
+                role: 'Employee',
+                password: '12345'
+            },
+            'jthammakit2546@gmail.com': {
+                name: 'Thammakit Ch',
+                email: 'jthammakit2546@gmail.com',
+                role: 'Employee',
+                password: '12345'
+            }
+        };
+
+        // Login Page Component
+        function LoginPage({ onLogin, theme, onToggleTheme }) {
+            const [username, setUsername] = useState('');
+            const [password, setPassword] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState('');
+
+            const handleLogin = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError('');
+
+                try {
+                    // Check user credentials
+                    const user = userDatabase[username.toLowerCase()];
+                    
+                    if (!user) {
+                        throw new Error('User not found. Please check your email address.');
+                    }
+                    
+                    if (user.password !== password) {
+                        throw new Error('Invalid password. Please try again.');
+                    }
+
+                    // Get existing ClickUp token
+                    const existingToken = localStorage.getItem('authToken') || '282686567_c5e69fe6e401704bc5ea0761cb568b5d271c0778db54bb7862315f8e1e81a2a8';
+                    
+                    const userData = {
+                        ...user,
+                        token: existingToken
+                    };
+                    
+                    localStorage.setItem('authToken', existingToken);
+                    localStorage.setItem('currentUser', JSON.stringify(userData));
+                    localStorage.setItem('loginMode', 'credentials');
+                    
+                    onLogin(userData);
+                    
+                } catch (error) {
+                    console.error('Login failed:', error);
+                    setError(error.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="login-container">
+                    <div className="login-card">
+                        <div className="login-logo">
+                            <img 
+                                src="https://oneclimate.one.th/_next/static/media/logo-oneClimate.abb1dc61.svg" 
+                                alt="One Climate Logo"
+                                style={{ width: '60px', height: '60px' }}
+                                onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'flex';
+                                }}
+                            />
+                            <div style={{ display: 'none', fontSize: '2rem' }}>
+                                <i className="fas fa-leaf"></i>
+                            </div>
+                        </div>
+                        <h1 className="login-title">TaskFlow Pro</h1>
+                        <p className="login-subtitle">
+                            Sign in to access your team management dashboard
+                        </p>
+                        
+                        <form onSubmit={handleLogin}>
+                            <div className="form-group">
+                                <label className="form-label">Username (Email)</label>
+                                <input
+                                    type="email"
+                                    className="form-input"
+                                    placeholder="Enter your email address"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    required
+                                    style={{ margin: 0 }}
+                                />
+                            </div>
+                            
+                            <div className="form-group">
+                                <label className="form-label">Password</label>
+                                <input
+                                    type="password"
+                                    className="form-input"
+                                    placeholder="Enter your password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    style={{ margin: 0 }}
+                                />
+                            </div>
+
+                            {error && (
+                                <div style={{ 
+                                    color: 'var(--danger-color)', 
+                                    fontSize: '0.85rem', 
+                                    marginBottom: '1rem',
+                                    padding: '0.75rem',
+                                    background: 'rgba(239, 68, 68, 0.1)',
+                                    borderRadius: '8px',
+                                    border: '1px solid rgba(239, 68, 68, 0.2)'
+                                }}>
+                                    <i className="fas fa-exclamation-triangle" style={{ marginRight: '0.5rem' }}></i>
+                                    {error}
+                                </div>
+                            )}
+                            
+                            <button 
+                                type="submit" 
+                                className="login-btn"
+                                disabled={loading}
+                                style={{ 
+                                    opacity: loading ? 0.7 : 1,
+                                    cursor: loading ? 'not-allowed' : 'pointer'
+                                }}
+                            >
+                                {loading ? (
+                                    <>
+                                        <div className="spinner" style={{ width: '16px', height: '16px', marginRight: '0.5rem' }}></div>
+                                        Signing in...
+                                    </>
+                                ) : (
+                                    <>
+                                        <i className="fas fa-sign-in-alt"></i>
+                                        Sign In
+                                    </>
+                                )}
+                            </button>
+                        </form>
+
+                        <div style={{ 
+                            marginTop: '2rem', 
+                            padding: '1rem', 
+                            background: 'var(--bg-secondary)', 
+                            borderRadius: '8px',
+                            fontSize: '0.85rem',
+                            color: 'var(--text-secondary)'
+                        }}>
+                            <p style={{ margin: 0, fontWeight: '600', marginBottom: '0.5rem' }}>Demo Credentials:</p>
+                            <p style={{ margin: 0 }}>Manager: yterayut@gmail.com</p>
+                            <p style={{ margin: 0 }}>Team Lead: chaiwutwck@gmail.com</p>
+                            <p style={{ margin: 0 }}>Employee: atthakorn.na@ku.th</p>
+                            <p style={{ margin: 0, marginTop: '0.5rem' }}>Password: 12345</p>
+                        </div>
+                        
+                        <button 
+                            type="button"
+                            className="theme-toggle" 
+                            onClick={onToggleTheme}
+                            style={{ 
+                                marginTop: '1rem',
+                                width: '100%',
+                                background: 'transparent',
+                                border: '1px solid var(--border-color)',
+                                color: 'var(--text-secondary)'
+                            }}
+                        >
+                            <i className={`fas fa-${theme === 'light' ? 'moon' : 'sun'}`}></i>
+                            {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // Header Component
+        function Header({ user, onLogout, onToggleTheme, theme, syncStatus, onManualSync }) {
+            return (
+                <header className="header">
+                    <div className="header-logo">
+                        <img 
+                            src="https://oneclimate.one.th/_next/static/media/logo-oneClimate.abb1dc61.svg" 
+                            alt="One Climate"
+                            onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'block';
+                            }}
+                        />
+                        <div style={{ display: 'none', fontSize: '1.5rem', color: 'var(--accent-color)' }}>
+                            <i className="fas fa-leaf"></i>
+                        </div>
+                        <span className="header-title">TaskFlow Pro</span>
+                    </div>
+                    
+                    <div className="header-search">
+                        <input 
+                            type="text" 
+                            className="search-input" 
+                            placeholder="Search tasks, projects, or team members..."
+                        />
+                        <i className="fas fa-search search-icon"></i>
+                    </div>
+                    
+                    <div className="header-actions">
+                        <div className="sync-status">
+                            <div className={`sync-indicator ${syncStatus.status}`}></div>
+                            <span>
+                                {syncStatus.status === 'syncing' ? 'Syncing...' : 
+                                 syncStatus.status === 'error' ? 'Sync Error' : 'Synced'}
+                            </span>
+                            <button 
+                                className="btn btn-secondary"
+                                onClick={onManualSync}
+                                disabled={syncStatus.status === 'syncing'}
+                                style={{ padding: '0.5rem', marginLeft: '0.5rem' }}
+                            >
+                                <i className="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        
+                        <button className="theme-toggle" onClick={onToggleTheme}>
+                            <i className={`fas fa-${theme === 'light' ? 'moon' : 'sun'}`}></i>
+                        </button>
+                        
+                        <div className="user-profile" onClick={onLogout}>
+                            <div className="user-avatar">
+                                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                            </div>
+                            <span>{user?.name || 'User'}</span>
+                        </div>
+                    </div>
+                </header>
+            );
+        }
+
+        // Sidebar Component
+        function Sidebar({ currentView, onViewChange, isOpen, onToggle, userRole }) {
+            const getNavigationByRole = (role) => {
+                const baseNavigation = [
+                    { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-chart-line' },
+                    { id: 'my-tasks', label: 'My Tasks', icon: 'fas fa-tasks' }
+                ];
+
+                switch (role) {
+                    case 'Manager':
+                        return [
+                            ...baseNavigation,
+                            { id: 'team-overview', label: 'Team Overview', icon: 'fas fa-users' },
+                            { id: 'employees', label: 'Employee Management', icon: 'fas fa-user-friends' },
+                            { id: 'ranking', label: 'Team Ranking', icon: 'fas fa-trophy' },
+                            { id: 'projects', label: 'Projects', icon: 'fas fa-project-diagram' },
+                            { id: 'reports', label: 'Reports', icon: 'fas fa-chart-bar' },
+                            { id: 'calendar', label: 'Calendar', icon: 'fas fa-calendar' },
+                            { id: 'settings', label: 'Settings', icon: 'fas fa-cog' }
+                        ];
+                    case 'Team Lead':
+                        return [
+                            ...baseNavigation,
+                            { id: 'employees', label: 'Team Members', icon: 'fas fa-user-friends' },
+                            { id: 'projects', label: 'Projects', icon: 'fas fa-project-diagram' }
+                        ];
+                    case 'Employee':
+                        return [
+                            ...baseNavigation,
+                            { id: 'team-overview', label: 'Team Overview', icon: 'fas fa-users' },
+                            { id: 'calendar', label: 'Calendar', icon: 'fas fa-calendar' }
+                        ];
+                    default:
+                        return baseNavigation;
+                }
+            };
+
+            const navigation = getNavigationByRole(userRole);
+
+            return (
+                <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+                    <nav>
+                        <ul className="sidebar-nav">
+                            {navigation.map(item => (
+                                <li key={item.id} className="nav-item">
+                                    <a 
+                                        href="#" 
+                                        className={`nav-link ${currentView === item.id ? 'active' : ''}`}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            onViewChange(item.id);
+                                        }}
+                                    >
+                                        <i className={`nav-icon ${item.icon}`}></i>
+                                        <span>{item.label}</span>
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
+                </aside>
+            );
+        }
+
+        // Main Content Component
+        function MainContent({ currentView, user, onSync, syncStatus }) {
+            const renderContent = () => {
+                switch (currentView) {
+                    case 'dashboard':
+                        return <Dashboard onSync={onSync} syncStatus={syncStatus} userRole={user?.role} />;
+                    case 'my-tasks':
+                        return <MyTasks user={user} />;
+                    case 'team-overview':
+                        return <TeamOverview />;
+                    case 'employees':
+                        return <EmployeeManagement userRole={user?.role} />;
+                    case 'ranking':
+                        return <TeamRanking />;
+                    case 'projects':
+                        return <Projects />;
+                    case 'calendar':
+                        return <Calendar />;
+                    case 'reports':
+                        return <Reports />;
+                    case 'settings':
+                        return <Settings />;
+                    default:
+                        return <Dashboard onSync={onSync} syncStatus={syncStatus} />;
+                }
+            };
+
+            return renderContent();
+        }
+
+        // Dashboard Component
+        function Dashboard({ onSync, syncStatus, userRole }) {
+            const [dashboardData, setDashboardData] = useState({
+                kpis: {
+                    totalTasks: 0,
+                    completedTasks: 0,
+                    inProgress: 0,
+                    overdue: 0
+                },
+                recentActivity: [],
+                teamMembers: [],
+                teamKpis: {
+                    teamEfficiency: 0,
+                    activeMembers: 0,
+                    totalTeamTasks: 0,
+                    teamCompletionRate: 0
+                }
+            });
+            const [loading, setLoading] = useState(true);
+
+            useEffect(() => {
+                fetchDashboardData();
+            }, []);
+
+            const fetchDashboardData = async () => {
+                try {
+                    // Always use real ClickUp data
+                    const response = await fetch('http://192.168.20.10:777/api/v1/test/clickup-data');
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        // Calculate team member statistics for Team Lead
+                        let teamKpis = {
+                            teamEfficiency: 0,
+                            activeMembers: 0,
+                            totalTeamTasks: 0,
+                            teamCompletionRate: 0
+                        };
+
+                        if (userRole === 'Team Lead' && data.data?.tasks) {
+                            const teamMemberMap = new Map();
+                            
+                            // Process tasks to get team member statistics
+                            data.data.tasks.forEach(task => {
+                                if (task.assignees) {
+                                    task.assignees.forEach(assignee => {
+                                        if (!teamMemberMap.has(assignee.id)) {
+                                            teamMemberMap.set(assignee.id, {
+                                                id: assignee.id,
+                                                name: assignee.username || 'Unknown User',
+                                                tasksCompleted: 0,
+                                                tasksInProgress: 0,
+                                                totalTasks: 0
+                                            });
+                                        }
+                                        
+                                        const member = teamMemberMap.get(assignee.id);
+                                        member.totalTasks += 1;
+                                        
+                                        const status = task.status?.status?.toLowerCase() || '';
+                                        if (status.includes('complete') || status.includes('done')) {
+                                            member.tasksCompleted += 1;
+                                        } else if (status.includes('progress') || status.includes('doing') || status.includes('active')) {
+                                            member.tasksInProgress += 1;
+                                        }
+                                    });
+                                }
+                            });
+
+                            // Calculate team statistics
+                            const teamArray = Array.from(teamMemberMap.values());
+                            const totalTeamTasks = teamArray.reduce((sum, member) => sum + member.totalTasks, 0);
+                            const totalTeamCompleted = teamArray.reduce((sum, member) => sum + member.tasksCompleted, 0);
+                            const averageEfficiency = teamArray.length > 0 ? 
+                                teamArray.reduce((sum, member) => {
+                                    const efficiency = member.totalTasks > 0 ? (member.tasksCompleted / member.totalTasks) * 100 : 0;
+                                    return sum + efficiency;
+                                }, 0) / teamArray.length : 0;
+
+                            teamKpis = {
+                                teamEfficiency: Math.round(averageEfficiency),
+                                activeMembers: teamArray.length,
+                                totalTeamTasks: totalTeamTasks,
+                                teamCompletionRate: totalTeamTasks > 0 ? Math.round((totalTeamCompleted / totalTeamTasks) * 100) : 0
+                            };
+                        }
+
+                        // Transform API data to match expected format
+                        const transformedData = {
+                            ...data,
+                            kpis: {
+                                totalTasks: data.data?.workload?.totalTasks || 0,
+                                completedTasks: data.data?.workload?.completedTasks || 0,
+                                inProgressTasks: data.data?.workload?.inProgressTasks || 0,
+                                overdueTasks: data.data?.workload?.overdueTasks || 0,
+                                teamEfficiency: Math.round((data.data?.workload?.completedTasks || 0) / Math.max(data.data?.workload?.totalTasks || 1, 1) * 100),
+                                activeProjects: data.data?.teams?.length || 1
+                            },
+                            teamKpis: teamKpis
+                        };
+                        setDashboardData(transformedData);
+                    } else {
+                        throw new Error(`API responded with status: ${response.status}`);
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch dashboard data:', error);
+                    // Fallback data with basic structure to prevent errors
+                    const fallbackData = {
+                        data: {
+                            user: {
+                                id: 'fallback_user',
+                                username: 'System User',
+                                email: 'system@taskflow.com',
+                                color: '#6b7280',
+                                profilePicture: null
+                            },
+                            teams: [],
+                            tasks: [],
+                            workload: {
+                                totalTasks: 0,
+                                completedTasks: 0,
+                                inProgressTasks: 0,
+                                overdueTasks: 0
+                            }
+                        },
+                        kpis: {
+                            totalTasks: 0,
+                            completedTasks: 0,
+                            inProgressTasks: 0,
+                            overdueTasks: 0,
+                            teamEfficiency: 0,
+                            activeProjects: 0
+                        },
+                        source: 'fallback_data'
+                    };
+                    setDashboardData(fallbackData);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            if (loading) {
+                return (
+                    <div className="loading">
+                        <div className="spinner"></div>
+                        Loading dashboard...
+                    </div>
+                );
+            }
+
+            return (
+                <div>
+                    <div className="dashboard-header" style={{ marginBottom: '2rem' }}>
+                        <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                            Dashboard
+                        </h1>
+                        <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                            Welcome back! Here's what's happening with your team.
+                        </p>
+                    </div>
+
+                    <div className="dashboard-grid">
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--accent-color)' }}>
+                                {dashboardData.kpis.totalTasks}
+                            </div>
+                            <div className="kpi-label">Total Tasks</div>
+                            <div className="kpi-change positive">
+                                <i className="fas fa-tasks"></i> All assigned tasks
+                            </div>
+                        </div>
+
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--success-color)' }}>
+                                {dashboardData.kpis.completedTasks}
+                            </div>
+                            <div className="kpi-label">Completed</div>
+                            <div className="kpi-change positive">
+                                <i className="fas fa-check-circle"></i> Finished tasks
+                            </div>
+                        </div>
+
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--warning-color)' }}>
+                                {dashboardData.kpis.inProgressTasks}
+                            </div>
+                            <div className="kpi-label">In Progress</div>
+                            <div className="kpi-change">
+                                <i className="fas fa-hourglass-half"></i> Currently working
+                            </div>
+                        </div>
+
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--danger-color)' }}>
+                                {dashboardData.kpis.overdueTasks}
+                            </div>
+                            <div className="kpi-label">Overdue</div>
+                            <div className="kpi-change negative">
+                                <i className="fas fa-exclamation-triangle"></i> Past due date
+                            </div>
+                        </div>
+
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--accent-color)' }}>
+                                {dashboardData.kpis.teamEfficiency}%
+                            </div>
+                            <div className="kpi-label">Efficiency</div>
+                            <div className="kpi-change positive">
+                                <i className="fas fa-chart-line"></i> Team performance
+                            </div>
+                        </div>
+
+                        {userRole === 'Team Lead' && (
+                            <>
+                                <div className="card kpi-card">
+                                    <div className="kpi-value" style={{ color: 'var(--accent-color)' }}>
+                                        {dashboardData.teamKpis.activeMembers}
+                                    </div>
+                                    <div className="kpi-label">Active Members</div>
+                                    <div className="kpi-change positive">
+                                        <i className="fas fa-users"></i> Team size
+                                    </div>
+                                </div>
+
+                                <div className="card kpi-card">
+                                    <div className="kpi-value" style={{ color: 'var(--success-color)' }}>
+                                        {dashboardData.teamKpis.totalTeamTasks}
+                                    </div>
+                                    <div className="kpi-label">Team Tasks</div>
+                                    <div className="kpi-change positive">
+                                        <i className="fas fa-tasks"></i> Total assigned
+                                    </div>
+                                </div>
+
+                                <div className="card kpi-card">
+                                    <div className="kpi-value" style={{ color: 'var(--success-color)' }}>
+                                        {dashboardData.teamKpis.teamCompletionRate}%
+                                    </div>
+                                    <div className="kpi-label">Team Completion</div>
+                                    <div className="kpi-change positive">
+                                        <i className="fas fa-check-circle"></i> Overall progress
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', marginTop: '2rem' }}>
+                        <div className="card">
+                            <div className="card-header">
+                                <h3 className="card-title">Team Activity</h3>
+                                <button className="card-action">
+                                    <i className="fas fa-ellipsis-h"></i>
+                                </button>
+                            </div>
+                            <div style={{ minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <canvas id="activityChart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <div className="card-header">
+                                <h3 className="card-title">Quick Actions</h3>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <button className="btn btn-primary" onClick={onSync}>
+                                    <i className="fas fa-sync-alt"></i>
+                                    Sync Data
+                                </button>
+                                <button className="btn btn-secondary">
+                                    <i className="fas fa-plus"></i>
+                                    Create Task
+                                </button>
+                                <button className="btn btn-secondary">
+                                    <i className="fas fa-users"></i>
+                                    Invite Member
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // My Tasks Component
+        function MyTasks({ user }) {
+            const [tasks, setTasks] = useState([]);
+            const [employees, setEmployees] = useState([]);
+            const [showForm, setShowForm] = useState(false);
+            const [editingTask, setEditingTask] = useState(null);
+            const [loading, setLoading] = useState(true);
+            const [formData, setFormData] = useState({
+                name: '',
+                assignee: '',
+                startDate: '',
+                dueDate: '',
+                priority: 'medium',
+                notes: ''
+            });
+
+            // Filter and Sort States
+            const [filters, setFilters] = useState({
+                assignee: '',
+                priority: '',
+                status: '',
+                dueDate: ''
+            });
+            const [sortConfig, setSortConfig] = useState({
+                key: 'name',
+                direction: 'desc' // Sort Task Name from new to old (desc = Z to A, newer first)
+            });
+
+            useEffect(() => {
+                fetchTasks();
+                fetchEmployees();
+            }, []);
+
+            const fetchTasks = async () => {
+                try {
+                    setLoading(true);
+                    // Fetch all tasks from ClickUp
+                    const response = await fetch('http://192.168.20.10:777/api/v1/test/clickup-data');
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        if (data.data?.tasks) {
+                            // Transform ClickUp tasks to our format
+                            const transformedTasks = data.data.tasks.map(task => ({
+                                id: task.id,
+                                name: task.name,
+                                assignee: task.assignees && task.assignees.length > 0 ? task.assignees[0].username : 'Unassigned',
+                                assigneeId: task.assignees && task.assignees.length > 0 ? task.assignees[0].id : null,
+                                startDate: task.date_created ? new Date(parseInt(task.date_created)).toISOString().split('T')[0] : '',
+                                dueDate: task.due_date ? new Date(parseInt(task.due_date)).toISOString().split('T')[0] : '',
+                                priority: task.priority?.priority === '1' ? 'high' : task.priority?.priority === '2' ? 'medium' : 'low',
+                                status: task.status?.status?.toLowerCase().includes('complete') || task.status?.status?.toLowerCase().includes('done') ? 'done' :
+                                       task.status?.status?.toLowerCase().includes('progress') || task.status?.status?.toLowerCase().includes('doing') ? 'progress' : 'todo',
+                                notes: task.description || '',
+                                clickupId: task.id
+                            }));
+                            setTasks(transformedTasks);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch tasks:', error);
+                    setTasks([]);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const fetchEmployees = async () => {
+                try {
+                    // Fetch employee list for assignee dropdown
+                    const response = await fetch('http://192.168.20.10:777/api/v1/test/clickup-data');
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        const employeeSet = new Set();
+                        const employeeList = [];
+                        
+                        // Get employees from task assignees
+                        if (data.data?.tasks) {
+                            data.data.tasks.forEach(task => {
+                                if (task.assignees) {
+                                    task.assignees.forEach(assignee => {
+                                        if (!employeeSet.has(assignee.id)) {
+                                            employeeSet.add(assignee.id);
+                                            employeeList.push({
+                                                id: assignee.id,
+                                                name: assignee.username || 'Unknown User'
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        }
+
+                        // Add main user if available
+                        if (data.data?.user && !employeeSet.has(data.data.user.id)) {
+                            employeeList.push({
+                                id: data.data.user.id,
+                                name: data.data.user.username || 'Main User'
+                            });
+                        }
+
+                        setEmployees(employeeList);
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch employees:', error);
+                    setEmployees([]);
+                }
+            };
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (editingTask) {
+                    setTasks(tasks.map(task => 
+                        task.id === editingTask.id 
+                            ? { ...formData, id: editingTask.id }
+                            : task
+                    ));
+                } else {
+                    setTasks([...tasks, { ...formData, id: Date.now() }]);
+                }
+                resetForm();
+            };
+
+            const resetForm = () => {
+                setFormData({
+                    name: '',
+                    assignee: '',
+                    startDate: '',
+                    dueDate: '',
+                    priority: 'medium',
+                    status: 'todo',
+                    notes: ''
+                });
+                setShowForm(false);
+                setEditingTask(null);
+            };
+
+            const editTask = (task) => {
+                setFormData(task);
+                setEditingTask(task);
+                setShowForm(true);
+            };
+
+            const deleteTask = (id) => {
+                setTasks(tasks.filter(task => task.id !== id));
+            };
+
+            if (loading) {
+                return (
+                    <div className="loading">
+                        <div className="spinner"></div>
+                        Loading tasks...
+                    </div>
+                );
+            }
+
+            return (
+                <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                        <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                            My Tasks ({tasks.length} tasks from ClickUp)
+                        </h1>
+                        <button 
+                            className="btn btn-primary"
+                            onClick={() => setShowForm(!showForm)}
+                        >
+                            <i className="fas fa-plus"></i>
+                            Add Task
+                        </button>
+                    </div>
+
+                    {showForm && (
+                        <form className="task-form" onSubmit={handleSubmit}>
+                            <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)' }}>
+                                {editingTask ? 'Edit Task' : 'Create New Task'}
+                            </h3>
+                            
+                            <div className="form-group">
+                                <label className="form-label">Task Name</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label className="form-label">Assignee</label>
+                                    <select
+                                        className="form-select"
+                                        value={formData.assignee}
+                                        onChange={(e) => setFormData({...formData, assignee: e.target.value})}
+                                        required
+                                    >
+                                        <option value="">Select Assignee</option>
+                                        {employees.map(employee => (
+                                            <option key={employee.id} value={employee.name}>
+                                                {employee.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="form-label">Priority</label>
+                                    <select
+                                        className="form-select"
+                                        value={formData.priority}
+                                        onChange={(e) => setFormData({...formData, priority: e.target.value})}
+                                    >
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label className="form-label">Start Date</label>
+                                    <input
+                                        type="date"
+                                        className="form-input"
+                                        value={formData.startDate}
+                                        onChange={(e) => setFormData({...formData, startDate: e.target.value})}
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="form-label">Due Date</label>
+                                    <input
+                                        type="date"
+                                        className="form-input"
+                                        value={formData.dueDate}
+                                        onChange={(e) => setFormData({...formData, dueDate: e.target.value})}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Notes</label>
+                                <textarea
+                                    className="form-textarea"
+                                    value={formData.notes}
+                                    onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                                    placeholder="Add any additional notes or details..."
+                                ></textarea>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '1rem' }}>
+                                <button type="submit" className="btn btn-primary">
+                                    <i className="fas fa-save"></i>
+                                    {editingTask ? 'Update Task' : 'Create Task'}
+                                </button>
+                                <button type="button" className="btn btn-secondary" onClick={resetForm}>
+                                    <i className="fas fa-times"></i>
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    )}
+
+                    {/* Filter Controls */}
+                    <div className="card" style={{ marginBottom: '2rem' }}>
+                        <h3 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>
+                            <i className="fas fa-filter" style={{ marginRight: '0.5rem' }}></i>
+                            Filter & Sort Tasks
+                        </h3>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label className="form-label">Filter by Assignee</label>
+                                <select
+                                    className="form-select"
+                                    value={filters.assignee}
+                                    onChange={(e) => setFilters({...filters, assignee: e.target.value})}
+                                    style={{ margin: 0 }}
+                                >
+                                    <option value="">All Assignees</option>
+                                    {[...new Set(tasks.map(task => task.assignee))].map(assignee => (
+                                        <option key={assignee} value={assignee}>{assignee}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            
+                            <div className="form-group">
+                                <label className="form-label">Filter by Priority</label>
+                                <select
+                                    className="form-select"
+                                    value={filters.priority}
+                                    onChange={(e) => setFilters({...filters, priority: e.target.value})}
+                                    style={{ margin: 0 }}
+                                >
+                                    <option value="">All Priorities</option>
+                                    <option value="high">High</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                            
+                            <div className="form-group">
+                                <label className="form-label">Filter by Status</label>
+                                <select
+                                    className="form-select"
+                                    value={filters.status}
+                                    onChange={(e) => setFilters({...filters, status: e.target.value})}
+                                    style={{ margin: 0 }}
+                                >
+                                    <option value="">All Status</option>
+                                    <option value="todo">To Do</option>
+                                    <option value="progress">In Progress</option>
+                                    <option value="done">Done</option>
+                                </select>
+                            </div>
+                            
+                            <div className="form-group">
+                                <label className="form-label">Sort by Task Name</label>
+                                <select
+                                    className="form-select"
+                                    value={sortConfig.direction}
+                                    onChange={(e) => setSortConfig({...sortConfig, direction: e.target.value})}
+                                    style={{ margin: 0 }}
+                                >
+                                    <option value="desc">New to Old (Z → A)</option>
+                                    <option value="asc">Old to New (A → Z)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button 
+                            className="btn btn-secondary" 
+                            onClick={() => {
+                                setFilters({ assignee: '', priority: '', status: '', dueDate: '' });
+                                setSortConfig({ key: 'name', direction: 'desc' });
+                            }}
+                            style={{ marginTop: '1rem' }}
+                        >
+                            <i className="fas fa-undo"></i>
+                            Clear All Filters
+                        </button>
+                    </div>
+
+                    <div className="task-list">
+                        <div className="task-header">
+                            <div>Task Name</div>
+                            <div>Assignee</div>
+                            <div>Start Date</div>
+                            <div>Due Date</div>
+                            <div>Priority</div>
+                            <div>Status</div>
+                            <div>Actions</div>
+                        </div>
+                        
+                        {tasks
+                            .filter(task => {
+                                return (!filters.assignee || task.assignee === filters.assignee) &&
+                                       (!filters.priority || task.priority === filters.priority) &&
+                                       (!filters.status || task.status === filters.status);
+                            })
+                            .sort((a, b) => {
+                                const aValue = a[sortConfig.key];
+                                const bValue = b[sortConfig.key];
+                                
+                                if (sortConfig.direction === 'asc') {
+                                    return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+                                } else {
+                                    return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+                                }
+                            })
+                            .map(task => (
+                            <div key={task.id} className="task-row">
+                                <div className="task-name">{task.name}</div>
+                                <div className="task-assignee">
+                                    <div className="assignee-avatar">
+                                        {task.assignee.charAt(0)}
+                                    </div>
+                                    <span>{task.assignee}</span>
+                                </div>
+                                <div>{task.startDate}</div>
+                                <div>{task.dueDate}</div>
+                                <div>
+                                    <span className={`priority-badge priority-${task.priority}`}>
+                                        {task.priority}
+                                    </span>
+                                </div>
+                                <div>
+                                    <span className={`status-badge status-${task.status}`}>
+                                        {task.status.replace('-', ' ')}
+                                    </span>
+                                </div>
+                                <div className="task-actions">
+                                    <button 
+                                        className="task-action"
+                                        onClick={() => editTask(task)}
+                                        title="Edit Task"
+                                    >
+                                        <i className="fas fa-edit"></i>
+                                    </button>
+                                    <button 
+                                        className="task-action"
+                                        onClick={() => deleteTask(task.id)}
+                                        title="Delete Task"
+                                    >
+                                        <i className="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // Team Overview Component
+        function TeamOverview() {
+            const [teamMembers, setTeamMembers] = useState([]);
+            const [loading, setLoading] = useState(true);
+
+            useEffect(() => {
+                fetchTeamData();
+            }, []);
+
+            const fetchTeamData = async () => {
+                try {
+                    setLoading(true);
+                    // Fetch real ClickUp team data
+                    const response = await fetch('http://192.168.20.10:777/api/v1/test/clickup-data');
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        // Process real team members from ClickUp data
+                        const teamMemberMap = new Map();
+                        
+                        // Process tasks to get team member statistics
+                        if (data.data?.tasks) {
+                            data.data.tasks.forEach(task => {
+                                if (task.assignees) {
+                                    task.assignees.forEach(assignee => {
+                                        if (!teamMemberMap.has(assignee.id)) {
+                                            teamMemberMap.set(assignee.id, {
+                                                id: assignee.id,
+                                                name: assignee.username || 'Unknown User',
+                                                role: 'Team Member',
+                                                avatar: assignee.username ? assignee.username.substring(0, 2).toUpperCase() : 'UN',
+                                                tasksCompleted: 0,
+                                                tasksInProgress: 0,
+                                                tasksTodo: 0,
+                                                totalTasks: 0,
+                                                profilePicture: assignee.profilePicture || null
+                                            });
+                                        }
+                                        
+                                        const member = teamMemberMap.get(assignee.id);
+                                        member.totalTasks += 1;
+                                        
+                                        const status = task.status?.status?.toLowerCase() || '';
+                                        if (status.includes('complete') || status.includes('done')) {
+                                            member.tasksCompleted += 1;
+                                        } else if (status.includes('progress') || status.includes('doing') || status.includes('active')) {
+                                            member.tasksInProgress += 1;
+                                        } else {
+                                            member.tasksTodo += 1;
+                                        }
+                                    });
+                                }
+                            });
+                        }
+
+                        // Add main user if available
+                        if (data.data?.user) {
+                            const user = data.data.user;
+                            if (!teamMemberMap.has(user.id)) {
+                                teamMemberMap.set(user.id, {
+                                    id: user.id,
+                                    name: user.username || 'Main User',
+                                    role: 'Team Lead',
+                                    avatar: user.username ? user.username.substring(0, 2).toUpperCase() : 'MU',
+                                    tasksCompleted: 0,
+                                    tasksInProgress: 0,
+                                    tasksTodo: 0,
+                                    totalTasks: 0,
+                                    profilePicture: user.profilePicture || null
+                                });
+                            }
+                        }
+
+                        // Calculate efficiency for each member
+                        const teamArray = Array.from(teamMemberMap.values()).map(member => ({
+                            ...member,
+                            efficiency: member.totalTasks > 0 ? Math.round((member.tasksCompleted / member.totalTasks) * 100) : 0
+                        }));
+
+                        setTeamMembers(teamArray);
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch team data:', error);
+                    setTeamMembers([]);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            if (loading) {
+                return (
+                    <div className="loading">
+                        <div className="spinner"></div>
+                        Loading team overview...
+                    </div>
+                );
+            }
+
+            return (
+                <div>
+                    <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '2rem' }}>
+                        Team Overview
+                    </h1>
+
+                    <div className="team-grid">
+                        {teamMembers.map(member => (
+                            <div key={member.id} className="team-member-card">
+                                <div className="member-avatar" style={{ background: member.profilePicture ? 'transparent' : 'var(--accent-color)' }}>
+                                    {member.profilePicture ? (
+                                        <img 
+                                            src={member.profilePicture} 
+                                            alt={member.name}
+                                            style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                                        />
+                                    ) : (
+                                        member.avatar
+                                    )}
+                                </div>
+                                <div className="member-name">{member.name}</div>
+                                <div className="member-role">{member.role}</div>
+                                
+                                <div className="member-stats">
+                                    <div className="stat-item">
+                                        <div className="stat-value">{member.tasksCompleted}</div>
+                                        <div className="stat-label">Completed</div>
+                                    </div>
+                                    <div className="stat-item">
+                                        <div className="stat-value">{member.tasksInProgress}</div>
+                                        <div className="stat-label">In Progress</div>
+                                    </div>
+                                    <div className="stat-item">
+                                        <div className="stat-value">{member.efficiency}%</div>
+                                        <div className="stat-label">Efficiency</div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // Employee Management Component
+        function EmployeeManagement({ userRole }) {
+            const [employees, setEmployees] = useState([]);
+            const [loading, setLoading] = useState(true);
+            const [editingEmployee, setEditingEmployee] = useState(null);
+            const [searchTerm, setSearchTerm] = useState('');
+
+            useEffect(() => {
+                fetchEmployees();
+            }, []);
+
+            const fetchEmployees = async () => {
+                try {
+                    setLoading(true);
+                    // Fetch real ClickUp team members
+                    const response = await fetch('http://192.168.20.10:777/api/v1/test/clickup-data');
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        // Get unique team members from tasks and teams
+                        const teamMembers = new Map();
+                        
+                        // Add team members from tasks assignees
+                        if (data.data?.tasks) {
+                            data.data.tasks.forEach(task => {
+                                if (task.assignees) {
+                                    task.assignees.forEach(assignee => {
+                                        if (!teamMembers.has(assignee.id)) {
+                                            teamMembers.set(assignee.id, {
+                                                id: assignee.id,
+                                                name: assignee.username || 'Unknown User',
+                                                email: assignee.email || `${assignee.username}@clickup.com`,
+                                                role: 'Team Member',
+                                                department: 'General',
+                                                joinDate: new Date().toISOString().split('T')[0],
+                                                status: 'Active',
+                                                phone: '',
+                                                location: '',
+                                                skills: [],
+                                                profilePicture: assignee.profilePicture || null,
+                                                taskCount: 0,
+                                                completedTasks: 0
+                                            });
+                                        }
+                                        // Count tasks for this member
+                                        const member = teamMembers.get(assignee.id);
+                                        member.taskCount += 1;
+                                        if (task.status?.status?.toLowerCase().includes('complete') || 
+                                            task.status?.status?.toLowerCase().includes('done')) {
+                                            member.completedTasks += 1;
+                                        }
+                                    });
+                                }
+                            });
+                        }
+
+                        // Add main user if available
+                        if (data.data?.user) {
+                            const user = data.data.user;
+                            if (!teamMembers.has(user.id)) {
+                                teamMembers.set(user.id, {
+                                    id: user.id,
+                                    name: user.username || 'Main User',
+                                    email: user.email || 'user@clickup.com',
+                                    role: 'Team Lead',
+                                    department: 'Management',
+                                    joinDate: new Date().toISOString().split('T')[0],
+                                    status: 'Active',
+                                    phone: '',
+                                    location: '',
+                                    skills: [],
+                                    profilePicture: user.profilePicture || null,
+                                    taskCount: 0,
+                                    completedTasks: 0
+                                });
+                            }
+                        }
+
+                        const employeeList = Array.from(teamMembers.values());
+                        setEmployees(employeeList);
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch employees:', error);
+                    setEmployees([]);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const filteredEmployees = employees.filter(employee =>
+                employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                employee.role.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            const handleEditEmployee = (employee) => {
+                setEditingEmployee({ ...employee });
+            };
+
+            const handleSaveEmployee = () => {
+                setEmployees(employees.map(emp => 
+                    emp.id === editingEmployee.id ? editingEmployee : emp
+                ));
+                setEditingEmployee(null);
+            };
+
+            const handleCancelEdit = () => {
+                setEditingEmployee(null);
+            };
+
+            const canEdit = userRole === 'Manager' || userRole === 'Team Lead';
+
+            if (loading) {
+                return (
+                    <div className="loading">
+                        <div className="spinner"></div>
+                        Loading employees...
+                    </div>
+                );
+            }
+
+            return (
+                <div>
+                    <div className="dashboard-header" style={{ marginBottom: '2rem' }}>
+                        <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                            {userRole === 'Manager' ? 'Employee Management' : 'Team Members'}
+                        </h1>
+                        <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                            Manage and view team member information from ClickUp
+                        </p>
+                    </div>
+
+                    {/* Search Bar */}
+                    <div className="card" style={{ marginBottom: '2rem' }}>
+                        <div className="form-group">
+                            <input
+                                type="text"
+                                className="form-input"
+                                placeholder="Search employees by name, email, or role..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                style={{ margin: 0 }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Employee Grid */}
+                    <div className="team-grid">
+                        {filteredEmployees.map(employee => (
+                            <div key={employee.id} className="team-member-card">
+                                <div className="member-avatar" style={{ background: employee.profilePicture ? 'transparent' : 'var(--accent-color)' }}>
+                                    {employee.profilePicture ? (
+                                        <img 
+                                            src={employee.profilePicture} 
+                                            alt={employee.name}
+                                            style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                                        />
+                                    ) : (
+                                        employee.name.charAt(0).toUpperCase()
+                                    )}
+                                </div>
+                                <div className="member-name">{employee.name}</div>
+                                <div className="member-role">{employee.role}</div>
+                                <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)', marginBottom: '0.5rem' }}>
+                                    {employee.email}
+                                </div>
+                                
+                                {/* Skills display */}
+                                {employee.skills && employee.skills.length > 0 && (
+                                    <div style={{ marginBottom: '1rem' }}>
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.3rem', fontWeight: '600' }}>
+                                            Skills:
+                                        </div>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                                            {Array.isArray(employee.skills) 
+                                                ? employee.skills.slice(0, 3).map((skill, index) => (
+                                                    <span key={index} style={{
+                                                        fontSize: '0.7rem',
+                                                        background: 'var(--accent-color)',
+                                                        color: 'white',
+                                                        padding: '0.2rem 0.5rem',
+                                                        borderRadius: '12px',
+                                                        whiteSpace: 'nowrap'
+                                                    }}>
+                                                        {skill}
+                                                    </span>
+                                                ))
+                                                : employee.skills.split(',').slice(0, 3).map((skill, index) => (
+                                                    <span key={index} style={{
+                                                        fontSize: '0.7rem',
+                                                        background: 'var(--accent-color)',
+                                                        color: 'white',
+                                                        padding: '0.2rem 0.5rem',
+                                                        borderRadius: '12px',
+                                                        whiteSpace: 'nowrap'
+                                                    }}>
+                                                        {skill.trim()}
+                                                    </span>
+                                                ))
+                                            }
+                                            {((Array.isArray(employee.skills) && employee.skills.length > 3) || 
+                                              (!Array.isArray(employee.skills) && employee.skills.split(',').length > 3)) && (
+                                                <span style={{
+                                                    fontSize: '0.7rem',
+                                                    color: 'var(--text-tertiary)',
+                                                    padding: '0.2rem 0.5rem'
+                                                }}>
+                                                    +{Array.isArray(employee.skills) ? employee.skills.length - 3 : employee.skills.split(',').length - 3} more
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                <div className="member-stats">
+                                    <div className="stat-item">
+                                        <div className="stat-value">{employee.taskCount}</div>
+                                        <div className="stat-label">Tasks</div>
+                                    </div>
+                                    <div className="stat-item">
+                                        <div className="stat-value">{employee.completedTasks}</div>
+                                        <div className="stat-label">Completed</div>
+                                    </div>
+                                    <div className="stat-item">
+                                        <div className="stat-value">
+                                            {employee.taskCount > 0 ? Math.round((employee.completedTasks / employee.taskCount) * 100) : 0}%
+                                        </div>
+                                        <div className="stat-label">Success</div>
+                                    </div>
+                                </div>
+
+                                {canEdit && (
+                                    <button 
+                                        className="btn btn-secondary"
+                                        onClick={() => handleEditEmployee(employee)}
+                                        style={{ marginTop: '1rem', width: '100%' }}
+                                    >
+                                        <i className="fas fa-edit"></i>
+                                        Edit Details
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    {filteredEmployees.length === 0 && (
+                        <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+                            <i className="fas fa-users" style={{ fontSize: '3rem', color: 'var(--text-tertiary)', marginBottom: '1rem' }}></i>
+                            <h3 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>No employees found</h3>
+                            <p style={{ color: 'var(--text-secondary)' }}>
+                                {searchTerm ? 'Try adjusting your search criteria' : 'No team members found in ClickUp data'}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Edit Employee Modal */}
+                    {editingEmployee && (
+                        <div style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: 'rgba(0, 0, 0, 0.5)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 1000
+                        }}>
+                            <div className="card" style={{ width: '90%', maxWidth: '500px', maxHeight: '80vh', overflowY: 'auto' }}>
+                                <div className="card-header">
+                                    <h3 className="card-title">Edit Employee Details</h3>
+                                    <button className="card-action" onClick={handleCancelEdit}>
+                                        <i className="fas fa-times"></i>
+                                    </button>
+                                </div>
+
+                                <div style={{ padding: '1rem 0' }}>
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label className="form-label">Name</label>
+                                            <input
+                                                type="text"
+                                                className="form-input"
+                                                value={editingEmployee.name}
+                                                onChange={(e) => setEditingEmployee({...editingEmployee, name: e.target.value})}
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Email</label>
+                                            <input
+                                                type="email"
+                                                className="form-input"
+                                                value={editingEmployee.email}
+                                                onChange={(e) => setEditingEmployee({...editingEmployee, email: e.target.value})}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label className="form-label">Role</label>
+                                            <select
+                                                className="form-select"
+                                                value={editingEmployee.role}
+                                                onChange={(e) => setEditingEmployee({...editingEmployee, role: e.target.value})}
+                                            >
+                                                <option value="Manager">Manager</option>
+                                                <option value="Team Lead">Team Lead</option>
+                                                <option value="Team Member">Team Member</option>
+                                                <option value="Developer">Developer</option>
+                                                <option value="Designer">Designer</option>
+                                                <option value="QA">QA</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Department</label>
+                                            <select
+                                                className="form-select"
+                                                value={editingEmployee.department}
+                                                onChange={(e) => setEditingEmployee({...editingEmployee, department: e.target.value})}
+                                            >
+                                                <option value="General">General</option>
+                                                <option value="Management">Management</option>
+                                                <option value="Development">Development</option>
+                                                <option value="Design">Design</option>
+                                                <option value="Marketing">Marketing</option>
+                                                <option value="Sales">Sales</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label className="form-label">Phone</label>
+                                            <input
+                                                type="tel"
+                                                className="form-input"
+                                                value={editingEmployee.phone}
+                                                onChange={(e) => setEditingEmployee({...editingEmployee, phone: e.target.value})}
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Location</label>
+                                            <input
+                                                type="text"
+                                                className="form-input"
+                                                value={editingEmployee.location}
+                                                onChange={(e) => setEditingEmployee({...editingEmployee, location: e.target.value})}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label className="form-label">Join Date</label>
+                                        <input
+                                            type="date"
+                                            className="form-input"
+                                            value={editingEmployee.joinDate}
+                                            onChange={(e) => setEditingEmployee({...editingEmployee, joinDate: e.target.value})}
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label className="form-label">Skills (ความถนัด)</label>
+                                        <textarea
+                                            className="form-textarea"
+                                            value={Array.isArray(editingEmployee.skills) ? editingEmployee.skills.join(', ') : editingEmployee.skills || ''}
+                                            onChange={(e) => setEditingEmployee({...editingEmployee, skills: e.target.value.split(',').map(skill => skill.trim()).filter(skill => skill)})}
+                                            placeholder="Enter skills separated by commas (e.g., JavaScript, React, Node.js)"
+                                            style={{ minHeight: '80px' }}
+                                        />
+                                        <small style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
+                                            Separate multiple skills with commas
+                                        </small>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label className="form-label">Status</label>
+                                        <select
+                                            className="form-select"
+                                            value={editingEmployee.status}
+                                            onChange={(e) => setEditingEmployee({...editingEmployee, status: e.target.value})}
+                                        >
+                                            <option value="Active">Active</option>
+                                            <option value="Inactive">Inactive</option>
+                                            <option value="On Leave">On Leave</option>
+                                        </select>
+                                    </div>
+
+                                    <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+                                        <button className="btn btn-primary" onClick={handleSaveEmployee} style={{ flex: 1 }}>
+                                            <i className="fas fa-save"></i>
+                                            Save Changes
+                                        </button>
+                                        <button className="btn btn-secondary" onClick={handleCancelEdit} style={{ flex: 1 }}>
+                                            <i className="fas fa-times"></i>
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // Team Ranking Component
+        function TeamRanking() {
+            const [rankings, setRankings] = useState([]);
+            const [loading, setLoading] = useState(true);
+            const [scoringConfig, setScoringConfig] = useState(() => {
+                const saved = localStorage.getItem('scoringConfig');
+                return saved ? JSON.parse(saved) : {
+                    completionWeight: 60,
+                    onTimeWeight: 40,
+                    completionPoints: 10,
+                    onTimeBonus: 5,
+                    highPriorityBonus: 3,
+                    mediumPriorityBonus: 2,
+                    lowPriorityBonus: 1
+                };
+            });
+            const [showConfig, setShowConfig] = useState(false);
+            const [sortBy, setSortBy] = useState('score');
+
+            useEffect(() => {
+                fetchRankingData();
+            }, [scoringConfig]);
+
+            const fetchRankingData = async () => {
+                try {
+                    setLoading(true);
+                    // Fetch real ClickUp data
+                    const response = await fetch('http://192.168.20.10:777/api/v1/test/clickup-data');
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        // Calculate rankings based on real task performance
+                        const teamMembers = new Map();
+                        
+                        // Process tasks to calculate performance metrics
+                        if (data.data?.tasks) {
+                            data.data.tasks.forEach(task => {
+                                if (task.assignees) {
+                                    task.assignees.forEach(assignee => {
+                                        if (!teamMembers.has(assignee.id)) {
+                                            teamMembers.set(assignee.id, {
+                                                id: assignee.id,
+                                                name: assignee.username || 'Unknown User',
+                                                role: 'Team Member',
+                                                totalTasks: 0,
+                                                completedTasks: 0,
+                                                onTimeTasks: 0,
+                                                points: 0
+                                            });
+                                        }
+                                        
+                                        const member = teamMembers.get(assignee.id);
+                                        member.totalTasks += 1;
+                                        
+                                        // Points for completion (configurable)
+                                        if (task.status?.status?.toLowerCase().includes('complete') || 
+                                            task.status?.status?.toLowerCase().includes('done')) {
+                                            member.completedTasks += 1;
+                                            member.points += scoringConfig.completionPoints;
+                                            
+                                            // Bonus points for on-time completion (configurable)
+                                            if (task.due_date && Date.now() <= task.due_date) {
+                                                member.onTimeTasks += 1;
+                                                member.points += scoringConfig.onTimeBonus;
+                                            }
+                                        }
+                                        
+                                        // Bonus points for priority tasks (configurable)
+                                        if (task.priority?.priority === '1') {
+                                            member.points += scoringConfig.highPriorityBonus;
+                                        } else if (task.priority?.priority === '2') {
+                                            member.points += scoringConfig.mediumPriorityBonus;
+                                        } else if (task.priority?.priority === '3') {
+                                            member.points += scoringConfig.lowPriorityBonus;
+                                        }
+                                    });
+                                }
+                            });
+                        }
+
+                        // Add main user if available
+                        if (data.data?.user) {
+                            const user = data.data.user;
+                            if (!teamMembers.has(user.id)) {
+                                teamMembers.set(user.id, {
+                                    id: user.id,
+                                    name: user.username || 'Main User',
+                                    role: 'Team Lead',
+                                    totalTasks: 0,
+                                    completedTasks: 0,
+                                    onTimeTasks: 0,
+                                    points: 0
+                                });
+                            }
+                        }
+
+                        // Convert to array and calculate scores (configurable weights)
+                        const rankingArray = Array.from(teamMembers.values()).map(member => {
+                            const completionRate = member.totalTasks > 0 ? (member.completedTasks / member.totalTasks) * 100 : 0;
+                            const onTimeRate = member.totalTasks > 0 ? (member.onTimeTasks / member.totalTasks) * 100 : 0;
+                            const score = Math.round((completionRate * (scoringConfig.completionWeight / 100)) + 
+                                                   (onTimeRate * (scoringConfig.onTimeWeight / 100)));
+                            
+                            return {
+                                id: member.id,
+                                name: member.name,
+                                role: member.role,
+                                score: score,
+                                points: member.points,
+                                totalTasks: member.totalTasks,
+                                completedTasks: member.completedTasks,
+                                onTimeTasks: member.onTimeTasks,
+                                completionRate: Math.round(completionRate),
+                                onTimeRate: Math.round(onTimeRate)
+                            };
+                        });
+
+                        // Sort by selected criteria and assign ranks
+                        rankingArray.sort((a, b) => {
+                            if (sortBy === 'score') return b.score - a.score || b.points - a.points;
+                            if (sortBy === 'points') return b.points - a.points || b.score - a.score;
+                            if (sortBy === 'completion') return b.completionRate - a.completionRate || b.score - a.score;
+                            if (sortBy === 'ontime') return b.onTimeRate - a.onTimeRate || b.score - a.score;
+                            return b.score - a.score;
+                        });
+                        
+                        const rankedData = rankingArray.map((member, index) => ({
+                            ...member,
+                            rank: index + 1
+                        }));
+
+                        setRankings(rankedData);
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch ranking data:', error);
+                    setRankings([]);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const handleConfigSave = () => {
+                localStorage.setItem('scoringConfig', JSON.stringify(scoringConfig));
+                setShowConfig(false);
+                fetchRankingData();
+            };
+
+            const handleConfigReset = () => {
+                const defaultConfig = {
+                    completionWeight: 60,
+                    onTimeWeight: 40,
+                    completionPoints: 10,
+                    onTimeBonus: 5,
+                    highPriorityBonus: 3,
+                    mediumPriorityBonus: 2,
+                    lowPriorityBonus: 1
+                };
+                setScoringConfig(defaultConfig);
+            };
+
+            const getRankClass = (rank) => {
+                if (rank === 1) return 'gold';
+                if (rank === 2) return 'silver';
+                if (rank === 3) return 'bronze';
+                return '';
+            };
+
+            return (
+                <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                        <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>
+                            Team Ranking
+                        </h1>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <select 
+                                className="form-select" 
+                                value={sortBy} 
+                                onChange={(e) => setSortBy(e.target.value)}
+                                style={{ minWidth: '150px' }}
+                            >
+                                <option value="score">Sort by Score</option>
+                                <option value="points">Sort by Points</option>
+                                <option value="completion">Sort by Completion Rate</option>
+                                <option value="ontime">Sort by On-Time Rate</option>
+                            </select>
+                            <button 
+                                className="btn btn-secondary"
+                                onClick={() => setShowConfig(true)}
+                            >
+                                <i className="fas fa-cog"></i>
+                                Configure Scoring
+                            </button>
+                            <button 
+                                className="btn btn-primary"
+                                onClick={fetchRankingData}
+                                disabled={loading}
+                            >
+                                <i className={`fas ${loading ? 'fa-spinner fa-spin' : 'fa-sync-alt'}`}></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="ranking-card">
+                        <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)' }}>
+                            Performance Leaderboard
+                        </h3>
+                        
+                        {loading ? (
+                            <div style={{ textAlign: 'center', padding: '3rem' }}>
+                                <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', color: 'var(--accent-color)' }}></i>
+                                <p style={{ marginTop: '1rem', color: 'var(--text-secondary)' }}>Loading rankings...</p>
+                            </div>
+                        ) : rankings.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '3rem' }}>
+                                <i className="fas fa-trophy" style={{ fontSize: '3rem', color: 'var(--text-tertiary)', marginBottom: '1rem' }}></i>
+                                <p style={{ color: 'var(--text-secondary)' }}>No ranking data available</p>
+                            </div>
+                        ) : (
+                            rankings.map(member => (
+                                <div key={member.id} className="ranking-item">
+                                    <div className={`rank-number ${getRankClass(member.rank)}`}>
+                                        {member.rank}
+                                    </div>
+                                    <div className="rank-info">
+                                        <div className="rank-name">{member.name}</div>
+                                        <div className="rank-score">
+                                            {member.role} • Score: {member.score}% • Completion: {member.completionRate}% • On-Time: {member.onTimeRate}%
+                                        </div>
+                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', marginTop: '0.25rem' }}>
+                                            {member.completedTasks}/{member.totalTasks} tasks completed
+                                        </div>
+                                    </div>
+                                    <div className="rank-points">
+                                        {member.points} pts
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+
+                    {/* Scoring Configuration Modal */}
+                    {showConfig && (
+                        <div style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: 'rgba(0, 0, 0, 0.5)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 1000
+                        }}>
+                            <div className="card" style={{ width: '90%', maxWidth: '600px', maxHeight: '80vh', overflowY: 'auto' }}>
+                                <div className="card-header">
+                                    <h3 className="card-title">Scoring Configuration</h3>
+                                    <button className="card-action" onClick={() => setShowConfig(false)}>
+                                        <i className="fas fa-times"></i>
+                                    </button>
+                                </div>
+
+                                <div style={{ padding: '1rem 0' }}>
+                                    <div className="form-group">
+                                        <h4 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Score Calculation Weights</h4>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                            <div>
+                                                <label className="form-label">Completion Rate Weight (%)</label>
+                                                <input
+                                                    type="number"
+                                                    className="form-input"
+                                                    min="0"
+                                                    max="100"
+                                                    value={scoringConfig.completionWeight}
+                                                    onChange={(e) => setScoringConfig({
+                                                        ...scoringConfig,
+                                                        completionWeight: parseInt(e.target.value) || 0,
+                                                        onTimeWeight: 100 - (parseInt(e.target.value) || 0)
+                                                    })}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="form-label">On-Time Rate Weight (%)</label>
+                                                <input
+                                                    type="number"
+                                                    className="form-input"
+                                                    min="0"
+                                                    max="100"
+                                                    value={scoringConfig.onTimeWeight}
+                                                    onChange={(e) => setScoringConfig({
+                                                        ...scoringConfig,
+                                                        onTimeWeight: parseInt(e.target.value) || 0,
+                                                        completionWeight: 100 - (parseInt(e.target.value) || 0)
+                                                    })}
+                                                />
+                                            </div>
+                                        </div>
+                                        <small style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
+                                            Weights must total 100%. Adjusting one will automatically adjust the other.
+                                        </small>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <h4 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Point Values</h4>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                            <div>
+                                                <label className="form-label">Task Completion Points</label>
+                                                <input
+                                                    type="number"
+                                                    className="form-input"
+                                                    min="0"
+                                                    value={scoringConfig.completionPoints}
+                                                    onChange={(e) => setScoringConfig({
+                                                        ...scoringConfig,
+                                                        completionPoints: parseInt(e.target.value) || 0
+                                                    })}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="form-label">On-Time Bonus Points</label>
+                                                <input
+                                                    type="number"
+                                                    className="form-input"
+                                                    min="0"
+                                                    value={scoringConfig.onTimeBonus}
+                                                    onChange={(e) => setScoringConfig({
+                                                        ...scoringConfig,
+                                                        onTimeBonus: parseInt(e.target.value) || 0
+                                                    })}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <h4 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>Priority Task Bonuses</h4>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                                            <div>
+                                                <label className="form-label">High Priority Bonus</label>
+                                                <input
+                                                    type="number"
+                                                    className="form-input"
+                                                    min="0"
+                                                    value={scoringConfig.highPriorityBonus}
+                                                    onChange={(e) => setScoringConfig({
+                                                        ...scoringConfig,
+                                                        highPriorityBonus: parseInt(e.target.value) || 0
+                                                    })}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="form-label">Medium Priority Bonus</label>
+                                                <input
+                                                    type="number"
+                                                    className="form-input"
+                                                    min="0"
+                                                    value={scoringConfig.mediumPriorityBonus}
+                                                    onChange={(e) => setScoringConfig({
+                                                        ...scoringConfig,
+                                                        mediumPriorityBonus: parseInt(e.target.value) || 0
+                                                    })}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="form-label">Low Priority Bonus</label>
+                                                <input
+                                                    type="number"
+                                                    className="form-input"
+                                                    min="0"
+                                                    value={scoringConfig.lowPriorityBonus}
+                                                    onChange={(e) => setScoringConfig({
+                                                        ...scoringConfig,
+                                                        lowPriorityBonus: parseInt(e.target.value) || 0
+                                                    })}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '2rem' }}>
+                                        <button 
+                                            className="btn btn-secondary"
+                                            onClick={handleConfigReset}
+                                        >
+                                            Reset to Defaults
+                                        </button>
+                                        <button 
+                                            className="btn btn-secondary"
+                                            onClick={() => setShowConfig(false)}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button 
+                                            className="btn btn-primary"
+                                            onClick={handleConfigSave}
+                                        >
+                                            Save Configuration
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    </div>
+                </div>
+            );
+        }
+
+        // Other Components (Placeholders)
+        function Projects() {
+            return (
+                <div>
+                    <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '2rem' }}>
+                        Projects
+                    </h1>
+                    <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+                        <i className="fas fa-project-diagram" style={{ fontSize: '3rem', color: 'var(--text-tertiary)', marginBottom: '1rem' }}></i>
+                        <h3 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Projects Coming Soon</h3>
+                        <p style={{ color: 'var(--text-secondary)' }}>This feature will be available in the next update.</p>
+                    </div>
+                </div>
+            );
+        }
+
+        function Calendar() {
+            return (
+                <div>
+                    <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '2rem' }}>
+                        Calendar
+                    </h1>
+                    <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+                        <i className="fas fa-calendar" style={{ fontSize: '3rem', color: 'var(--text-tertiary)', marginBottom: '1rem' }}></i>
+                        <h3 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Calendar Coming Soon</h3>
+                        <p style={{ color: 'var(--text-secondary)' }}>This feature will be available in the next update.</p>
+                    </div>
+                </div>
+            );
+        }
+
+        function Reports() {
+            const [attendanceData, setAttendanceData] = useState([]);
+            const [dateRange, setDateRange] = useState({
+                startDate: new Date(Date.now() - 30*24*60*60*1000).toISOString().split('T')[0], // 30 days ago
+                endDate: new Date().toISOString().split('T')[0] // today
+            });
+            const [selectedEmployee, setSelectedEmployee] = useState('');
+            const [loading, setLoading] = useState(false);
+
+            useEffect(() => {
+                generateAttendanceData();
+            }, [dateRange, selectedEmployee]);
+
+            const generateAttendanceData = () => {
+                setLoading(true);
+                
+                // Generate mock attendance data for all employees
+                const employees = [
+                    'Teerayut Yeerahem',
+                    'ชัยวุฒิ ไวเชิงค้า', 
+                    'Athakorn NATUNG',
+                    'Sahatsawat Rimphongern',
+                    'มัทนพร แก้วอําไพ',
+                    'PANUWAT PROMRAKSA',
+                    'Jirapat Sripanya',
+                    'Chutithep Phakdeebut',
+                    'Pong',
+                    'Nisareen Daklee',
+                    'Thammakit Ch'
+                ];
+
+                const attendanceRecords = [];
+                const start = new Date(dateRange.startDate);
+                const end = new Date(dateRange.endDate);
+                
+                employees.forEach(employee => {
+                    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                        const dayOfWeek = d.getDay();
+                        
+                        // Skip weekends
+                        if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+                        
+                        // Generate attendance status with probability
+                        const rand = Math.random();
+                        let status, checkIn = '', checkOut = '', notes = '';
+                        
+                        if (rand < 0.85) { // 85% present
+                            status = 'Present';
+                            checkIn = `${8 + Math.floor(Math.random() * 2)}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`;
+                            checkOut = `${17 + Math.floor(Math.random() * 3)}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`;
+                        } else if (rand < 0.92) { // 7% sick leave
+                            status = 'Sick Leave';
+                            notes = 'Medical certificate provided';
+                        } else if (rand < 0.97) { // 5% annual leave
+                            status = 'Annual Leave';
+                            notes = 'Pre-approved vacation';
+                        } else { // 3% absent
+                            status = 'Absent';
+                            notes = 'No notification';
+                        }
+
+                        // Filter by selected employee if specified
+                        if (!selectedEmployee || employee === selectedEmployee) {
+                            attendanceRecords.push({
+                                id: `${employee}-${d.toISOString().split('T')[0]}`,
+                                employee: employee,
+                                date: d.toISOString().split('T')[0],
+                                status: status,
+                                checkIn: checkIn,
+                                checkOut: checkOut,
+                                notes: notes
+                            });
+                        }
+                    }
+                });
+
+                setAttendanceData(attendanceRecords.sort((a, b) => new Date(b.date) - new Date(a.date)));
+                setLoading(false);
+            };
+
+            const getStatusColor = (status) => {
+                switch (status) {
+                    case 'Present': return 'var(--success-color)';
+                    case 'Sick Leave': return 'var(--warning-color)';
+                    case 'Annual Leave': return 'var(--accent-color)';
+                    case 'Absent': return 'var(--danger-color)';
+                    default: return 'var(--text-tertiary)';
+                }
+            };
+
+            const getSummaryStats = () => {
+                const stats = attendanceData.reduce((acc, record) => {
+                    acc[record.status] = (acc[record.status] || 0) + 1;
+                    return acc;
+                }, {});
+
+                return {
+                    present: stats['Present'] || 0,
+                    sickLeave: stats['Sick Leave'] || 0,
+                    annualLeave: stats['Annual Leave'] || 0,
+                    absent: stats['Absent'] || 0,
+                    total: attendanceData.length
+                };
+            };
+
+            const stats = getSummaryStats();
+
+            return (
+                <div>
+                    <div className="dashboard-header" style={{ marginBottom: '2rem' }}>
+                        <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                            Attendance Reports
+                        </h1>
+                        <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                            Track employee attendance, leaves, and working patterns
+                        </p>
+                    </div>
+
+                    {/* Summary Statistics */}
+                    <div className="dashboard-grid" style={{ marginBottom: '2rem' }}>
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--success-color)' }}>
+                                {stats.present}
+                            </div>
+                            <div className="kpi-label">Present Days</div>
+                            <div className="kpi-change positive">
+                                <i className="fas fa-user-check"></i> Working days
+                            </div>
+                        </div>
+
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--warning-color)' }}>
+                                {stats.sickLeave}
+                            </div>
+                            <div className="kpi-label">Sick Leave</div>
+                            <div className="kpi-change">
+                                <i className="fas fa-thermometer-half"></i> Medical leave
+                            </div>
+                        </div>
+
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--accent-color)' }}>
+                                {stats.annualLeave}
+                            </div>
+                            <div className="kpi-label">Annual Leave</div>
+                            <div className="kpi-change">
+                                <i className="fas fa-calendar-check"></i> Vacation days
+                            </div>
+                        </div>
+
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--danger-color)' }}>
+                                {stats.absent}
+                            </div>
+                            <div className="kpi-label">Absent</div>
+                            <div className="kpi-change negative">
+                                <i className="fas fa-user-times"></i> Unexcused
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Filter Controls */}
+                    <div className="card" style={{ marginBottom: '2rem' }}>
+                        <h3 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>
+                            <i className="fas fa-filter" style={{ marginRight: '0.5rem' }}></i>
+                            Filter Reports
+                        </h3>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label className="form-label">Start Date</label>
+                                <input
+                                    type="date"
+                                    className="form-input"
+                                    value={dateRange.startDate}
+                                    onChange={(e) => setDateRange({...dateRange, startDate: e.target.value})}
+                                    style={{ margin: 0 }}
+                                />
+                            </div>
+                            
+                            <div className="form-group">
+                                <label className="form-label">End Date</label>
+                                <input
+                                    type="date"
+                                    className="form-input"
+                                    value={dateRange.endDate}
+                                    onChange={(e) => setDateRange({...dateRange, endDate: e.target.value})}
+                                    style={{ margin: 0 }}
+                                />
+                            </div>
+                            
+                            <div className="form-group">
+                                <label className="form-label">Employee</label>
+                                <select
+                                    className="form-select"
+                                    value={selectedEmployee}
+                                    onChange={(e) => setSelectedEmployee(e.target.value)}
+                                    style={{ margin: 0 }}
+                                >
+                                    <option value="">All Employees</option>
+                                    <option value="Teerayut Yeerahem">Teerayut Yeerahem</option>
+                                    <option value="ชัยวุฒิ ไวเชิงค้า">ชัยวุฒิ ไวเชิงค้า</option>
+                                    <option value="Athakorn NATUNG">Athakorn NATUNG</option>
+                                    <option value="Sahatsawat Rimphongern">Sahatsawat Rimphongern</option>
+                                    <option value="มัทนพร แก้วอําไพ">มัทนพร แก้วอําไพ</option>
+                                    <option value="PANUWAT PROMRAKSA">PANUWAT PROMRAKSA</option>
+                                    <option value="Jirapat Sripanya">Jirapat Sripanya</option>
+                                    <option value="Chutithep Phakdeebut">Chutithep Phakdeebut</option>
+                                    <option value="Pong">Pong</option>
+                                    <option value="Nisareen Daklee">Nisareen Daklee</option>
+                                    <option value="Thammakit Ch">Thammakit Ch</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Attendance Table */}
+                    <div className="task-list">
+                        <div className="task-header">
+                            <div>Employee</div>
+                            <div>Date</div>
+                            <div>Status</div>
+                            <div>Check In</div>
+                            <div>Check Out</div>
+                            <div>Notes</div>
+                        </div>
+                        
+                        {loading ? (
+                            <div style={{ padding: '2rem', textAlign: 'center' }}>
+                                <div className="spinner"></div>
+                                Loading attendance data...
+                            </div>
+                        ) : (
+                            attendanceData.map(record => (
+                                <div key={record.id} className="task-row">
+                                    <div style={{ fontWeight: '500' }}>{record.employee}</div>
+                                    <div>{record.date}</div>
+                                    <div>
+                                        <span 
+                                            style={{
+                                                padding: '0.25rem 0.75rem',
+                                                borderRadius: '6px',
+                                                fontSize: '0.75rem',
+                                                fontWeight: '500',
+                                                background: `${getStatusColor(record.status)}20`,
+                                                color: getStatusColor(record.status)
+                                            }}
+                                        >
+                                            {record.status}
+                                        </span>
+                                    </div>
+                                    <div>{record.checkIn}</div>
+                                    <div>{record.checkOut}</div>
+                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                        {record.notes}
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        function Settings() {
+            const [activeTab, setActiveTab] = useState('general');
+            const [settings, setSettings] = useState(() => {
+                const saved = localStorage.getItem('appSettings');
+                return saved ? JSON.parse(saved) : {
+                    general: {
+                        theme: 'light',
+                        autoSync: true,
+                        syncInterval: 30,
+                        notifications: true
+                    },
+                    leaderboard: {
+                        displayMode: 'detailed',
+                        showPoints: true,
+                        showPercentages: true,
+                        autoRefresh: true,
+                        refreshInterval: 5
+                    },
+                    tasks: {
+                        defaultView: 'all',
+                        autoAssign: false,
+                        defaultPriority: 'medium',
+                        showCompleted: true
+                    },
+                    notifications: {
+                        taskReminders: true,
+                        deadlineAlerts: true,
+                        teamUpdates: true,
+                        emailNotifications: false
+                    }
+                };
+            });
+            const [saving, setSaving] = useState(false);
+
+            const saveSettings = async () => {
+                setSaving(true);
+                try {
+                    localStorage.setItem('appSettings', JSON.stringify(settings));
+                    
+                    // Apply theme change immediately
+                    if (settings.general.theme === 'dark') {
+                        document.documentElement.setAttribute('data-theme', 'dark');
+                    } else {
+                        document.documentElement.removeAttribute('data-theme');
+                    }
+                    
+                    setTimeout(() => setSaving(false), 1000);
+                } catch (error) {
+                    console.error('Failed to save settings:', error);
+                    setSaving(false);
+                }
+            };
+
+            const resetSettings = () => {
+                const defaultSettings = {
+                    general: {
+                        theme: 'light',
+                        autoSync: true,
+                        syncInterval: 30,
+                        notifications: true
+                    },
+                    leaderboard: {
+                        displayMode: 'detailed',
+                        showPoints: true,
+                        showPercentages: true,
+                        autoRefresh: true,
+                        refreshInterval: 5
+                    },
+                    tasks: {
+                        defaultView: 'all',
+                        autoAssign: false,
+                        defaultPriority: 'medium',
+                        showCompleted: true
+                    },
+                    notifications: {
+                        taskReminders: true,
+                        deadlineAlerts: true,
+                        teamUpdates: true,
+                        emailNotifications: false
+                    }
+                };
+                setSettings(defaultSettings);
+            };
+
+            const updateSetting = (category, key, value) => {
+                setSettings(prev => ({
+                    ...prev,
+                    [category]: {
+                        ...prev[category],
+                        [key]: value
+                    }
+                }));
+            };
+
+            const exportSettings = () => {
+                const dataStr = JSON.stringify(settings, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                const exportFileDefaultName = 'taskflow-settings.json';
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+            };
+
+            const importSettings = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const imported = JSON.parse(e.target.result);
+                            setSettings(imported);
+                        } catch (error) {
+                            alert('Invalid settings file format');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+
+            return (
+                <div>
+                    <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '2rem' }}>
+                        Settings
+                    </h1>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: '2rem' }}>
+                        {/* Settings Navigation */}
+                        <div className="card" style={{ height: 'fit-content' }}>
+                            <div style={{ padding: '1rem 0' }}>
+                                <h3 style={{ marginBottom: '1rem', color: 'var(--text-primary)', fontSize: '1.1rem' }}>
+                                    Categories
+                                </h3>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                    {[
+                                        { id: 'general', label: 'General', icon: 'fas fa-cog' },
+                                        { id: 'leaderboard', label: 'Leaderboard', icon: 'fas fa-trophy' },
+                                        { id: 'tasks', label: 'Tasks', icon: 'fas fa-tasks' },
+                                        { id: 'notifications', label: 'Notifications', icon: 'fas fa-bell' }
+                                    ].map(tab => (
+                                        <button
+                                            key={tab.id}
+                                            className={`btn ${activeTab === tab.id ? 'btn-primary' : 'btn-ghost'}`}
+                                            onClick={() => setActiveTab(tab.id)}
+                                            style={{ 
+                                                justifyContent: 'flex-start',
+                                                width: '100%',
+                                                padding: '0.75rem 1rem'
+                                            }}
+                                        >
+                                            <i className={tab.icon} style={{ marginRight: '0.5rem' }}></i>
+                                            {tab.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Settings Content */}
+                        <div className="card">
+                            <div style={{ padding: '1rem 0' }}>
+                                {/* General Settings */}
+                                {activeTab === 'general' && (
+                                    <div>
+                                        <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)' }}>
+                                            General Settings
+                                        </h3>
+                                        
+                                        <div className="form-group">
+                                            <label className="form-label">Theme</label>
+                                            <select
+                                                className="form-select"
+                                                value={settings.general.theme}
+                                                onChange={(e) => updateSetting('general', 'theme', e.target.value)}
+                                            >
+                                                <option value="light">Light Theme</option>
+                                                <option value="dark">Dark Theme</option>
+                                            </select>
+                                        </div>
+
+
+                                        <div className="form-group">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    id="autoSync"
+                                                    checked={settings.general.autoSync}
+                                                    onChange={(e) => updateSetting('general', 'autoSync', e.target.checked)}
+                                                />
+                                                <label htmlFor="autoSync" className="form-label" style={{ margin: 0 }}>
+                                                    Enable automatic data synchronization
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        {settings.general.autoSync && (
+                                            <div className="form-group">
+                                                <label className="form-label">Sync Interval (minutes)</label>
+                                                <select
+                                                    className="form-select"
+                                                    value={settings.general.syncInterval}
+                                                    onChange={(e) => updateSetting('general', 'syncInterval', parseInt(e.target.value))}
+                                                >
+                                                    <option value={5}>5 minutes</option>
+                                                    <option value={15}>15 minutes</option>
+                                                    <option value={30}>30 minutes</option>
+                                                    <option value={60}>1 hour</option>
+                                                </select>
+                                            </div>
+                                        )}
+
+                                        <div className="form-group">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    id="notifications"
+                                                    checked={settings.general.notifications}
+                                                    onChange={(e) => updateSetting('general', 'notifications', e.target.checked)}
+                                                />
+                                                <label htmlFor="notifications" className="form-label" style={{ margin: 0 }}>
+                                                    Enable notifications
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Leaderboard Settings */}
+                                {activeTab === 'leaderboard' && (
+                                    <div>
+                                        <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)' }}>
+                                            Leaderboard Settings
+                                        </h3>
+                                        
+                                        <div className="form-group">
+                                            <label className="form-label">Display Mode</label>
+                                            <select
+                                                className="form-select"
+                                                value={settings.leaderboard.displayMode}
+                                                onChange={(e) => updateSetting('leaderboard', 'displayMode', e.target.value)}
+                                            >
+                                                <option value="simple">Simple (Names and Ranks only)</option>
+                                                <option value="detailed">Detailed (Include statistics)</option>
+                                                <option value="compact">Compact (Minimal information)</option>
+                                            </select>
+                                        </div>
+
+                                        <div className="form-group">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    id="showPoints"
+                                                    checked={settings.leaderboard.showPoints}
+                                                    onChange={(e) => updateSetting('leaderboard', 'showPoints', e.target.checked)}
+                                                />
+                                                <label htmlFor="showPoints" className="form-label" style={{ margin: 0 }}>
+                                                    Show point values
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div className="form-group">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    id="showPercentages"
+                                                    checked={settings.leaderboard.showPercentages}
+                                                    onChange={(e) => updateSetting('leaderboard', 'showPercentages', e.target.checked)}
+                                                />
+                                                <label htmlFor="showPercentages" className="form-label" style={{ margin: 0 }}>
+                                                    Show completion percentages
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div className="form-group">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    id="autoRefresh"
+                                                    checked={settings.leaderboard.autoRefresh}
+                                                    onChange={(e) => updateSetting('leaderboard', 'autoRefresh', e.target.checked)}
+                                                />
+                                                <label htmlFor="autoRefresh" className="form-label" style={{ margin: 0 }}>
+                                                    Auto-refresh leaderboard
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        {settings.leaderboard.autoRefresh && (
+                                            <div className="form-group">
+                                                <label className="form-label">Refresh Interval (minutes)</label>
+                                                <select
+                                                    className="form-select"
+                                                    value={settings.leaderboard.refreshInterval}
+                                                    onChange={(e) => updateSetting('leaderboard', 'refreshInterval', parseInt(e.target.value))}
+                                                >
+                                                    <option value={1}>1 minute</option>
+                                                    <option value={5}>5 minutes</option>
+                                                    <option value={10}>10 minutes</option>
+                                                    <option value={15}>15 minutes</option>
+                                                </select>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Task Settings */}
+                                {activeTab === 'tasks' && (
+                                    <div>
+                                        <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)' }}>
+                                            Task Settings
+                                        </h3>
+                                        
+                                        <div className="form-group">
+                                            <label className="form-label">Default Task View</label>
+                                            <select
+                                                className="form-select"
+                                                value={settings.tasks.defaultView}
+                                                onChange={(e) => updateSetting('tasks', 'defaultView', e.target.value)}
+                                            >
+                                                <option value="all">All Tasks</option>
+                                                <option value="assigned">Assigned to Me</option>
+                                                <option value="pending">Pending Tasks</option>
+                                                <option value="inprogress">In Progress</option>
+                                            </select>
+                                        </div>
+
+                                        <div className="form-group">
+                                            <label className="form-label">Default Priority for New Tasks</label>
+                                            <select
+                                                className="form-select"
+                                                value={settings.tasks.defaultPriority}
+                                                onChange={(e) => updateSetting('tasks', 'defaultPriority', e.target.value)}
+                                            >
+                                                <option value="low">Low Priority</option>
+                                                <option value="medium">Medium Priority</option>
+                                                <option value="high">High Priority</option>
+                                            </select>
+                                        </div>
+
+                                        <div className="form-group">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    id="showCompleted"
+                                                    checked={settings.tasks.showCompleted}
+                                                    onChange={(e) => updateSetting('tasks', 'showCompleted', e.target.checked)}
+                                                />
+                                                <label htmlFor="showCompleted" className="form-label" style={{ margin: 0 }}>
+                                                    Show completed tasks by default
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div className="form-group">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    id="autoAssign"
+                                                    checked={settings.tasks.autoAssign}
+                                                    onChange={(e) => updateSetting('tasks', 'autoAssign', e.target.checked)}
+                                                />
+                                                <label htmlFor="autoAssign" className="form-label" style={{ margin: 0 }}>
+                                                    Auto-assign new tasks to current user
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Notification Settings */}
+                                {activeTab === 'notifications' && (
+                                    <div>
+                                        <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)' }}>
+                                            Notification Settings
+                                        </h3>
+                                        
+                                        <div className="form-group">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    id="taskReminders"
+                                                    checked={settings.notifications.taskReminders}
+                                                    onChange={(e) => updateSetting('notifications', 'taskReminders', e.target.checked)}
+                                                />
+                                                <label htmlFor="taskReminders" className="form-label" style={{ margin: 0 }}>
+                                                    Task reminders
+                                                </label>
+                                            </div>
+                                            <small style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
+                                                Get reminders for upcoming task deadlines
+                                            </small>
+                                        </div>
+
+                                        <div className="form-group">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    id="deadlineAlerts"
+                                                    checked={settings.notifications.deadlineAlerts}
+                                                    onChange={(e) => updateSetting('notifications', 'deadlineAlerts', e.target.checked)}
+                                                />
+                                                <label htmlFor="deadlineAlerts" className="form-label" style={{ margin: 0 }}>
+                                                    Deadline alerts
+                                                </label>
+                                            </div>
+                                            <small style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
+                                                Immediate alerts when tasks are overdue
+                                            </small>
+                                        </div>
+
+                                        <div className="form-group">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    id="teamUpdates"
+                                                    checked={settings.notifications.teamUpdates}
+                                                    onChange={(e) => updateSetting('notifications', 'teamUpdates', e.target.checked)}
+                                                />
+                                                <label htmlFor="teamUpdates" className="form-label" style={{ margin: 0 }}>
+                                                    Team updates
+                                                </label>
+                                            </div>
+                                            <small style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
+                                                Notifications about team member activities
+                                            </small>
+                                        </div>
+
+                                        <div className="form-group">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    id="emailNotifications"
+                                                    checked={settings.notifications.emailNotifications}
+                                                    onChange={(e) => updateSetting('notifications', 'emailNotifications', e.target.checked)}
+                                                />
+                                                <label htmlFor="emailNotifications" className="form-label" style={{ margin: 0 }}>
+                                                    Email notifications
+                                                </label>
+                                            </div>
+                                            <small style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
+                                                Send notifications to your email address
+                                            </small>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Action Buttons */}
+                                <div style={{ 
+                                    marginTop: '3rem', 
+                                    paddingTop: '2rem', 
+                                    borderTop: '1px solid var(--border-color)',
+                                    display: 'flex',
+                                    gap: '1rem',
+                                    flexWrap: 'wrap'
+                                }}>
+                                    <button 
+                                        className="btn btn-primary"
+                                        onClick={saveSettings}
+                                        disabled={saving}
+                                    >
+                                        <i className={`fas ${saving ? 'fa-spinner fa-spin' : 'fa-save'}`}></i>
+                                        {saving ? 'Saving...' : 'Save Settings'}
+                                    </button>
+                                    <button 
+                                        className="btn btn-secondary"
+                                        onClick={resetSettings}
+                                    >
+                                        <i className="fas fa-undo"></i>
+                                        Reset to Defaults
+                                    </button>
+                                    <button 
+                                        className="btn btn-secondary"
+                                        onClick={exportSettings}
+                                    >
+                                        <i className="fas fa-download"></i>
+                                        Export Settings
+                                    </button>
+                                    <label className="btn btn-secondary" style={{ cursor: 'pointer' }}>
+                                        <i className="fas fa-upload"></i>
+                                        Import Settings
+                                        <input 
+                                            type="file" 
+                                            accept=".json" 
+                                            onChange={importSettings}
+                                            style={{ display: 'none' }}
+                                        />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Render the app
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

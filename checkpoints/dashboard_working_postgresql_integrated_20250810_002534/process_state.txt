@@ -1,0 +1,3 @@
+one-cli+ 3826723  0.2  0.8 11786516 71416 ?      Ssl  00:18   0:01 node /home/one-climate/team-workload/backend_postgresql_on
+one-cli+ 3827765  0.0  0.0   7372  3544 ?        Ss   00:25   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/dashboard_working_postgresql_integrated_20250810_002534/process_state.txt
+one-cli+ 3827767  0.0  0.0   6480  2308 ?        R    00:25   0:00 grep backend

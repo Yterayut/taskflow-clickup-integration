@@ -1,0 +1,118 @@
+{
+  "timestamp": "2025-06-29T08:35:19.027Z",
+  "total": 18,
+  "passed": 17,
+  "failed": 1,
+  "successRate": 94,
+  "results": [
+    {
+      "name": "Backend health endpoint responds",
+      "status": "PASS",
+      "duration": 209
+    },
+    {
+      "name": "Backend response time is acceptable",
+      "status": "PASS",
+      "duration": 174
+    },
+    {
+      "name": "ClickUp OAuth endpoint is accessible",
+      "status": "PASS",
+      "duration": 653
+    },
+    {
+      "name": "Frontend loads successfully",
+      "status": "PASS",
+      "duration": 121
+    },
+    {
+      "name": "Frontend load time is acceptable",
+      "status": "PASS",
+      "duration": 50
+    },
+    {
+      "name": "Essential UI elements are present in HTML",
+      "status": "PASS",
+      "duration": 55
+    },
+    {
+      "name": "API configuration is correct in frontend",
+      "status": "PASS",
+      "duration": 55
+    },
+    {
+      "name": "User data endpoint is accessible",
+      "status": "FAIL",
+      "error": "Expected \"200,401,403,500\" to contain \"404\""
+    },
+    {
+      "name": "ClickUp data endpoint is accessible",
+      "status": "PASS",
+      "duration": 54
+    },
+    {
+      "name": "CORS is properly configured",
+      "status": "PASS",
+      "duration": 30
+    },
+    {
+      "name": "404 handling works correctly",
+      "status": "PASS",
+      "duration": 38
+    },
+    {
+      "name": "Component switching URLs are configured",
+      "status": "PASS",
+      "duration": 72
+    },
+    {
+      "name": "Navigation elements are present",
+      "status": "PASS",
+      "duration": 68
+    },
+    {
+      "name": "Update functionality is present",
+      "status": "PASS",
+      "duration": 49
+    },
+    {
+      "name": "Backend handles concurrent requests",
+      "status": "PASS",
+      "duration": 87
+    },
+    {
+      "name": "Frontend serves static content efficiently",
+      "status": "PASS",
+      "duration": 45
+    },
+    {
+      "name": "Backend includes security headers",
+      "status": "PASS",
+      "duration": 49
+    },
+    {
+      "name": "Malformed requests are handled",
+      "status": "PASS",
+      "duration": 53
+    }
+  ],
+  "coverage": {
+    "frontend": {
+      "essential_elements": "PASS",
+      "navigation": "PASS",
+      "api_integration": "PASS",
+      "performance": "PASS"
+    },
+    "backend": {
+      "health_endpoints": "PASS",
+      "api_accessibility": "PASS",
+      "cors_configuration": "PASS",
+      "error_handling": "PASS"
+    },
+    "integration": {
+      "frontend_backend": "PASS",
+      "clickup_oauth": "PASS",
+      "concurrent_handling": "PASS"
+    }
+  }
+}

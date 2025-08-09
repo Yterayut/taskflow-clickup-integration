@@ -1,0 +1,58 @@
+{
+  "monitoring": {
+    "enabled": true,
+    "intervals": {
+      "metrics": 10000,
+      "health": 30000,
+      "performance": 60000
+    },
+    "retention": {
+      "metrics": "24h",
+      "health": "7d",
+      "alerts": "30d"
+    },
+    "thresholds": {
+      "responseTime": {
+        "warning": 1000,
+        "critical": 3000
+      },
+      "cpuUsage": {
+        "warning": 70,
+        "critical": 90
+      },
+      "memoryUsage": {
+        "warning": 80,
+        "critical": 95
+      },
+      "errorRate": {
+        "warning": 5,
+        "critical": 10
+      },
+      "tokenExpiry": {
+        "warning": 60,
+        "critical": 30
+      }
+    }
+  },
+  "alerting": {
+    "enabled": true,
+    "channels": [
+      "console",
+      "log"
+    ],
+    "escalation": {
+      "enabled": true,
+      "delays": {
+        "low": 3600,
+        "medium": 1800,
+        "high": 900,
+        "critical": 300
+      }
+    }
+  },
+  "dashboard": {
+    "enabled": true,
+    "refreshInterval": 30000,
+    "autoRefresh": true
+  }
+}

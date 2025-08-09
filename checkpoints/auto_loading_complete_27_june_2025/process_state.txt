@@ -1,0 +1,2 @@
+one-cli+ 1065820  0.0  0.0   7372  3616 ?        Ss   16:26   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/auto_loading_complete_27_june_2025/process_state.txt
+one-cli+ 1065822  0.0  0.0   6480  2500 ?        R    16:26   0:00 grep backend

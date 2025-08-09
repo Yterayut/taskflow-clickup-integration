@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # Frontend (React + Vite)
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: ../../infrastructure/docker/Dockerfile.frontend
+      target: development
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:5000
+    depends_on:
+      - backend
+    networks:
+      - taskflow-network
+
+  # Backend (Node.js + Express)
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: ../../infrastructure/docker/Dockerfile.backend
+      target: development
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./apps/backend:/app
+      - /app/node_modules
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - NODE_ENV=development
+      - HOST=0.0.0.0
+      - PORT=5000
+      - DATABASE_PATH=/app/data/taskflow.db
+      - JWT_SECRET=development-jwt-secret-key-minimum-32-characters-long
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:8888
+      - LOG_LEVEL=debug
+    depends_on:
+      - redis
+    networks:
+      - taskflow-network
+
+  # Redis (Caching and Session Storage)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - taskflow-network
+
+  # Nginx (Reverse Proxy for Production-like Setup)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./infrastructure/nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - taskflow-network
+
+volumes:
+  redis-data:
+  postgres-data:
+
+networks:
+  taskflow-network:
+    driver: bridge

@@ -1,0 +1,46 @@
+# TaskFlow Pro Authentication Environment Configuration
+
+# Server Configuration
+NODE_ENV=production
+AUTH_PORT=7810
+
+# Database Configuration (PostgreSQL)
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=taskflow_pro
+DB_USER=taskflow_user
+DB_PASSWORD=your_secure_database_password
+DB_SSL=false
+
+# JWT Configuration
+JWT_SECRET=your_very_secure_jwt_secret_key_here_at_least_64_characters_long
+JWT_EXPIRES_IN=24h
+JWT_ISSUER=taskflow-pro
+JWT_AUDIENCE=taskflow-users
+
+# Bcrypt Configuration
+BCRYPT_SALT_ROUNDS=12
+
+# ClickUp OAuth Configuration
+CLICKUP_CLIENT_ID=DA3L6I2MS7RC39PFH7PZGRZAG4A1J8LL
+CLICKUP_CLIENT_SECRET=your_clickup_client_secret
+CLICKUP_REDIRECT_URI=http://192.168.20.10:7810/auth/callback
+
+# Frontend URLs
+FRONTEND_URL=http://192.168.20.10:8888
+DASHBOARD_URL=http://192.168.20.10:8888
+
+# Security Configuration
+COOKIE_SECRET=your_cookie_secret_key_here
+SESSION_SECRET=your_session_secret_key_here
+
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=5
+
+# Logging
+LOG_LEVEL=info
+LOG_FILE=auth_service.log
+
+# CORS Origins (comma-separated)
+CORS_ORIGINS=http://192.168.20.10:8888,http://localhost:8888,http://127.0.0.1:8888

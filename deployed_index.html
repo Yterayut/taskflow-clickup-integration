@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - Team Management Dashboard</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1d4ed8;
+            --secondary-blue: #3b82f6;
+            --light-blue: #dbeafe;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+            --text-dark: #1f2937;
+            --text-gray: #6b7280;
+            --text-light: #9ca3af;
+            --bg-white: #ffffff;
+            --bg-gray: #f9fafb;
+            --bg-light: #f3f4f6;
+            --border-gray: #e5e7eb;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-gray);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        
+        /* Login Page Styles */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+        }
+        
+        .login-card {
+            background: var(--bg-white);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+        
+        .login-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--primary-blue);
+        }
+        
+        .login-subtitle {
+            color: var(--text-gray);
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border-gray);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .login-btn:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-1px);
+        }
+        
+        /* Header Styles */
+        .header {
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border-gray);
+            height: 80px;
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .header-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .nav-item {
+            padding: 0.7rem 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: var(--primary-blue);
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-light);
+            border-radius: 12px;
+        }
+        
+        .logout-btn {
+            padding: 0.6rem 1.2rem;
+            background: var(--danger-red);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .logout-btn:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--text-dark);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .card {
+            background: var(--bg-white);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .kpi-card {
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-blue);
+        }
+        
+        .kpi-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--primary-blue);
+        }
+        
+        .kpi-label {
+            color: var(--text-gray);
+            font-size: 1rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .kpi-trend {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .trend-up { color: var(--success-green); }
+        .trend-down { color: var(--danger-red); }
+        
+        /* Task Management Styles */
+        .task-section {
+            background: var(--bg-white);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+        }
+        
+        .task-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-gray);
+        }
+        
+        .filter-select, .filter-input {
+            padding: 0.7rem;
+            border: 2px solid var(--border-gray);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .filter-select:focus, .filter-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+        
+        .task-list {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .task-item {
+            background: var(--bg-light);
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .task-item:hover {
+            background: var(--bg-white);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .task-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        
+        .task-priority {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .priority-high {
+            background: #fee2e2;
+            color: var(--danger-red);
+        }
+        
+        .priority-medium {
+            background: #fef3c7;
+            color: var(--warning-orange);
+        }
+        
+        .priority-low {
+            background: #d1fae5;
+            color: var(--success-green);
+        }
+        
+        .task-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+        
+        .task-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-completed {
+            background: #d1fae5;
+            color: var(--success-green);
+        }
+        
+        .status-in-progress {
+            background: #dbeafe;
+            color: var(--primary-blue);
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: var(--warning-orange);
+        }
+        
+        /* Attendance Reporting Styles */
+        .attendance-section {
+            margin-top: 2rem;
+        }
+        
+        .date-range-picker {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            align-items: end;
+        }
+        
+        .btn-primary {
+            padding: 0.7rem 1.5rem;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-1px);
+        }
+        
+        .attendance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .attendance-card {
+            background: var(--bg-white);
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .attendance-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .attendance-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .status-present { background: #d1fae5; color: var(--success-green); }
+        .status-sick { background: #fef3c7; color: var(--warning-orange); }
+        .status-annual { background: #dbeafe; color: var(--primary-blue); }
+        .status-absent { background: #fee2e2; color: var(--danger-red); }
+        
+        .attendance-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .summary-item {
+            background: var(--bg-light);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+        
+        .summary-label {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+            font-weight: 600;
+        }
+        
+        /* Team Ranking Styles */
+        .ranking-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .ranking-list {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            background: var(--bg-white);
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .ranking-item:hover {
+            box-shadow: var(--shadow-md);
+        }
+        
+        .ranking-position {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-right: 1rem;
+            min-width: 3rem;
+            text-align: center;
+        }
+        
+        .ranking-info {
+            flex: 1;
+        }
+        
+        .ranking-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+        
+        .ranking-email {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+        
+        .ranking-score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--success-green);
+            text-align: right;
+        }
+        
+        /* Settings Styles */
+        .settings-section {
+            margin-bottom: 2rem;
+        }
+        
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-gray);
+        }
+        
+        .setting-label {
+            font-weight: 600;
+        }
+        
+        .setting-description {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 25px;
+            background: var(--border-gray);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: var(--primary-blue);
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 21px;
+            height: 21px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(25px);
+        }
+
+        /* Settings Tabs Styles */
+        .settings-tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid var(--border-gray);
+            padding-bottom: 0;
+        }
+
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-gray);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-button:hover {
+            color: var(--primary-blue);
+            background: var(--light-blue);
+        }
+
+        .tab-button.active {
+            color: var(--primary-blue);
+            border-bottom-color: var(--primary-blue);
+            background: var(--light-blue);
+        }
+
+        .tab-button i {
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 1rem;
+            }
+            
+            .header-left {
+                gap: 1rem;
+            }
+            
+            .nav-menu {
+                display: none;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .task-controls {
+                flex-direction: column;
+            }
+            
+            .task-header {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+        
+        /* Loading States */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            color: var(--text-gray);
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-gray);
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // Complete User Database with 11 users
+        const userDatabase = {
+            'yterayut@gmail.com': {
+                name: 'Teerayut Yeerahem',
+                email: 'yterayut@gmail.com',
+                role: 'Manager',
+                password: '12345'
+            },
+            'chaiwutwck@gmail.com': {
+                name: 'ชัยวุฒิ ไวเชิงค้า',
+                email: 'chaiwutwck@gmail.com',
+                role: 'Team Lead',
+                password: '12345'
+            },
+            'athakorn.natung@gmail.com': {
+                name: 'Athakorn NATUNG',
+                email: 'athakorn.natung@gmail.com',
+                role: 'Employee',
+                password: '12345'
+            },
+            'sahatsawat.rimphongern@gmail.com': {
+                name: 'Sahatsawat Rimphongern',
+                email: 'sahatsawat.rimphongern@gmail.com',
+                role: 'Employee',
+                password: '12345'
+            },
+            'mattanporn.kaewampai@gmail.com': {
+                name: 'มัทนพร แก้วอําไพ',
+                email: 'mattanporn.kaewampai@gmail.com',
+                role: 'Employee',
+                password: '12345'
+            },
+            'panuwat.promraksa@gmail.com': {
+                name: 'PANUWAT PROMRAKSA',
+                email: 'panuwat.promraksa@gmail.com',
+                role: 'Employee',
+                password: '12345'
+            },
+            'jirapat.sripanya@gmail.com': {
+                name: 'Jirapat Sripanya',
+                email: 'jirapat.sripanya@gmail.com',
+                role: 'Employee',
+                password: '12345'
+            },
+            'chutithep.phakdeebut@gmail.com': {
+                name: 'Chutithep Phakdeebut',
+                email: 'chutithep.phakdeebut@gmail.com',
+                role: 'Employee',
+                password: '12345'
+            },
+            'pong@gmail.com': {
+                name: 'Pong',
+                email: 'pong@gmail.com',
+                role: 'Employee',
+                password: '12345'
+            },
+            'nisareen.daklee@gmail.com': {
+                name: 'Nisareen Daklee',
+                email: 'nisareen.daklee@gmail.com',
+                role: 'Employee',
+                password: '12345'
+            },
+            'thammakit.ch@gmail.com': {
+                name: 'Thammakit Ch',
+                email: 'thammakit.ch@gmail.com',
+                role: 'Employee',
+                password: '12345'
+            }
+        };
+
+        // Mock Task Data
+        const generateMockTasks = () => [
+            {
+                id: 1,
+                title: 'ออกแบบระบบ Dashboard',
+                assignee: 'Teerayut Yeerahem',
+                priority: 'high',
+                status: 'in-progress',
+                dueDate: '2025-06-25',
+                description: 'ออกแบบและพัฒนา Dashboard สำหรับจัดการข้อมูลทีม'
+            },
+            {
+                id: 2,
+                title: 'พัฒนา API Authentication',
+                assignee: 'ชัยวุฒิ ไวเชิงค้า',
+                priority: 'high',
+                status: 'completed',
+                dueDate: '2025-06-20',
+                description: 'สร้างระบบ authentication สำหรับ API'
+            },
+            {
+                id: 3,
+                title: 'ทดสอบระบบ Login',
+                assignee: 'Athakorn NATUNG',
+                priority: 'medium',
+                status: 'in-progress',
+                dueDate: '2025-06-22',
+                description: 'ทดสอบการทำงานของระบบ login'
+            },
+            {
+                id: 4,
+                title: 'สร้างฐานข้อมูล Users',
+                assignee: 'Sahatsawat Rimphongern',
+                priority: 'high',
+                status: 'completed',
+                dueDate: '2025-06-18',
+                description: 'ออกแบบและสร้างฐานข้อมูลผู้ใช้'
+            },
+            {
+                id: 5,
+                title: 'อัพเดท UI/UX Design',
+                assignee: 'มัทนพร แก้วอําไพ',
+                priority: 'medium',
+                status: 'pending',
+                dueDate: '2025-06-28',
+                description: 'ปรับปรุงการออกแบบหน้าตาระบบ'
+            },
+            {
+                id: 6,
+                title: 'เขียนเอกสาร API',
+                assignee: 'PANUWAT PROMRAKSA',
+                priority: 'low',
+                status: 'pending',
+                dueDate: '2025-06-30',
+                description: 'จัดทำเอกสารสำหรับ API documentation'
+            },
+            {
+                id: 7,
+                title: 'ทดสอบระบบ Task Management',
+                assignee: 'Jirapat Sripanya',
+                priority: 'medium',
+                status: 'in-progress',
+                dueDate: '2025-06-24',
+                description: 'ทดสอบฟีเจอร์จัดการงาน'
+            },
+            {
+                id: 8,
+                title: 'สร้างระบบ Notification',
+                assignee: 'Chutithep Phakdeebut',
+                priority: 'low',
+                status: 'pending',
+                dueDate: '2025-07-02',
+                description: 'พัฒนาระบบแจ้งเตือน'
+            },
+            {
+                id: 9,
+                title: 'ปรับปรุงความปลอดภัย',
+                assignee: 'Pong',
+                priority: 'high',
+                status: 'in-progress',
+                dueDate: '2025-06-26',
+                description: 'ตรวจสอบและปรับปรุงระบบความปลอดภัย'
+            },
+            {
+                id: 10,
+                title: 'จัดทำ Backup System',
+                assignee: 'Nisareen Daklee',
+                priority: 'medium',
+                status: 'completed',
+                dueDate: '2025-06-19',
+                description: 'สร้างระบบสำรองข้อมูลอัตโนมัติ'
+            }
+        ];
+
+        // Mock Attendance Data
+        const generateMockAttendance = (startDate, endDate) => {
+            const attendanceData = [];
+            const users = Object.values(userDatabase);
+            const statuses = ['present', 'sick', 'annual', 'absent'];
+            const statusWeights = [0.7, 0.1, 0.1, 0.1]; // 70% present, 10% each other
+            
+            users.forEach(user => {
+                const randomValue = Math.random();
+                let selectedStatus = 'present';
+                
+                if (randomValue < 0.1) selectedStatus = 'absent';
+                else if (randomValue < 0.2) selectedStatus = 'annual';
+                else if (randomValue < 0.3) selectedStatus = 'sick';
+                
+                attendanceData.push({
+                    name: user.name,
+                    email: user.email,
+                    status: selectedStatus,
+                    date: new Date().toISOString().split('T')[0]
+                });
+            });
+            
+            return attendanceData;
+        };
+
+        // Configurable Scoring Settings
+        const defaultScoringConfig = {
+            completedTaskWeight: 10,
+            highPriorityWeight: 5,
+            onTimeCompletionWeight: 15,
+            teamworkWeight: 5,
+            qualityWeight: 8
+        };
+
+        // Get scoring config from localStorage or use default
+        const getScoringConfig = () => {
+            const saved = localStorage.getItem('scoringConfig');
+            return saved ? JSON.parse(saved) : defaultScoringConfig;
+        };
+
+        // Save scoring config to localStorage
+        const saveScoringConfig = (config) => {
+            localStorage.setItem('scoringConfig', JSON.stringify(config));
+        };
+
+        // Enhanced Team Ranking Algorithm with Configurable Scoring
+        const calculateTeamRanking = (users, tasks) => {
+            const config = getScoringConfig();
+            
+            return users.map(user => {
+                const userTasks = tasks.filter(task => task.assignee === user.name);
+                const completedTasks = userTasks.filter(task => task.status === 'completed').length;
+                const highPriorityTasks = userTasks.filter(task => task.priority === 'high').length;
+                const onTimeCompletion = userTasks.filter(task => 
+                    task.status === 'completed' && new Date(task.dueDate) >= new Date()
+                ).length;
+                
+                // Additional metrics for enhanced scoring
+                const teamworkScore = Math.floor(Math.random() * 10) + 1; // Mock teamwork score
+                const qualityScore = Math.floor(Math.random() * 10) + 1; // Mock quality score
+                
+                const score = (completedTasks * config.completedTaskWeight) + 
+                             (highPriorityTasks * config.highPriorityWeight) + 
+                             (onTimeCompletion * config.onTimeCompletionWeight) +
+                             (teamworkScore * config.teamworkWeight) +
+                             (qualityScore * config.qualityWeight);
+                
+                return {
+                    ...user,
+                    score: Math.round(score),
+                    completedTasks: completedTasks,
+                    totalTasks: userTasks.length,
+                    teamworkScore: teamworkScore,
+                    qualityScore: qualityScore,
+                    onTimeRate: userTasks.length > 0 ? Math.round((onTimeCompletion / userTasks.length) * 100) : 0
+                };
+            }).sort((a, b) => b.score - a.score);
+        };
+
+        // Login Component
+        function LoginPage({ onLogin }) {
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                onLogin(email, password);
+            };
+
+            return (
+                <div className="login-container">
+                    <div className="login-card">
+                        <h1 className="login-title">TaskFlow Pro</h1>
+                        <p className="login-subtitle">Team Management Dashboard</p>
+                        
+                        <form onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <label className="form-label">Email</label>
+                                <input
+                                    type="email"
+                                    className="form-input"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Password</label>
+                                <input
+                                    type="password"
+                                    className="form-input"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <button type="submit" className="login-btn">
+                                เข้าสู่ระบบ
+                            </button>
+                        </form>
+                        
+                        <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: '#6b7280' }}>
+                            <strong>ทดลองใช้งาน:</strong><br/>
+                            Manager: yterayut@gmail.com / 12345<br/>
+                            Team Lead: chaiwutwck@gmail.com / 12345
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Header Component
+        function Header({ user, currentView, setCurrentView, onLogout }) {
+            const navItems = [
+                { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-chart-bar', roles: ['Manager', 'Team Lead', 'Employee'] },
+                { id: 'tasks', label: 'My Tasks', icon: 'fas fa-tasks', roles: ['Manager', 'Team Lead', 'Employee'] },
+                { id: 'employees', label: 'Employee Management', icon: 'fas fa-users', roles: ['Manager', 'Team Lead'] },
+                { id: 'reports', label: 'Reports', icon: 'fas fa-chart-line', roles: ['Manager', 'Team Lead'] },
+                { id: 'ranking', label: 'Team Ranking', icon: 'fas fa-trophy', roles: ['Manager', 'Team Lead', 'Employee'] },
+                { id: 'settings', label: 'Settings', icon: 'fas fa-cog', roles: ['Manager', 'Team Lead', 'Employee'] }
+            ];
+
+            return (
+                <div className="header">
+                    <div className="header-left">
+                        <div className="header-title">
+                            <i className="fas fa-project-diagram" style={{ marginRight: '0.5rem' }}></i>
+                            TaskFlow Pro
+                        </div>
+                        <div className="nav-menu">
+                            {navItems
+                                .filter(item => item.roles.includes(user?.role))
+                                .map(item => (
+                                    <button
+                                        key={item.id}
+                                        className={`nav-item ${currentView === item.id ? 'active' : ''}`}
+                                        onClick={() => setCurrentView(item.id)}
+                                    >
+                                        <i className={item.icon} style={{ marginRight: '0.5rem' }}></i>
+                                        {item.label}
+                                    </button>
+                                ))
+                            }
+                        </div>
+                    </div>
+                    <div className="header-right">
+                        <div className="user-profile">
+                            <i className="fas fa-user-circle" style={{ fontSize: '1.5rem', color: 'var(--primary-blue)' }}></i>
+                            <div>
+                                <div style={{ fontWeight: '600' }}>{user?.name}</div>
+                                <div style={{ fontSize: '0.8rem', color: 'var(--text-gray)' }}>
+                                    {user?.role}
+                                </div>
+                            </div>
+                        </div>
+                        <button className="logout-btn" onClick={onLogout}>
+                            <i className="fas fa-sign-out-alt" style={{ marginRight: '0.5rem' }}></i>
+                            ออกจากระบบ
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // Dashboard Component with 5 KPIs
+        function Dashboard({ tasks }) {
+            const kpis = useMemo(() => {
+                const totalTasks = tasks.length;
+                const completedTasks = tasks.filter(t => t.status === 'completed').length;
+                const inProgressTasks = tasks.filter(t => t.status === 'in-progress').length;
+                const overdueTasks = tasks.filter(t => 
+                    t.status !== 'completed' && new Date(t.dueDate) < new Date()
+                ).length;
+                const efficiency = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+                
+                return {
+                    totalTasks,
+                    completedTasks,
+                    inProgressTasks,
+                    overdueTasks,
+                    efficiency
+                };
+            }, [tasks]);
+
+            return (
+                <div className="main-content">
+                    <h1 className="page-title">
+                        <i className="fas fa-chart-bar" style={{ marginRight: '0.5rem' }}></i>
+                        Dashboard
+                    </h1>
+                    
+                    <div className="dashboard-grid">
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--primary-blue)' }}>
+                                {kpis.totalTasks}
+                            </div>
+                            <div className="kpi-label">Total Tasks</div>
+                            <div className="kpi-trend trend-up">
+                                <i className="fas fa-arrow-up"></i> งานทั้งหมดในระบบ
+                            </div>
+                        </div>
+                        
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--success-green)' }}>
+                                {kpis.completedTasks}
+                            </div>
+                            <div className="kpi-label">Completed Tasks</div>
+                            <div className="kpi-trend trend-up">
+                                <i className="fas fa-check-circle"></i> งานที่เสร็จแล้ว
+                            </div>
+                        </div>
+                        
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--warning-orange)' }}>
+                                {kpis.inProgressTasks}
+                            </div>
+                            <div className="kpi-label">In Progress</div>
+                            <div className="kpi-trend">
+                                <i className="fas fa-clock"></i> งานที่กำลังดำเนินการ
+                            </div>
+                        </div>
+                        
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--danger-red)' }}>
+                                {kpis.overdueTasks}
+                            </div>
+                            <div className="kpi-label">Overdue Tasks</div>
+                            <div className="kpi-trend trend-down">
+                                <i className="fas fa-exclamation-triangle"></i> งานที่เลยกำหนด
+                            </div>
+                        </div>
+                        
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--primary-blue)' }}>
+                                {kpis.efficiency}%
+                            </div>
+                            <div className="kpi-label">Team Efficiency</div>
+                            <div className="kpi-trend trend-up">
+                                <i className="fas fa-chart-line"></i> ประสิทธิภาพทีม
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // My Tasks Component with Advanced Filtering
+        function MyTasks({ tasks, user }) {
+            const [filteredTasks, setFilteredTasks] = useState(tasks);
+            const [filters, setFilters] = useState({
+                assignee: '',
+                priority: '',
+                status: '',
+                search: ''
+            });
+            const [sortBy, setSortBy] = useState('dueDate');
+
+            useEffect(() => {
+                let filtered = tasks;
+                
+                // Apply filters
+                if (filters.assignee) {
+                    filtered = filtered.filter(task => task.assignee.includes(filters.assignee));
+                }
+                if (filters.priority) {
+                    filtered = filtered.filter(task => task.priority === filters.priority);
+                }
+                if (filters.status) {
+                    filtered = filtered.filter(task => task.status === filters.status);
+                }
+                if (filters.search) {
+                    filtered = filtered.filter(task => 
+                        task.title.toLowerCase().includes(filters.search.toLowerCase()) ||
+                        task.description.toLowerCase().includes(filters.search.toLowerCase())
+                    );
+                }
+                
+                // Apply sorting
+                filtered.sort((a, b) => {
+                    switch (sortBy) {
+                        case 'title':
+                            return a.title.localeCompare(b.title);
+                        case 'priority':
+                            const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+                            return priorityOrder[b.priority] - priorityOrder[a.priority];
+                        case 'dueDate':
+                            return new Date(a.dueDate) - new Date(b.dueDate);
+                        default:
+                            return 0;
+                    }
+                });
+                
+                setFilteredTasks(filtered);
+            }, [tasks, filters, sortBy]);
+
+            const uniqueAssignees = [...new Set(tasks.map(task => task.assignee))];
+
+            return (
+                <div className="main-content">
+                    <div className="task-section">
+                        <h1 className="section-title">
+                            <i className="fas fa-tasks" style={{ marginRight: '0.5rem' }}></i>
+                            My Tasks
+                        </h1>
+                        
+                        <div className="task-controls">
+                            <div className="filter-group">
+                                <label className="filter-label">ค้นหา</label>
+                                <input
+                                    type="text"
+                                    className="filter-input"
+                                    placeholder="ค้นหางาน..."
+                                    value={filters.search}
+                                    onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                                />
+                            </div>
+                            
+                            <div className="filter-group">
+                                <label className="filter-label">ผู้รับผิดชอบ</label>
+                                <select
+                                    className="filter-select"
+                                    value={filters.assignee}
+                                    onChange={(e) => setFilters(prev => ({ ...prev, assignee: e.target.value }))}
+                                >
+                                    <option value="">ทั้งหมด</option>
+                                    {uniqueAssignees.map(assignee => (
+                                        <option key={assignee} value={assignee}>{assignee}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            
+                            <div className="filter-group">
+                                <label className="filter-label">ระดับความสำคัญ</label>
+                                <select
+                                    className="filter-select"
+                                    value={filters.priority}
+                                    onChange={(e) => setFilters(prev => ({ ...prev, priority: e.target.value }))}
+                                >
+                                    <option value="">ทั้งหมด</option>
+                                    <option value="high">สูง</option>
+                                    <option value="medium">กลาง</option>
+                                    <option value="low">ต่ำ</option>
+                                </select>
+                            </div>
+                            
+                            <div className="filter-group">
+                                <label className="filter-label">สถานะ</label>
+                                <select
+                                    className="filter-select"
+                                    value={filters.status}
+                                    onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+                                >
+                                    <option value="">ทั้งหมด</option>
+                                    <option value="pending">รอดำเนินการ</option>
+                                    <option value="in-progress">กำลังดำเนินการ</option>
+                                    <option value="completed">เสร็จแล้ว</option>
+                                </select>
+                            </div>
+                            
+                            <div className="filter-group">
+                                <label className="filter-label">เรียงตาม</label>
+                                <select
+                                    className="filter-select"
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                >
+                                    <option value="title">ชื่องาน</option>
+                                    <option value="priority">ความสำคัญ</option>
+                                    <option value="dueDate">วันกำหนดส่ง</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div className="task-list">
+                            {filteredTasks.map(task => (
+                                <div key={task.id} className="task-item">
+                                    <div className="task-header">
+                                        <h3 className="task-title">{task.title}</h3>
+                                        <span className={`task-priority priority-${task.priority}`}>
+                                            {task.priority === 'high' ? 'สูง' : 
+                                             task.priority === 'medium' ? 'กลาง' : 'ต่ำ'}
+                                        </span>
+                                    </div>
+                                    <p style={{ color: 'var(--text-gray)', marginBottom: '1rem' }}>
+                                        {task.description}
+                                    </p>
+                                    <div className="task-meta">
+                                        <span>
+                                            <i className="fas fa-user" style={{ marginRight: '0.3rem' }}></i>
+                                            {task.assignee}
+                                        </span>
+                                        <span>
+                                            <i className="fas fa-calendar" style={{ marginRight: '0.3rem' }}></i>
+                                            {task.dueDate}
+                                        </span>
+                                        <span className={`task-status status-${task.status}`}>
+                                            {task.status === 'completed' ? 'เสร็จแล้ว' :
+                                             task.status === 'in-progress' ? 'กำลังดำเนินการ' : 'รอดำเนินการ'}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        
+                        {filteredTasks.length === 0 && (
+                            <div className="loading">
+                                <i className="fas fa-search" style={{ fontSize: '2rem', marginBottom: '1rem' }}></i>
+                                <p>ไม่พบงานที่ตรงกับเงื่อนไขการค้นหา</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // Employee Management Component
+        function EmployeeManagement() {
+            const users = Object.values(userDatabase);
+            
+            return (
+                <div className="main-content">
+                    <div className="task-section">
+                        <h1 className="section-title">
+                            <i className="fas fa-users" style={{ marginRight: '0.5rem' }}></i>
+                            Employee Management
+                        </h1>
+                        
+                        <div className="task-list">
+                            {users.map((user, index) => (
+                                <div key={user.email} className="task-item">
+                                    <div className="task-header">
+                                        <h3 className="task-title">{user.name}</h3>
+                                        <span className={`task-priority ${
+                                            user.role === 'Manager' ? 'priority-high' :
+                                            user.role === 'Team Lead' ? 'priority-medium' : 'priority-low'
+                                        }`}>
+                                            {user.role}
+                                        </span>
+                                    </div>
+                                    <div className="task-meta">
+                                        <span>
+                                            <i className="fas fa-envelope" style={{ marginRight: '0.3rem' }}></i>
+                                            {user.email}
+                                        </span>
+                                        <span>
+                                            <i className="fas fa-id-badge" style={{ marginRight: '0.3rem' }}></i>
+                                            Employee #{(index + 1).toString().padStart(3, '0')}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Reports Component with Attendance
+        function Reports() {
+            const [attendanceData, setAttendanceData] = useState([]);
+            const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+            const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+
+            const generateAttendance = () => {
+                const data = generateMockAttendance(startDate, endDate);
+                setAttendanceData(data);
+            };
+
+            useEffect(() => {
+                generateAttendance();
+            }, []);
+
+            const attendanceSummary = useMemo(() => {
+                const summary = {
+                    present: attendanceData.filter(a => a.status === 'present').length,
+                    sick: attendanceData.filter(a => a.status === 'sick').length,
+                    annual: attendanceData.filter(a => a.status === 'annual').length,
+                    absent: attendanceData.filter(a => a.status === 'absent').length
+                };
+                summary.total = Object.values(summary).reduce((a, b) => a + b, 0);
+                return summary;
+            }, [attendanceData]);
+
+            return (
+                <div className="main-content">
+                    <div className="task-section attendance-section">
+                        <h1 className="section-title">
+                            <i className="fas fa-chart-line" style={{ marginRight: '0.5rem' }}></i>
+                            Attendance Reports
+                        </h1>
+                        
+                        <div className="date-range-picker">
+                            <div className="filter-group">
+                                <label className="filter-label">วันที่เริ่มต้น</label>
+                                <input
+                                    type="date"
+                                    className="filter-input"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                />
+                            </div>
+                            <div className="filter-group">
+                                <label className="filter-label">วันที่สิ้นสุด</label>
+                                <input
+                                    type="date"
+                                    className="filter-input"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                />
+                            </div>
+                            <button className="btn-primary" onClick={generateAttendance}>
+                                <i className="fas fa-search" style={{ marginRight: '0.5rem' }}></i>
+                                ค้นหา
+                            </button>
+                        </div>
+                        
+                        <div className="attendance-summary">
+                            <div className="summary-item">
+                                <div className="summary-value" style={{ color: 'var(--success-green)' }}>
+                                    {attendanceSummary.present}
+                                </div>
+                                <div className="summary-label">มาทำงาน</div>
+                            </div>
+                            <div className="summary-item">
+                                <div className="summary-value" style={{ color: 'var(--warning-orange)' }}>
+                                    {attendanceSummary.sick}
+                                </div>
+                                <div className="summary-label">ลาป่วย</div>
+                            </div>
+                            <div className="summary-item">
+                                <div className="summary-value" style={{ color: 'var(--primary-blue)' }}>
+                                    {attendanceSummary.annual}
+                                </div>
+                                <div className="summary-label">ลาพักร้อน</div>
+                            </div>
+                            <div className="summary-item">
+                                <div className="summary-value" style={{ color: 'var(--danger-red)' }}>
+                                    {attendanceSummary.absent}
+                                </div>
+                                <div className="summary-label">ขาดงาน</div>
+                            </div>
+                        </div>
+                        
+                        <div className="attendance-grid">
+                            {attendanceData.map((attendance, index) => (
+                                <div key={index} className="attendance-card">
+                                    <div className="attendance-name">{attendance.name}</div>
+                                    <div className={`attendance-status status-${attendance.status}`}>
+                                        {attendance.status === 'present' ? 'มาทำงาน' :
+                                         attendance.status === 'sick' ? 'ลาป่วย' :
+                                         attendance.status === 'annual' ? 'ลาพักร้อน' : 'ขาดงาน'}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Team Ranking Component
+        function TeamRanking({ tasks }) {
+            const [rankingData, setRankingData] = useState([]);
+            const [sortBy, setSortBy] = useState('score');
+
+            useEffect(() => {
+                const users = Object.values(userDatabase);
+                const ranking = calculateTeamRanking(users, tasks);
+                setRankingData(ranking);
+            }, [tasks]);
+
+            const sortedRanking = useMemo(() => {
+                return [...rankingData].sort((a, b) => {
+                    switch (sortBy) {
+                        case 'score':
+                            return b.score - a.score;
+                        case 'completed':
+                            return b.completedTasks - a.completedTasks;
+                        case 'name':
+                            return a.name.localeCompare(b.name);
+                        default:
+                            return b.score - a.score;
+                    }
+                });
+            }, [rankingData, sortBy]);
+
+            return (
+                <div className="main-content">
+                    <div className="task-section">
+                        <h1 className="section-title">
+                            <i className="fas fa-trophy" style={{ marginRight: '0.5rem' }}></i>
+                            Team Ranking
+                        </h1>
+                        
+                        <div className="ranking-controls">
+                            <div className="filter-group">
+                                <label className="filter-label">เรียงตาม</label>
+                                <select
+                                    className="filter-select"
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                >
+                                    <option value="score">คะแนนรวม</option>
+                                    <option value="completed">งานที่เสร็จ</option>
+                                    <option value="name">ชื่อ</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div className="ranking-list">
+                            {sortedRanking.map((member, index) => (
+                                <div key={member.email} className="ranking-item">
+                                    <div className="ranking-position">
+                                        {index === 0 && <i className="fas fa-crown" style={{ color: '#fbbf24' }}></i>}
+                                        {index === 1 && <i className="fas fa-medal" style={{ color: '#9ca3af' }}></i>}
+                                        {index === 2 && <i className="fas fa-award" style={{ color: '#92400e' }}></i>}
+                                        {index > 2 && (index + 1)}
+                                    </div>
+                                    <div className="ranking-info">
+                                        <div className="ranking-name">{member.name}</div>
+                                        <div className="ranking-email">{member.email}</div>
+                                        <div style={{ 
+                                            fontSize: '0.85rem', 
+                                            color: 'var(--text-gray)', 
+                                            marginTop: '0.5rem',
+                                            display: 'grid',
+                                            gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+                                            gap: '0.5rem'
+                                        }}>
+                                            <div>งานเสร็จ: <span style={{ fontWeight: '600', color: 'var(--success-green)' }}>{member.completedTasks}/{member.totalTasks}</span></div>
+                                            <div>ทันเวลา: <span style={{ fontWeight: '600', color: 'var(--primary-blue)' }}>{member.onTimeRate}%</span></div>
+                                            <div>ทีมเวิร์ค: <span style={{ fontWeight: '600', color: 'var(--warning-orange)' }}>{member.teamworkScore}/10</span></div>
+                                            <div>คุณภาพ: <span style={{ fontWeight: '600', color: 'var(--secondary-blue)' }}>{member.qualityScore}/10</span></div>
+                                            <div>Role: <span style={{ 
+                                                fontWeight: '600', 
+                                                color: member.role === 'Manager' ? 'var(--danger-red)' : 
+                                                       member.role === 'Team Lead' ? 'var(--warning-orange)' : 'var(--primary-blue)'
+                                            }}>{member.role}</span></div>
+                                        </div>
+                                    </div>
+                                    <div className="ranking-score">
+                                        {member.score}
+                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-gray)' }}>คะแนนรวม</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Enhanced Settings Component with Leaderboard & Employee Management
+        function Settings() {
+            const [activeTab, setActiveTab] = useState('general');
+            const [settings, setSettings] = useState({
+                emailNotifications: true,
+                taskReminders: true,
+                weeklyReports: false,
+                autoAssignment: true,
+                darkMode: false
+            });
+            
+            // Scoring configuration state
+            const [scoringConfig, setScoringConfig] = useState(getScoringConfig());
+            
+            // Employee management state
+            const [newEmployee, setNewEmployee] = useState({
+                name: '',
+                email: '',
+                role: 'Employee'
+            });
+            const [employeeList, setEmployeeList] = useState(Object.values(userDatabase));
+
+            const toggleSetting = (key) => {
+                setSettings(prev => ({
+                    ...prev,
+                    [key]: !prev[key]
+                }));
+            };
+
+            const handleScoringChange = (key, value) => {
+                const newConfig = { ...scoringConfig, [key]: parseInt(value) };
+                setScoringConfig(newConfig);
+                saveScoringConfig(newConfig);
+            };
+
+            const handleAddEmployee = () => {
+                if (newEmployee.name && newEmployee.email) {
+                    const newUser = {
+                        ...newEmployee,
+                        password: '12345',
+                        id: Date.now().toString()
+                    };
+                    
+                    // Add to userDatabase (in real app, this would be API call)
+                    userDatabase[newEmployee.email] = newUser;
+                    setEmployeeList(Object.values(userDatabase));
+                    
+                    // Reset form
+                    setNewEmployee({ name: '', email: '', role: 'Employee' });
+                    
+                    alert(`เพิ่มพนักงาน ${newEmployee.name} สำเร็จ!`);
+                }
+            };
+
+            const resetScoringToDefault = () => {
+                setScoringConfig(defaultScoringConfig);
+                saveScoringConfig(defaultScoringConfig);
+            };
+
+            return (
+                <div className="main-content">
+                    <div className="task-section settings-section">
+                        <h1 className="section-title">
+                            <i className="fas fa-cog" style={{ marginRight: '0.5rem' }}></i>
+                            การตั้งค่าระบบ
+                        </h1>
+                        
+                        {/* Settings Navigation Tabs */}
+                        <div className="settings-tabs" style={{ marginBottom: '2rem' }}>
+                            <button 
+                                className={`tab-button ${activeTab === 'general' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('general')}
+                            >
+                                <i className="fas fa-cog"></i> ทั่วไป
+                            </button>
+                            <button 
+                                className={`tab-button ${activeTab === 'leaderboard' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('leaderboard')}
+                            >
+                                <i className="fas fa-trophy"></i> การคิดคะแนน
+                            </button>
+                            <button 
+                                className={`tab-button ${activeTab === 'employees' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('employees')}
+                            >
+                                <i className="fas fa-users"></i> จัดการพนักงาน
+                            </button>
+                        </div>
+
+                        {/* General Settings Tab */}
+                        {activeTab === 'general' && (
+                            <div className="settings-grid">
+                                <div className="card">
+                                    <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-dark)' }}>
+                                        <i className="fas fa-bell" style={{ marginRight: '0.5rem' }}></i>
+                                        การแจ้งเตือน
+                                    </h3>
+                                    
+                                    <div className="setting-item">
+                                        <div>
+                                            <div className="setting-label">อีเมลแจ้งเตือน</div>
+                                            <div className="setting-description">รับการแจ้งเตือนผ่านอีเมล</div>
+                                        </div>
+                                        <div 
+                                            className={`toggle-switch ${settings.emailNotifications ? 'active' : ''}`}
+                                            onClick={() => toggleSetting('emailNotifications')}
+                                        >
+                                            <div className="toggle-slider"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="setting-item">
+                                        <div>
+                                            <div className="setting-label">แจ้งเตือนงาน</div>
+                                            <div className="setting-description">แจ้งเตือนเมื่อใกล้ครบกำหนด</div>
+                                        </div>
+                                        <div 
+                                            className={`toggle-switch ${settings.taskReminders ? 'active' : ''}`}
+                                            onClick={() => toggleSetting('taskReminders')}
+                                        >
+                                            <div className="toggle-slider"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="setting-item">
+                                        <div>
+                                            <div className="setting-label">รายงานรายสัปดาห์</div>
+                                            <div className="setting-description">ส่งรายงานทุกสัปดาห์</div>
+                                        </div>
+                                        <div 
+                                            className={`toggle-switch ${settings.weeklyReports ? 'active' : ''}`}
+                                            onClick={() => toggleSetting('weeklyReports')}
+                                        >
+                                            <div className="toggle-slider"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="card">
+                                    <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-dark)' }}>
+                                        <i className="fas fa-tasks" style={{ marginRight: '0.5rem' }}></i>
+                                        การจัดการงาน
+                                    </h3>
+                                    
+                                    <div className="setting-item">
+                                        <div>
+                                            <div className="setting-label">กำหนดงานอัตโนมัติ</div>
+                                            <div className="setting-description">แบ่งงานตามภาระงาน</div>
+                                        </div>
+                                        <div 
+                                            className={`toggle-switch ${settings.autoAssignment ? 'active' : ''}`}
+                                            onClick={() => toggleSetting('autoAssignment')}
+                                        >
+                                            <div className="toggle-slider"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="setting-item">
+                                        <div>
+                                            <div className="setting-label">โหมดมืด</div>
+                                            <div className="setting-description">เปลี่ยนรูปแบบการแสดงผล</div>
+                                        </div>
+                                        <div 
+                                            className={`toggle-switch ${settings.darkMode ? 'active' : ''}`}
+                                            onClick={() => toggleSetting('darkMode')}
+                                        >
+                                            <div className="toggle-slider"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Leaderboard Scoring Tab */}
+                        {activeTab === 'leaderboard' && (
+                            <div className="card">
+                                <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-dark)' }}>
+                                    <i className="fas fa-trophy" style={{ marginRight: '0.5rem' }}></i>
+                                    กำหนดเงื่อนไขการคิดคะแนน Leaderboard
+                                </h3>
+                                
+                                <div className="scoring-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+                                    <div className="scoring-item">
+                                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>
+                                            งานที่เสร็จแล้ว (คะแนน/งาน)
+                                        </label>
+                                        <input 
+                                            type="number" 
+                                            value={scoringConfig.completedTaskWeight}
+                                            onChange={(e) => handleScoringChange('completedTaskWeight', e.target.value)}
+                                            style={{ 
+                                                width: '100%', 
+                                                padding: '0.75rem', 
+                                                border: '2px solid var(--border-gray)',
+                                                borderRadius: '0.5rem',
+                                                fontSize: '1rem'
+                                            }}
+                                        />
+                                        <div style={{ fontSize: '0.85rem', color: 'var(--text-gray)', marginTop: '0.25rem' }}>
+                                            ปัจจุบัน: {scoringConfig.completedTaskWeight} คะแนนต่องาน
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="scoring-item">
+                                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>
+                                            งานสำคัญ (คะแนน/งาน)
+                                        </label>
+                                        <input 
+                                            type="number" 
+                                            value={scoringConfig.highPriorityWeight}
+                                            onChange={(e) => handleScoringChange('highPriorityWeight', e.target.value)}
+                                            style={{ 
+                                                width: '100%', 
+                                                padding: '0.75rem', 
+                                                border: '2px solid var(--border-gray)',
+                                                borderRadius: '0.5rem',
+                                                fontSize: '1rem'
+                                            }}
+                                        />
+                                        <div style={{ fontSize: '0.85rem', color: 'var(--text-gray)', marginTop: '0.25rem' }}>
+                                            ปัจจุบัน: {scoringConfig.highPriorityWeight} คะแนนต่องาน
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="scoring-item">
+                                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>
+                                            ส่งงานทันเวลา (คะแนน/งาน)
+                                        </label>
+                                        <input 
+                                            type="number" 
+                                            value={scoringConfig.onTimeCompletionWeight}
+                                            onChange={(e) => handleScoringChange('onTimeCompletionWeight', e.target.value)}
+                                            style={{ 
+                                                width: '100%', 
+                                                padding: '0.75rem', 
+                                                border: '2px solid var(--border-gray)',
+                                                borderRadius: '0.5rem',
+                                                fontSize: '1rem'
+                                            }}
+                                        />
+                                        <div style={{ fontSize: '0.85rem', color: 'var(--text-gray)', marginTop: '0.25rem' }}>
+                                            ปัจจุบัน: {scoringConfig.onTimeCompletionWeight} คะแนนต่องาน
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="scoring-item">
+                                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>
+                                            การทำงานร่วมกัน (คะแนน/คะแนน)
+                                        </label>
+                                        <input 
+                                            type="number" 
+                                            value={scoringConfig.teamworkWeight}
+                                            onChange={(e) => handleScoringChange('teamworkWeight', e.target.value)}
+                                            style={{ 
+                                                width: '100%', 
+                                                padding: '0.75rem', 
+                                                border: '2px solid var(--border-gray)',
+                                                borderRadius: '0.5rem',
+                                                fontSize: '1rem'
+                                            }}
+                                        />
+                                        <div style={{ fontSize: '0.85rem', color: 'var(--text-gray)', marginTop: '0.25rem' }}>
+                                            ปัจจุบัน: {scoringConfig.teamworkWeight}x คูณ
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="scoring-item">
+                                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>
+                                            คุณภาพงาน (คะแนน/คะแนน)
+                                        </label>
+                                        <input 
+                                            type="number" 
+                                            value={scoringConfig.qualityWeight}
+                                            onChange={(e) => handleScoringChange('qualityWeight', e.target.value)}
+                                            style={{ 
+                                                width: '100%', 
+                                                padding: '0.75rem', 
+                                                border: '2px solid var(--border-gray)',
+                                                borderRadius: '0.5rem',
+                                                fontSize: '1rem'
+                                            }}
+                                        />
+                                        <div style={{ fontSize: '0.85rem', color: 'var(--text-gray)', marginTop: '0.25rem' }}>
+                                            ปัจจุบัน: {scoringConfig.qualityWeight}x คูณ
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div style={{ marginTop: '2rem', padding: '1rem', backgroundColor: 'var(--bg-light)', borderRadius: '0.5rem' }}>
+                                    <h4 style={{ marginBottom: '1rem' }}>วิธีการคิดคะแนน:</h4>
+                                    <p style={{ margin: '0.5rem 0', fontSize: '0.9rem' }}>
+                                        คะแนนรวม = (งานเสร็จ × {scoringConfig.completedTaskWeight}) + (งานสำคัญ × {scoringConfig.highPriorityWeight}) + (ทันเวลา × {scoringConfig.onTimeCompletionWeight}) + (ทีมเวิร์ค × {scoringConfig.teamworkWeight}) + (คุณภาพ × {scoringConfig.qualityWeight})
+                                    </p>
+                                    <div style={{ marginTop: '1rem' }}>
+                                        <button 
+                                            onClick={resetScoringToDefault}
+                                            style={{
+                                                padding: '0.5rem 1rem',
+                                                backgroundColor: 'var(--warning-orange)',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '0.375rem',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            รีเซ็ตเป็นค่าเริ่มต้น
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Employee Management Tab */}
+                        {activeTab === 'employees' && (
+                            <div>
+                                {/* Add New Employee */}
+                                <div className="card" style={{ marginBottom: '2rem' }}>
+                                    <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-dark)' }}>
+                                        <i className="fas fa-user-plus" style={{ marginRight: '0.5rem' }}></i>
+                                        เพิ่มพนักงานใหม่
+                                    </h3>
+                                    
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>ชื่อ-นามสกุล</label>
+                                            <input 
+                                                type="text" 
+                                                value={newEmployee.name}
+                                                onChange={(e) => setNewEmployee({...newEmployee, name: e.target.value})}
+                                                placeholder="กรอกชื่อ-นามสกุล"
+                                                style={{ 
+                                                    width: '100%', 
+                                                    padding: '0.75rem', 
+                                                    border: '2px solid var(--border-gray)',
+                                                    borderRadius: '0.5rem'
+                                                }}
+                                            />
+                                        </div>
+                                        
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>อีเมล</label>
+                                            <input 
+                                                type="email" 
+                                                value={newEmployee.email}
+                                                onChange={(e) => setNewEmployee({...newEmployee, email: e.target.value})}
+                                                placeholder="example@company.com"
+                                                style={{ 
+                                                    width: '100%', 
+                                                    padding: '0.75rem', 
+                                                    border: '2px solid var(--border-gray)',
+                                                    borderRadius: '0.5rem'
+                                                }}
+                                            />
+                                        </div>
+                                        
+                                        <div>
+                                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>ตำแหน่ง</label>
+                                            <select 
+                                                value={newEmployee.role}
+                                                onChange={(e) => setNewEmployee({...newEmployee, role: e.target.value})}
+                                                style={{ 
+                                                    width: '100%', 
+                                                    padding: '0.75rem', 
+                                                    border: '2px solid var(--border-gray)',
+                                                    borderRadius: '0.5rem'
+                                                }}
+                                            >
+                                                <option value="Employee">Employee</option>
+                                                <option value="Team Lead">Team Lead</option>
+                                                <option value="Manager">Manager</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <button 
+                                        onClick={handleAddEmployee}
+                                        style={{
+                                            padding: '0.75rem 1.5rem',
+                                            backgroundColor: 'var(--primary-blue)',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '0.5rem',
+                                            cursor: 'pointer',
+                                            fontSize: '1rem'
+                                        }}
+                                    >
+                                        <i className="fas fa-plus" style={{ marginRight: '0.5rem' }}></i>
+                                        เพิ่มพนักงาน
+                                    </button>
+                                </div>
+                                
+                                {/* Employee List */}
+                                <div className="card">
+                                    <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-dark)' }}>
+                                        <i className="fas fa-users" style={{ marginRight: '0.5rem' }}></i>
+                                        รายชื่อพนักงานทั้งหมด ({employeeList.length} คน)
+                                    </h3>
+                                    
+                                    <div style={{ display: 'grid', gap: '1rem' }}>
+                                        {employeeList.map((employee, index) => (
+                                            <div key={employee.email} style={{ 
+                                                padding: '1rem', 
+                                                border: '1px solid var(--border-gray)', 
+                                                borderRadius: '0.5rem',
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center'
+                                            }}>
+                                                <div>
+                                                    <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{employee.name}</div>
+                                                    <div style={{ color: 'var(--text-gray)', fontSize: '0.9rem' }}>{employee.email}</div>
+                                                </div>
+                                                <div>
+                                                    <span style={{ 
+                                                        padding: '0.25rem 0.75rem',
+                                                        backgroundColor: employee.role === 'Manager' ? 'var(--danger-red)' : 
+                                                                        employee.role === 'Team Lead' ? 'var(--warning-orange)' : 'var(--primary-blue)',
+                                                        color: 'white',
+                                                        borderRadius: '1rem',
+                                                        fontSize: '0.85rem'
+                                                    }}>
+                                                        {employee.role}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // Main App Component
+        function App() {
+            const [isAuthenticated, setIsAuthenticated] = useState(false);
+            const [currentUser, setCurrentUser] = useState(null);
+            const [currentView, setCurrentView] = useState('dashboard');
+            const [tasks, setTasks] = useState([]);
+
+            useEffect(() => {
+                // Load mock tasks
+                setTasks(generateMockTasks());
+                
+                // Check if user is already logged in
+                const savedUser = localStorage.getItem('currentUser');
+                const authToken = localStorage.getItem('authToken');
+                if (savedUser && authToken) {
+                    setCurrentUser(JSON.parse(savedUser));
+                    setIsAuthenticated(true);
+                }
+            }, []);
+
+            const handleLogin = (email, password) => {
+                const user = userDatabase[email];
+                if (user && user.password === password) {
+                    setCurrentUser(user);
+                    setIsAuthenticated(true);
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    localStorage.setItem('authToken', 'demo_token_' + Date.now());
+                } else {
+                    alert('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+                }
+            };
+
+            const handleLogout = () => {
+                setIsAuthenticated(false);
+                setCurrentUser(null);
+                setCurrentView('dashboard');
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('authToken');
+            };
+
+            const renderContent = () => {
+                switch (currentView) {
+                    case 'dashboard':
+                        return React.createElement(Dashboard, { tasks });
+                    case 'tasks':
+                        return React.createElement(MyTasks, { tasks, user: currentUser });
+                    case 'employees':
+                        return React.createElement(EmployeeManagement);
+                    case 'reports':
+                        return React.createElement(Reports);
+                    case 'ranking':
+                        return React.createElement(TeamRanking, { tasks });
+                    case 'settings':
+                        return React.createElement(Settings);
+                    default:
+                        return React.createElement(Dashboard, { tasks });
+                }
+            };
+
+            if (!isAuthenticated) {
+                return React.createElement(LoginPage, { onLogin: handleLogin });
+            }
+
+            return (
+                <div>
+                    {React.createElement(Header, {
+                        user: currentUser,
+                        currentView: currentView,
+                        setCurrentView: setCurrentView,
+                        onLogout: handleLogout
+                    })}
+                    {renderContent()}
+                </div>
+            );
+        }
+
+        // Render the app
+        ReactDOM.render(React.createElement(App), document.getElementById('root'));
+    </script>
+</body>
+</html>

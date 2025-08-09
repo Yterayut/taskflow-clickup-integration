@@ -1,0 +1,5 @@
+one-cli+ 3566293  0.1  0.9 1305004 76876 ?       Ssl  Jul12   0:43 node /home/one-climate/km-base/backend/src/app.js
+one-cli+ 3606773  0.0  0.0   7372  1780 ?        S    07:10   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep single_login_backend | grep -v grep | awk '{print $2}' | xargs kill && sleep 2 && nohup node single_login_backend.js > backend_final.log 2>&1 & echo 'Backend restarted with fixed localDataRoutes'
+one-cli+ 3606782  0.0  0.9 11790596 77988 ?      Sl   07:10   0:01 node single_login_backend.js
+one-cli+ 3610041  0.0  0.0   7372  3492 ?        Ss   07:42   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/baseline_complete_system_v1_0/process_state.txt
+one-cli+ 3610043  0.0  0.0   6480  2360 ?        R    07:42   0:00 grep backend

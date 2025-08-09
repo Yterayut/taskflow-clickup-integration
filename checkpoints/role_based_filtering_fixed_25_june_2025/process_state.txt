@@ -1,0 +1,2 @@
+one-cli+  741367  0.0  0.0   7372  3632 ?        Ss   13:37   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/role_based_filtering_fixed_25_june_2025/process_state.txt
+one-cli+  741369  0.0  0.0   6480  2248 ?        R    13:37   0:00 grep backend

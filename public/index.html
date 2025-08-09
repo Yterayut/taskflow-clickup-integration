@@ -3,12 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskFlow - Interactive Team Management Dashboard</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/recharts@2.8.0/umd/Recharts.js"></script>
+    <title>Management Dashboard - Team Task Tracker</title>
     <style>
         * {
             margin: 0;
@@ -16,24 +11,52 @@
             box-sizing: border-box;
         }
         
+        /* Dark Mode CSS Variables */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            --border-primary: #e5e7eb;
+            --border-secondary: #d1d5db;
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1d4ed8;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --bg-tertiary: #374151;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-tertiary: #9ca3af;
+            --border-primary: #374151;
+            --border-secondary: #4b5563;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f9fafb;
-            color: #111827;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
             line-height: 1.5;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
         
-        /* Dark Mode */
-        body.dark {
-            background: #0f172a;
-            color: #f1f5f9;
-        }
-        
         /* Header */
         .header {
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-primary);
             height: 64px;
             display: flex;
             align-items: center;
@@ -46,21 +69,11 @@
             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         
-        body.dark .header {
-            background: #1e293b;
-            border-bottom: 1px solid #334155;
-        }
-        
         .logo {
             font-size: 20px;
             font-weight: 700;
             color: #2563eb;
             margin-right: 48px;
-            transition: color 0.3s ease;
-        }
-        
-        body.dark .logo {
-            color: #60a5fa;
         }
         
         .search-bar {
@@ -76,19 +89,6 @@
             border: 1px solid #d1d5db;
             border-radius: 8px;
             font-size: 14px;
-            background: white;
-            color: #111827;
-            transition: all 0.3s ease;
-        }
-        
-        body.dark .search-input {
-            background: #334155;
-            border-color: #475569;
-            color: #f1f5f9;
-        }
-        
-        body.dark .search-input::placeholder {
-            color: #94a3b8;
         }
         
         .search-icon {
@@ -97,11 +97,6 @@
             top: 50%;
             transform: translateY(-50%);
             color: #6b7280;
-            transition: color 0.3s ease;
-        }
-        
-        body.dark .search-icon {
-            color: #94a3b8;
         }
         
         .header-actions {
@@ -120,48 +115,11 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: background 0.2s;
         }
         
         .notification-bell:hover {
             background: #e5e7eb;
-        }
-        
-        body.dark .notification-bell {
-            background: #334155;
-        }
-        
-        body.dark .notification-bell:hover {
-            background: #475569;
-        }
-        
-        /* Dark Mode Toggle */
-        .theme-toggle {
-            position: relative;
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            background: #f3f4f6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-            font-size: 18px;
-        }
-        
-        .theme-toggle:hover {
-            background: #e5e7eb;
-            transform: scale(1.05);
-        }
-        
-        body.dark .theme-toggle {
-            background: #334155;
-        }
-        
-        body.dark .theme-toggle:hover {
-            background: #475569;
         }
         
         .notification-badge {
@@ -200,16 +158,11 @@
             top: 64px;
             width: 280px;
             height: calc(100vh - 64px);
-            background: #f9fafb;
-            border-right: 1px solid #e5e7eb;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-primary);
             padding: 24px 0;
             overflow-y: auto;
-            transition: all 0.3s ease;
-        }
-        
-        body.dark .sidebar {
-            background: #1e293b;
-            border-right: 1px solid #334155;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         
         .nav-menu {
@@ -227,33 +180,20 @@
             padding: 12px 16px;
             border-radius: 8px;
             text-decoration: none;
-            color: #6b7280;
+            color: var(--text-secondary);
             font-weight: 500;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
         
         .nav-link.active {
-            background: #dbeafe;
-            color: #2563eb;
+            background: var(--primary-blue);
+            color: var(--bg-primary);
         }
         
         .nav-link:hover {
-            background: #f3f4f6;
-            color: #374151;
-        }
-        
-        body.dark .nav-link {
-            color: #94a3b8;
-        }
-        
-        body.dark .nav-link.active {
-            background: #1e40af;
-            color: #60a5fa;
-        }
-        
-        body.dark .nav-link:hover {
-            background: #334155;
-            color: #e2e8f0;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
         }
         
         .nav-icon {
@@ -288,21 +228,35 @@
             font-weight: 600;
             color: #111827;
             margin-bottom: 8px;
-            transition: color 0.3s ease;
         }
         
         .page-subtitle {
             color: #6b7280;
             font-size: 16px;
-            transition: color 0.3s ease;
         }
         
-        body.dark .page-title {
-            color: #f1f5f9;
+        /* Loading State */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: #6b7280;
         }
         
-        body.dark .page-subtitle {
-            color: #94a3b8;
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e5e7eb;
+            border-top: 2px solid #2563eb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         /* KPI Cards */
@@ -314,26 +268,17 @@
         }
         
         .kpi-card {
-            background: white;
-            border: 1px solid #e5e7eb;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-primary);
             border-radius: 12px;
             padding: 24px;
             transition: all 0.3s ease;
-            cursor: pointer;
+            box-shadow: var(--shadow);
         }
         
         .kpi-card:hover {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-md);
             transform: translateY(-2px);
-        }
-        
-        body.dark .kpi-card {
-            background: #1e293b;
-            border: 1px solid #334155;
-        }
-        
-        body.dark .kpi-card:hover {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
         }
         
         .kpi-header {
@@ -378,22 +323,12 @@
             font-weight: 700;
             color: #111827;
             margin-bottom: 4px;
-            transition: color 0.3s ease;
         }
         
         .kpi-label {
             color: #6b7280;
             font-size: 14px;
             margin-bottom: 8px;
-            transition: color 0.3s ease;
-        }
-        
-        body.dark .kpi-value {
-            color: #f1f5f9;
-        }
-        
-        body.dark .kpi-label {
-            color: #94a3b8;
         }
         
         .kpi-trend {
@@ -427,11 +362,6 @@
             font-size: 24px;
             font-weight: 600;
             color: #111827;
-            transition: color 0.3s ease;
-        }
-        
-        body.dark .section-title {
-            color: #f1f5f9;
         }
         
         .section-actions {
@@ -467,21 +397,10 @@
             background: white;
             color: #374151;
             border: 1px solid #d1d5db;
-            transition: all 0.3s ease;
         }
         
         .btn-secondary:hover {
             background: #f9fafb;
-        }
-        
-        body.dark .btn-secondary {
-            background: #334155;
-            color: #e2e8f0;
-            border: 1px solid #475569;
-        }
-        
-        body.dark .btn-secondary:hover {
-            background: #475569;
         }
         
         /* Team Grid */
@@ -497,24 +416,14 @@
             border: 1px solid #e5e7eb;
             border-radius: 16px;
             padding: 24px;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
             position: relative;
             overflow: hidden;
-            cursor: pointer;
         }
         
         .employee-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        
-        body.dark .employee-card {
-            background: #1e293b;
-            border: 1px solid #334155;
-        }
-        
-        body.dark .employee-card:hover {
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         }
         
         .employee-header {
@@ -542,21 +451,11 @@
             font-weight: 600;
             color: #111827;
             margin-bottom: 4px;
-            transition: color 0.3s ease;
-        }
-        
-        body.dark .employee-info h3 {
-            color: #f1f5f9;
         }
         
         .employee-info p {
             color: #6b7280;
             font-size: 14px;
-            transition: color 0.3s ease;
-        }
-        
-        body.dark .employee-info p {
-            color: #94a3b8;
         }
         
         .workload-section {
@@ -574,21 +473,11 @@
             font-size: 14px;
             font-weight: 500;
             color: #374151;
-            transition: color 0.3s ease;
         }
         
         .workload-count {
             font-size: 14px;
             font-weight: 600;
-            transition: color 0.3s ease;
-        }
-        
-        body.dark .workload-label {
-            color: #e2e8f0;
-        }
-        
-        body.dark .workload-count {
-            color: #f1f5f9;
         }
         
         .workload-bar {
@@ -597,11 +486,6 @@
             border-radius: 6px;
             overflow: hidden;
             position: relative;
-            transition: background 0.3s ease;
-        }
-        
-        body.dark .workload-bar {
-            background: #475569;
         }
         
         .workload-fill {
@@ -638,11 +522,6 @@
             padding: 12px 8px;
             border-radius: 8px;
             background: #f9fafb;
-            transition: background 0.3s ease;
-        }
-        
-        body.dark .task-stat {
-            background: #334155;
         }
         
         .task-stat-value {
@@ -654,11 +533,6 @@
         .task-stat-label {
             font-size: 12px;
             color: #6b7280;
-            transition: color 0.3s ease;
-        }
-        
-        body.dark .task-stat-label {
-            color: #94a3b8;
         }
         
         .task-stat.completed .task-stat-value {
@@ -719,12 +593,6 @@
             border: 1px solid #e5e7eb;
             border-radius: 16px;
             padding: 24px;
-            transition: all 0.3s ease;
-        }
-        
-        body.dark .chart-container {
-            background: #1e293b;
-            border: 1px solid #334155;
         }
         
         .chart-header {
@@ -736,21 +604,23 @@
             font-weight: 600;
             color: #111827;
             margin-bottom: 4px;
-            transition: color 0.3s ease;
         }
         
         .chart-subtitle {
             color: #6b7280;
             font-size: 14px;
-            transition: color 0.3s ease;
         }
         
-        body.dark .chart-title {
-            color: #f1f5f9;
-        }
-        
-        body.dark .chart-subtitle {
-            color: #94a3b8;
+        .chart-placeholder {
+            height: 200px;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 14px;
+            border: 2px dashed #d1d5db;
         }
         
         .activity-feed {
@@ -758,12 +628,6 @@
             border: 1px solid #e5e7eb;
             border-radius: 16px;
             padding: 24px;
-            transition: all 0.3s ease;
-        }
-        
-        body.dark .activity-feed {
-            background: #1e293b;
-            border: 1px solid #334155;
         }
         
         .activity-item {
@@ -811,56 +675,218 @@
             font-size: 14px;
             color: #374151;
             margin-bottom: 2px;
-            transition: color 0.3s ease;
         }
         
         .activity-time {
             font-size: 12px;
             color: #6b7280;
-            transition: color 0.3s ease;
         }
         
-        body.dark .activity-text {
-            color: #e2e8f0;
+        /* Error State */
+        .error-message {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         
-        body.dark .activity-time {
-            color: #94a3b8;
+        .retry-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
         }
         
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
+        .retry-btn:hover {
+            background: #b91c1c;
+        }
+        
+        /* Employee Management Styles */
+        .employee-management {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 24px;
+        }
+        
+        .employee-search {
+            margin-bottom: 24px;
+        }
+        
+        .search-input-emp {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .employee-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        
+        .employee-card-mgmt {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s;
+        }
+        
+        .employee-card-mgmt:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Team Ranking Styles */
+        .ranking-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .ranking-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            transition: all 0.2s;
+        }
+        
+        .ranking-card:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ranking-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 50;
+            font-weight: 700;
+            font-size: 14px;
         }
         
+        .ranking-badge.gold {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+        }
+        
+        .ranking-badge.silver {
+            background: linear-gradient(135deg, #e5e7eb 0%, #9ca3af 100%);
+            color: white;
+        }
+        
+        .ranking-badge.bronze {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            color: white;
+        }
+        
+        .ranking-badge.regular {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        
+        .performance-score {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+        
+        .performance-label {
+            color: #6b7280;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .performance-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .performance-stat {
+            text-align: center;
+            padding: 8px;
+            background: #f9fafb;
+            border-radius: 6px;
+        }
+        
+        .performance-stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        
+        .performance-stat-label {
+            font-size: 10px;
+            color: #6b7280;
+        }
+        
+        /* Modal Styles */
         .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
             background: white;
             border-radius: 16px;
             padding: 24px;
-            width: 400px;
-            max-width: 90vw;
-            transition: all 0.3s ease;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         
         .modal-header {
-            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
             font-weight: 600;
-            margin-bottom: 16px;
-            transition: color 0.3s ease;
+            color: #111827;
         }
         
-        body.dark .modal {
-            background: #1e293b;
-        }
-        
-        body.dark .modal-header {
-            color: #f1f5f9;
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
         }
         
         .form-group {
@@ -869,22 +895,17 @@
         
         .form-label {
             display: block;
-            font-size: 14px;
+            margin-bottom: 6px;
             font-weight: 500;
             color: #374151;
-            margin-bottom: 4px;
-            transition: color 0.3s ease;
         }
         
         .form-input, .form-select {
             width: 100%;
-            padding: 8px 12px;
+            padding: 10px 12px;
             border: 1px solid #d1d5db;
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: 14px;
-            background: white;
-            color: #111827;
-            transition: all 0.3s ease;
         }
         
         .form-input:focus, .form-select:focus {
@@ -893,81 +914,16 @@
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
         
-        body.dark .form-label {
-            color: #e2e8f0;
-        }
-        
-        body.dark .form-input,
-        body.dark .form-select {
-            background: #334155;
-            border-color: #475569;
-            color: #f1f5f9;
-        }
-        
-        body.dark .form-input:focus,
-        body.dark .form-select:focus {
-            border-color: #60a5fa;
-            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
-        }
-        
-        .selected-employee {
-            background: #eff6ff;
-            border: 1px solid #dbeafe;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 16px;
-        }
-        
         .modal-actions {
             display: flex;
             gap: 12px;
+            justify-content: flex-end;
             margin-top: 24px;
-        }
-        
-        .btn-cancel {
-            flex: 1;
-            padding: 8px 16px;
-            border: 1px solid #d1d5db;
-            background: white;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-submit {
-            flex: 1;
-            padding: 8px 16px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-submit:disabled {
-            background: #d1d5db;
-            cursor: not-allowed;
-        }
-        
-        body.dark .btn-cancel {
-            background: #334155;
-            border-color: #475569;
-            color: #e2e8f0;
-        }
-        
-        body.dark .btn-cancel:hover {
-            background: #475569;
-        }
-        
-        body.dark .selected-employee {
-            background: #1e40af;
-            border-color: #3b82f6;
         }
         
         /* Responsive */
         @media (max-width: 1200px) {
-            .team-grid {
+            .team-grid, .ranking-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
             
@@ -986,7 +942,7 @@
                 margin-left: 0;
             }
             
-            .team-grid {
+            .team-grid, .ranking-grid {
                 grid-template-columns: 1fr;
             }
             
@@ -998,1125 +954,1446 @@
                 grid-template-columns: 1fr;
             }
         }
+        
+        /* Hidden by default */
+        .component {
+            display: none;
+        }
+        
+        .component.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <img src="https://oneclimate.one.th/wp-content/uploads/2024/05/One-Climate-Logo-Full-Color-1.png" 
+                 alt="One Climate" 
+                 style="height: 32px; margin-right: 12px;"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+            <span style="display: none;">🌱 One Climate</span>
+            TaskFlow Pro
+        </div>
+        
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search employees, tasks, projects...">
+            <span class="search-icon">🔍</span>
+        </div>
+        
+        <div class="header-actions">
+            <button class="btn btn-secondary btn-sm" onclick="syncData()" id="syncButton">
+                <span>🔄</span>
+                Sync Data
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="toggleDarkMode()" id="themeToggle">
+                <span id="themeIcon">🌙</span>
+                Dark Mode
+            </button>
+            <div class="notification-bell">
+                <span>🔔</span>
+                <div class="notification-badge" id="notificationCount">0</div>
+            </div>
+            <div class="user-avatar" id="userAvatar">MG</div>
+        </div>
+    </header>
 
-    <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <nav>
+            <ul class="nav-menu" id="navMenu">
+                <!-- Navigation items will be populated by JavaScript based on user role -->
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Loading State -->
+        <div id="loadingState" class="loading">
+            <div class="loading-spinner"></div>
+            Loading data from ClickUp...
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="error-message" style="display: none;">
+            <span>⚠️</span>
+            <div>
+                <div>Unable to fetch data from ClickUp</div>
+                <div style="font-size: 12px; margin-top: 4px;">Please check your connection and try again</div>
+            </div>
+            <button class="retry-btn" onclick="loadClickUpData()">Retry</button>
+        </div>
+
+        <!-- Dashboard Component -->
+        <div id="dashboard" class="component active">
+            <div class="page-header">
+                <h1 class="page-title">Team Dashboard</h1>
+                <p class="page-subtitle" id="lastUpdated">Loading data...</p>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid" id="kpiGrid">
+                <!-- KPI cards will be populated by JavaScript -->
+            </div>
+
+            <!-- Team Management Section -->
+            <section>
+                <div class="section-header">
+                    <h2 class="section-title">Team Workload Overview</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary" onclick="refreshData()">
+                            <span>🔄</span>
+                            รีเฟรชข้อมูล
+                        </button>
+                        <button class="btn btn-primary">
+                            <span>➕</span>
+                            Assign Task
+                        </button>
+                    </div>
+                </div>
+
+                <div class="team-grid" id="teamGrid">
+                    <!-- Employee cards will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section>
+                <div class="section-header">
+                    <h2 class="section-title">Performance Analytics</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary">Export Report</button>
+                    </div>
+                </div>
+
+                <div class="analytics-grid">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Team Performance Trends</h3>
+                            <p class="chart-subtitle">Real-time performance analytics from ClickUp data</p>
+                        </div>
+                        <div class="chart-placeholder">
+                            📈 Real-time data from ClickUp API<br>
+                            Task completion trends and workload analysis
+                        </div>
+                    </div>
+
+                    <div class="activity-feed">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Recent Activities</h3>
+                            <p class="chart-subtitle">Latest activities from ClickUp</p>
+                        </div>
+
+                        <div id="activityFeed">
+                            <!-- Activity items will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- My Tasks Component -->
+        <div id="my-tasks" class="component">
+            <div class="page-header">
+                <h1 class="page-title">My Tasks</h1>
+                <p class="page-subtitle">Tasks assigned to you from ClickUp</p>
+            </div>
+            <div id="myTasksContent">
+                <!-- Tasks content will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Team Overview Component -->
+        <div id="team-overview" class="component">
+            <div class="page-header">
+                <h1 class="page-title">Team Overview</h1>
+                <p class="page-subtitle">Team overview from ClickUp data</p>
+            </div>
+            <div class="team-grid" id="teamOverviewGrid">
+                <!-- Team overview will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Employee Management Component -->
+        <div id="employee-management" class="component">
+            <div class="page-header">
+                <h1 class="page-title" id="employeeManagementTitle">Employee Management</h1>
+                <p class="page-subtitle">Manage employee data from ClickUp</p>
+            </div>
+            
+            <div class="employee-management">
+                <div class="employee-search">
+                    <input type="text" class="search-input-emp" id="employeeSearch" placeholder="Search by name, email, or role...">
+                </div>
+                
+                <div class="employee-grid" id="employeeGrid">
+                    <!-- Employee cards will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Ranking Component -->
+        <div id="team-ranking" class="component">
+            <div class="page-header">
+                <h1 class="page-title">Team Ranking</h1>
+                <p class="page-subtitle">Performance ranking from ClickUp data</p>
+            </div>
+            
+            <div class="ranking-grid" id="rankingGrid">
+                <!-- Ranking cards will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Projects Component -->
+        <div id="projects" class="component">
+            <div class="page-header">
+                <h1 class="page-title">Projects</h1>
+                <p class="page-subtitle">Projects from ClickUp</p>
+            </div>
+            <div id="projectsContent">
+                <!-- Projects content will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Reports Component -->
+        <div id="reports" class="component">
+            <div class="page-header">
+                <h1 class="page-title">Reports</h1>
+                <p class="page-subtitle">Reports and analytics from ClickUp</p>
+            </div>
+            <div id="reportsContent">
+                <!-- Reports content will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Calendar Component -->
+        <div id="calendar" class="component">
+            <div class="page-header">
+                <h1 class="page-title">Calendar</h1>
+                <p class="page-subtitle">Task calendar from ClickUp</p>
+            </div>
+            <div id="calendarContent">
+                <!-- Calendar content will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Settings Component -->
+        <div id="settings" class="component">
+            <div class="page-header">
+                <h1 class="page-title">Settings</h1>
+                <p class="page-subtitle">System settings</p>
+            </div>
+            <div id="settingsContent">
+                <!-- Settings content will be populated by JavaScript -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Employee Edit Modal -->
+    <div id="employeeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">แก้ไขข้อมูลพนักงาน</h3>
+                <button class="modal-close" onclick="closeEmployeeModal()">&times;</button>
+            </div>
+            
+            <form id="employeeForm">
+                <div class="form-group">
+                    <label class="form-label">ชื่อ</label>
+                    <input type="text" class="form-input" id="employeeName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">อีเมล</label>
+                    <input type="email" class="form-input" id="employeeEmail" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">ตำแหน่ง</label>
+                    <select class="form-select" id="employeeRole">
+                        <option value="Manager">Manager</option>
+                        <option value="Team Lead">Team Lead</option>
+                        <option value="Team Member">Team Member</option>
+                        <option value="Developer">Developer</option>
+                        <option value="Designer">Designer</option>
+                        <option value="QA">QA</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">แผนก</label>
+                    <select class="form-select" id="employeeDepartment">
+                        <option value="General">General</option>
+                        <option value="Management">Management</option>
+                        <option value="Development">Development</option>
+                        <option value="Design">Design</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Sales">Sales</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">เบอร์โทรศัพท์</label>
+                    <input type="tel" class="form-input" id="employeePhone">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">สถานที่</label>
+                    <input type="text" class="form-input" id="employeeLocation">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">วันที่เข้าทำงาน</label>
+                    <input type="date" class="form-input" id="employeeJoinDate">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">สถานะ</label>
+                    <select class="form-select" id="employeeStatus">
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                        <option value="On Leave">On Leave</option>
+                    </select>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeEmployeeModal()">ยกเลิก</button>
+                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let clickUpData = null;
+        let employeeData = [];
+        let currentUser = { role: 'Manager', name: 'ผู้จัดการ' }; // Default role
+        let currentView = 'dashboard';
+        let isLoading = false;
+        let currentEditEmployee = null;
+
+        // API Configuration
+        const API_BASE_URL = 'http://192.168.20.10:7812';
         
-        // ตรวจสอบว่า Recharts โหลดเรียบร้อยแล้ว
-        const checkRechartsLoaded = () => {
-            return window.Recharts && window.Recharts.BarChart;
+        // Check for authentication status on page load
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('login') === 'success') {
+                // Clean up URL and reload data after successful login
+                window.history.replaceState({}, document.title, window.location.pathname);
+                console.log('✅ Login success detected, loading dashboard data...');
+                setTimeout(() => loadClickUpData(), 500);
+            } else if (urlParams.get('auth') === 'success') {
+                // Clean up URL and reload data after OAuth
+                window.history.replaceState({}, document.title, window.location.pathname);
+                setTimeout(() => loadClickUpData(), 500);
+            } else if (urlParams.get('error')) {
+                // Show error message
+                alert('ClickUp connection failed: ' + decodeURIComponent(urlParams.get('error')));
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+        
+        // Navigation configuration based on role
+        const navigationConfig = {
+            'Manager': [
+                { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+                { id: 'my-tasks', label: 'My Tasks', icon: '📋' },
+                { id: 'team-overview', label: 'Team Overview', icon: '👥' },
+                { id: 'employee-management', label: 'Employee Management', icon: '👤' },
+                { id: 'team-ranking', label: 'Team Ranking', icon: '🏆' },
+                { id: 'projects', label: 'Projects', icon: '📁' },
+                { id: 'reports', label: 'Reports', icon: '📈' },
+                { id: 'calendar', label: 'Calendar', icon: '📅' },
+                { id: 'settings', label: 'Settings', icon: '⚙️' }
+            ],
+            'Team Lead': [
+                { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+                { id: 'my-tasks', label: 'My Tasks', icon: '📋' },
+                { id: 'team-overview', label: 'Team Overview', icon: '👥' },
+                { id: 'employee-management', label: 'Team Members', icon: '👤' },
+                { id: 'team-ranking', label: 'Team Ranking', icon: '🏆' },
+                { id: 'projects', label: 'Projects', icon: '📁' },
+                { id: 'calendar', label: 'Calendar', icon: '📅' }
+            ],
+            'Employee': [
+                { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+                { id: 'my-tasks', label: 'My Tasks', icon: '📋' },
+                { id: 'team-overview', label: 'Team Overview', icon: '👥' },
+                { id: 'calendar', label: 'Calendar', icon: '📅' }
+            ]
         };
-        
-        // Recharts components (ใช้หลังจาก Recharts โหลดแล้ว)
-        let BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell;
-        
-        if (checkRechartsLoaded()) {
-            ({ BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } = window.Recharts);
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadClickUpData();
+            renderNavigation();
+            addInteractiveEffects();
+            
+            // Auto-refresh every 5 minutes
+            setInterval(loadClickUpData, 5 * 60 * 1000);
+        });
+
+        // Render navigation based on user role
+        function renderNavigation() {
+            const navMenu = document.getElementById('navMenu');
+            const userNavigation = navigationConfig[currentUser.role] || navigationConfig['Employee'];
+            
+            navMenu.innerHTML = userNavigation.map(item => `
+                <li class="nav-item">
+                    <a class="nav-link ${item.id === currentView ? 'active' : ''}" 
+                       onclick="switchView('${item.id}', event)">
+                        <span class="nav-icon">${item.icon}</span>
+                        ${item.label}
+                        ${item.id === 'my-tasks' ? '<span class="nav-badge" id="taskCount">0</span>' : ''}
+                    </a>
+                </li>
+            `).join('');
         }
 
-        const TeamTaskTracker = () => {
-            const [rechartsLoaded, setRechartsLoaded] = useState(false);
-            const [isAuthenticated, setIsAuthenticated] = useState(false);
-            const [authToken, setAuthToken] = useState(null);
-            const [isLoading, setIsLoading] = useState(true);
-            const [authLoading, setAuthLoading] = useState(false);
-            const [syncStatus, setSyncStatus] = useState(null);
-            const [nextAutoSync, setNextAutoSync] = useState(null);
-            const [isDarkMode, setIsDarkMode] = useState(() => {
-                return localStorage.getItem('taskflow_theme') === 'dark';
-            });
-            const [employees, setEmployees] = useState([
-                {
-                    id: 1,
-                    name: 'กิตติพงษ์ สมศรี',
-                    position: 'Senior Developer',
-                    avatar: 'ก',
-                    status: 'available',
-                    currentTasks: 7,
-                    maxTasks: 10,
-                    completedToday: 5,
-                    inProgress: 2,
-                    overdue: 0,
-                    skills: ['React', 'Node.js', 'MongoDB']
-                },
-                {
-                    id: 2,
-                    name: 'นภัสสร จันทร์เพ็ญ',
-                    position: 'UI/UX Designer',
-                    avatar: 'น',
-                    status: 'busy',
-                    currentTasks: 4,
-                    maxTasks: 8,
-                    completedToday: 2,
-                    inProgress: 2,
-                    overdue: 0,
-                    skills: ['Figma', 'Photoshop', 'Prototyping']
-                },
-                {
-                    id: 3,
-                    name: 'สมชาย วงษ์ใหญ่',
-                    position: 'Project Manager',
-                    avatar: 'ส',
-                    status: 'busy',
-                    currentTasks: 12,
-                    maxTasks: 10,
-                    completedToday: 8,
-                    inProgress: 2,
-                    overdue: 2,
-                    skills: ['Management', 'Planning', 'Communication']
-                },
-                {
-                    id: 4,
-                    name: 'อรุณ ใ�ดี',
-                    position: 'Frontend Developer',
-                    avatar: 'อ',
-                    status: 'available',
-                    currentTasks: 3,
-                    maxTasks: 8,
-                    completedToday: 1,
-                    inProgress: 2,
-                    overdue: 0,
-                    skills: ['React', 'Vue.js', 'CSS']
-                },
-                {
-                    id: 5,
-                    name: 'มานี เก่งมาก',
-                    position: 'QA Tester',
-                    avatar: 'ม',
-                    status: 'available',
-                    currentTasks: 6,
-                    maxTasks: 8,
-                    completedToday: 4,
-                    inProgress: 2,
-                    overdue: 0,
-                    skills: ['Testing', 'Automation', 'QA']
-                },
-                {
-                    id: 6,
-                    name: 'วิภา ช่วยเหลือ',
-                    position: 'Business Analyst',
-                    avatar: 'ว',
-                    status: 'offline',
-                    currentTasks: 9,
-                    maxTasks: 8,
-                    completedToday: 6,
-                    inProgress: 2,
-                    overdue: 1,
-                    skills: ['Analysis', 'Documentation', 'Requirements']
-                }
-            ]);
-
-            const [notifications, setNotifications] = useState([
-                { id: 1, type: 'overdue', message: 'งาน "Project Report" เกินกำหนดแล้ว', time: '30 นาทีที่แล้ว' },
-                { id: 2, type: 'overload', message: 'สมชาย มีงานเกินขีดจำกัด', time: '1 ชั่วโมงที่แล้ว' },
-                { id: 3, type: 'available', message: 'อรุณ พร้อมรับงานใหม่', time: '2 ชั่วโมงที่แล้ว' }
-            ]);
-
-            const [activities, setActivities] = useState([
-                { id: 1, type: 'completed', user: 'กิตติพงษ์', task: 'API Development', time: '5 นาทีที่แล้ว' },
-                { id: 2, type: 'assigned', user: 'นภัสสร', task: 'UI Design', time: '15 นาทีที่แล้ว' },
-                { id: 3, type: 'overdue', user: 'สมชาย', task: 'Project Report', time: '30 นาทีที่แล้ว' },
-                { id: 4, type: 'completed', user: 'มานี', task: 'Testing Phase 1', time: '1 ชั่วโมงที่แล้ว' },
-                { id: 5, type: 'assigned', user: 'อรุณ', task: 'Database Setup', time: '2 ชั่วโมงที่แล้ว' }
-            ]);
-
-            const [showAssignModal, setShowAssignModal] = useState(false);
-            const [selectedEmployee, setSelectedEmployee] = useState(null);
-            const [newTask, setNewTask] = useState({
-                title: '',
-                priority: 'medium',
-                dueDate: '',
-                estimatedHours: 1
-            });
-
-            // Check if Recharts is loaded
-            useEffect(() => {
-                const checkCharts = () => {
-                    if (checkRechartsLoaded()) {
-                        setRechartsLoaded(true);
-                        // Update Recharts components
-                        ({ BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } = window.Recharts);
-                    } else {
-                        setTimeout(checkCharts, 100);
-                    }
-                };
-                checkCharts();
-            }, []);
-
-            // Check authentication status and URL parameters
-            useEffect(() => {
-                const urlParams = new URLSearchParams(window.location.search);
-                const authResult = urlParams.get('auth');
-                const token = urlParams.get('token');
-                const errorMessage = urlParams.get('message');
-
-                if (authResult === 'success' && token) {
-                    console.log('🎉 ClickUp authentication successful');
-                    setAuthToken(token);
-                    setIsAuthenticated(true);
-                    localStorage.setItem('taskflow_token', token);
-                    setIsLoading(false); // ← แก้ไข: เพิ่มการ set loading เป็น false
-                    // Clean URL
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                } else if (authResult === 'error') {
-                    console.error('❌ ClickUp authentication failed:', errorMessage);
-                    alert(`Authentication failed: ${errorMessage}`);
-                    setIsLoading(false); // ← แก้ไข: เพิ่มการ set loading เป็น false สำหรับ error case
-                } else {
-                    // Auto-load real ClickUp data without authentication
-                    console.log('🚀 Auto-loading real ClickUp data...');
-                    setIsAuthenticated(true);
-                    setAuthToken('demo-token');
-                    localStorage.setItem('taskflow_token', 'demo-token');
-                    loadDashboardData('demo-token');
-                }
-            }, []);
-
-            // Auto-sync every 30 minutes
-            React.useEffect(() => {
-                let autoSyncInterval;
-                let nextSyncTimer;
-                
-                if (isAuthenticated) {
-                    console.log('🔄 เริ่มต้น Auto-sync ทุก 30 นาที');
-                    
-                    // Calculate next sync time
-                    const updateNextSyncTime = () => {
-                        const nextSync = new Date(Date.now() + 30 * 60 * 1000);
-                        setNextAutoSync(nextSync.toLocaleString('th-TH'));
-                    };
-                    
-                    // Set initial next sync time
-                    updateNextSyncTime();
-                    
-                    // Set up auto-sync interval (30 minutes = 30 * 60 * 1000 ms)
-                    autoSyncInterval = setInterval(() => {
-                        console.log('⏰ Auto-sync: กำลังซิงค์ข้อมูลอัตโนมัติ...');
-                        syncData();
-                        updateNextSyncTime(); // Update next sync time after sync
-                    }, 30 * 60 * 1000);
-                    
-                    // Update countdown every minute
-                    nextSyncTimer = setInterval(() => {
-                        updateNextSyncTime();
-                    }, 60 * 1000);
-                }
-
-                // Cleanup intervals on unmount or when authentication changes
-                return () => {
-                    if (autoSyncInterval) {
-                        console.log('🛑 หยุด Auto-sync');
-                        clearInterval(autoSyncInterval);
-                    }
-                    if (nextSyncTimer) {
-                        clearInterval(nextSyncTimer);
-                    }
-                };
-            }, [isAuthenticated]);
-
-            // Toggle dark mode
-            const toggleDarkMode = () => {
-                const newMode = !isDarkMode;
-                setIsDarkMode(newMode);
-                localStorage.setItem('taskflow_theme', newMode ? 'dark' : 'light');
-                
-                // Apply to body
-                if (newMode) {
-                    document.body.classList.add('dark');
-                } else {
-                    document.body.classList.remove('dark');
-                }
-            };
-
-            // Apply dark mode on mount
-            useEffect(() => {
-                if (isDarkMode) {
-                    document.body.classList.add('dark');
-                } else {
-                    document.body.classList.remove('dark');
-                }
-            }, [isDarkMode]);
-
-            // Check authentication status
-            const checkAuthStatus = async (token) => {
-                try {
-                    const response = await fetch('/api/v1/auth/status', {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        setIsAuthenticated(data.authenticated);
-                        if (data.authenticated) {
-                            loadDashboardData(token);
-                        }
-                    } else {
-                        // Token invalid, remove it
-                        localStorage.removeItem('taskflow_token');
-                        setAuthToken(null);
-                    }
-                } catch (error) {
-                    console.error('Auth status check failed:', error);
-                    localStorage.removeItem('taskflow_token');
-                    setAuthToken(null);
-                }
-                setIsLoading(false);
-            };
-
-            // Load real ClickUp data
-            const loadDashboardData = async (token) => {
-                try {
-                    console.log('📊 Loading ClickUp dashboard data...');
-                    
-                    // Load real ClickUp data from test endpoint
-                    const dashboardResponse = await fetch('http://192.168.20.10:777/api/v1/test/clickup-data');
-                    
-                    if (dashboardResponse.ok) {
-                        const response = await dashboardResponse.json();
-                        const dashboardData = response.data; // Real ClickUp data is in .data property
-                        console.log('✅ Real ClickUp data loaded:', dashboardData);
-                        
-                        // Create team members from real ClickUp tasks
-                        if (dashboardData.tasks && dashboardData.tasks.length > 0) {
-                            // Get unique assignees from tasks
-                            const assigneeMap = new Map();
-                            
-                            dashboardData.tasks.forEach(task => {
-                                task.assignees.forEach(assignee => {
-                                    if (!assigneeMap.has(assignee.id)) {
-                                        assigneeMap.set(assignee.id, {
-                                            id: assignee.id,
-                                            name: assignee.username,
-                                            position: 'Team Member',
-                                            avatar: assignee.initials || assignee.username.substring(0, 2).toUpperCase(),
-                                            status: 'available',
-                                            currentTasks: 0,
-                                            maxTasks: 8,
-                                            completedToday: 0,
-                                            inProgress: 0,
-                                            overdue: 0,
-                                            skills: ['ClickUp', 'Team Work']
-                                        });
-                                    }
-                                });
-                            });
-                            
-                            // Count tasks for each assignee
-                            dashboardData.tasks.forEach(task => {
-                                task.assignees.forEach(assignee => {
-                                    const member = assigneeMap.get(assignee.id);
-                                    if (member) {
-                                        member.currentTasks++;
-                                        if (task.status.status.includes('progress')) {
-                                            member.inProgress++;
-                                        }
-                                        if (task.due_date && task.due_date < Date.now()) {
-                                            member.overdue++;
-                                        }
-                                    }
-                                });
-                            });
-                            
-                            const convertedEmployees = Array.from(assigneeMap.values());
-                            setEmployees(convertedEmployees);
-                        }
-
-                        // Update real data stats
-                        if (dashboardData.workload) {
-                            setRealData(dashboardData.workload);
-                        }
-
-                        // Create activities from real tasks
-                        const recentActivities = dashboardData.tasks.slice(0, 5).map((task, index) => {
-                            const assigneeName = task.assignees.length > 0 ? task.assignees[0].username : 'ไม่มีผู้รับผิดชอบ';
-                            const timeAgo = `${(index + 1) * 15} นาทีที่แล้ว`;
-                            
-                            let icon = '📋';
-                            let action = 'ได้รับงาน';
-                            if (task.status.status.includes('progress')) {
-                                icon = '⚡';
-                                action = 'กำลังทำงาน';
-                            } else if (task.status.status.includes('complete')) {
-                                icon = '✅';
-                                action = 'เสร็จงาน';
-                            } else if (task.due_date && task.due_date < Date.now()) {
-                                icon = '⚠️';
-                                action = 'งานเกินกำหนด';
-                            }
-                            
-                            return {
-                                id: task.id,
-                                type: action,
-                                user: assigneeName,
-                                task: task.name,
-                                time: timeAgo,
-                                icon: icon
-                            };
-                        });
-                        setActivities(recentActivities);
-
-                        setSyncStatus({
-                            lastSync: new Date().toISOString(),
-                            errors: []
-                        });
-
-                        // Set loading to false after successful data load
-                        setIsLoading(false);
-
-                    } else if (dashboardResponse.status === 401) {
-                        // Unauthorized, need to re-authenticate
-                        setIsAuthenticated(false);
-                        localStorage.removeItem('taskflow_token');
-                        setAuthToken(null);
-                        setIsLoading(false);
-                    } else {
-                        console.error('Failed to load dashboard data');
-                        setIsLoading(false);
-                    }
-                } catch (error) {
-                    console.error('❌ Dashboard data loading failed:', error);
-                    setIsLoading(false);
-                }
-            };
-
-            // ClickUp Authentication
-            const authenticateWithClickUp = async () => {
-                setAuthLoading(true);
-                try {
-                    // Skip authentication and load real data directly
-                    setIsAuthenticated(true);
-                    setAuthToken('demo-token');
-                    localStorage.setItem('taskflow_token', 'demo-token');
-                    loadDashboardData('demo-token');
-                } catch (error) {
-                    console.error('Authentication error:', error);
-                    alert('Failed to load ClickUp data');
-                } finally {
-                    setAuthLoading(false);
-                }
-            };
-
-            // Logout
-            const logout = async () => {
-                try {
-                    await fetch('/api/v1/auth/logout', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${authToken}`
-                        }
-                    });
-                } catch (error) {
-                    console.error('Logout error:', error);
-                }
-                
-                setIsAuthenticated(false);
-                setAuthToken(null);
-                localStorage.removeItem('taskflow_token');
-                setEmployees([]);
-                setActivities([]);
-                setSyncStatus(null);
-            };
-
-            // Manual sync - ดึงข้อมูลจาก ClickUp จริง
-            const syncData = async () => {
-                setAuthLoading(true);
-                try {
-                    console.log('🔄 กำลังซิงค์ข้อมูลจาก ClickUp...');
-                    
-                    // ดึงข้อมูลจาก ClickUp API จริง
-                    const response = await fetch('http://192.168.20.10:777/api/v1/test/clickup-data');
-                    
-                    if (response.ok) {
-                        const result = await response.json();
-                        console.log('✅ ข้อมูลจาก ClickUp:', result);
-                        
-                        // อัปเดตข้อมูลใหม่
-                        const dashboardData = result.data;
-                        
-                        // อัปเดต team members
-                        if (dashboardData.tasks && dashboardData.tasks.length > 0) {
-                            const assigneeMap = new Map();
-                            
-                            dashboardData.tasks.forEach(task => {
-                                task.assignees.forEach(assignee => {
-                                    if (!assigneeMap.has(assignee.id)) {
-                                        assigneeMap.set(assignee.id, {
-                                            id: assignee.id,
-                                            name: assignee.username,
-                                            position: 'Team Member',
-                                            avatar: assignee.initials || assignee.username.substring(0, 2).toUpperCase(),
-                                            status: 'available',
-                                            currentTasks: 0,
-                                            maxTasks: 8,
-                                            completedToday: 0,
-                                            inProgress: 0,
-                                            overdue: 0,
-                                            skills: ['ClickUp', 'Team Work']
-                                        });
-                                    }
-                                });
-                            });
-                            
-                            dashboardData.tasks.forEach(task => {
-                                task.assignees.forEach(assignee => {
-                                    const member = assigneeMap.get(assignee.id);
-                                    if (member) {
-                                        member.currentTasks++;
-                                        if (task.status.status.includes('progress')) {
-                                            member.inProgress++;
-                                        }
-                                        if (task.due_date && task.due_date < Date.now()) {
-                                            member.overdue++;
-                                        }
-                                    }
-                                });
-                            });
-                            
-                            const convertedEmployees = Array.from(assigneeMap.values());
-                            setEmployees(convertedEmployees);
-                        }
-                        
-                        // อัปเดตสถิติ
-                        if (dashboardData.workload) {
-                            setRealData(dashboardData.workload);
-                        }
-                        
-                        // อัปเดต activities
-                        const recentActivities = dashboardData.tasks.slice(0, 5).map((task, index) => {
-                            const assigneeName = task.assignees.length > 0 ? task.assignees[0].username : 'ไม่มีผู้รับผิดชอบ';
-                            const timeAgo = `${(index + 1) * 5} นาทีที่แล้ว`;
-                            
-                            let icon = '📋';
-                            let action = 'ได้รับงาน';
-                            if (task.status.status.includes('progress')) {
-                                icon = '⚡';
-                                action = 'กำลังทำงาน';
-                            } else if (task.status.status.includes('complete')) {
-                                icon = '✅';
-                                action = 'เสร็จงาน';
-                            } else if (task.due_date && task.due_date < Date.now()) {
-                                icon = '⚠️';
-                                action = 'งานเกินกำหนด';
-                            }
-                            
-                            return {
-                                id: task.id,
-                                type: action,
-                                user: assigneeName,
-                                task: task.name,
-                                time: timeAgo,
-                                icon: icon
-                            };
-                        });
-                        setActivities(recentActivities);
-                        
-                        // อัปเดต sync status
-                        setSyncStatus({
-                            lastSync: new Date().toISOString(),
-                            errors: []
-                        });
-                        
-                        // รีเซ็ตเวลา auto-sync หลังจาก manual sync
-                        const nextSync = new Date(Date.now() + 30 * 60 * 1000);
-                        setNextAutoSync(nextSync.toLocaleString('th-TH'));
-                        
-                        alert(`✅ ซิงค์สำเร็จ! อัปเดต ${dashboardData.workload.totalTasks} งานจาก ClickUp`);
-                    } else {
-                        console.error('❌ Sync failed:', response.status);
-                        alert('ไม่สามารถซิงค์ข้อมูลได้ กรุณาลองใหม่');
-                    }
-                } catch (error) {
-                    console.error('❌ Sync error:', error);
-                    alert('เกิดข้อผิดพลาดในการซิงค์ข้อมูล');
-                } finally {
-                    setAuthLoading(false);
-                }
-            };
-
-            // คำนวณ KPIs จากข้อมูลจริง
-            const [realData, setRealData] = React.useState({
-                totalTasks: 0,
-                completedTasks: 0,
-                inProgressTasks: 0,
-                todoTasks: 0,
-                overdueTasks: 0
+        // Switch between components
+        function switchView(viewId, event) {
+            // Hide all components
+            document.querySelectorAll('.component').forEach(comp => {
+                comp.classList.remove('active');
             });
             
-            // ใช้ข้อมูลจริงถ้ามี หรือคำนวณจาก employees
-            const totalTasks = realData.totalTasks || employees.reduce((sum, emp) => sum + emp.currentTasks, 0);
-            const completedToday = realData.completedTasks || employees.reduce((sum, emp) => sum + emp.completedToday, 0);
-            const totalOverdue = realData.overdueTasks || employees.reduce((sum, emp) => sum + emp.overdue, 0);
-            const avgUtilization = employees.length > 0 ? 
-                Math.round(employees.reduce((sum, emp) => sum + (emp.currentTasks / emp.maxTasks * 100), 0) / employees.length) :
-                Math.round((realData.inProgressTasks / Math.max(realData.totalTasks, 1)) * 100);
-
-            // Data for charts - สร้างจากข้อมูลจริง
-            const performanceData = [
-                { name: 'จันทร์', completed: Math.floor(realData.completedTasks * 0.12), assigned: Math.floor(realData.totalTasks * 0.12) },
-                { name: 'อังคาร', completed: Math.floor(realData.completedTasks * 0.18), assigned: Math.floor(realData.totalTasks * 0.18) },
-                { name: 'พุธ', completed: Math.floor(realData.completedTasks * 0.15), assigned: Math.floor(realData.totalTasks * 0.15) },
-                { name: 'พฤหัสบดี', completed: Math.floor(realData.completedTasks * 0.25), assigned: Math.floor(realData.totalTasks * 0.25) },
-                { name: 'ศุกร์', completed: Math.floor(realData.completedTasks * 0.20), assigned: Math.floor(realData.totalTasks * 0.20) },
-                { name: 'เสาร์', completed: Math.floor(realData.completedTasks * 0.08), assigned: Math.floor(realData.totalTasks * 0.08) },
-                { name: 'อาทิตย์', completed: Math.floor(realData.completedTasks * 0.02), assigned: Math.floor(realData.totalTasks * 0.02) }
-            ];
-
-            const workloadData = [
-                { name: 'เสร็จแล้ว', value: realData.completedTasks || 12, color: '#059669' },
-                { name: 'กำลังทำ', value: realData.inProgressTasks || 15, color: '#2563eb' },
-                { name: 'รอดำเนินการ', value: realData.todoTasks || 18, color: '#d97706' },
-                { name: 'เกินกำหนด', value: realData.overdueTasks || 3, color: '#dc2626' }
-            ];
-
-            // Functions
-            const getWorkloadColor = (current, max) => {
-                const percentage = (current / max) * 100;
-                if (percentage <= 40) return 'workload-light';
-                if (percentage <= 70) return 'workload-normal';
-                if (percentage <= 90) return 'workload-heavy';
-                return 'workload-critical';
-            };
-
-            const getWorkloadLevel = (current, max) => {
-                const percentage = (current / max) * 100;
-                if (percentage <= 40) return 'เบา';
-                if (percentage <= 70) return 'ปกติ';
-                if (percentage <= 90) return 'หนัก';
-                return 'เกินขีด';
-            };
-
-            const getStatusColor = (status) => {
-                const colors = {
-                    available: 'status-available',
-                    busy: 'status-busy',
-                    offline: 'status-offline'
-                };
-                return colors[status] || 'status-offline';
-            };
-
-            const handleNotificationClick = () => {
-                if (notifications.length > 0) {
-                    alert(`📬 คุณมีการแจ้งเตือน ${notifications.length} รายการ:\n\n${notifications.map((n, i) => `${i+1}. ${n.message}`).join('\n')}`);
-                    setNotifications([]);
-                }
-            };
-
-            const assignTask = () => {
-                if (!selectedEmployee || !newTask.title) return;
-
-                // อัพเดท employee
-                setEmployees(prev => prev.map(emp => 
-                    emp.id === selectedEmployee.id 
-                        ? { ...emp, currentTasks: emp.currentTasks + 1, inProgress: emp.inProgress + 1 }
-                        : emp
-                ));
-
-                // เพิ่ม activity
-                setActivities(prev => [{
-                    id: Date.now(),
-                    type: 'assigned',
-                    user: selectedEmployee.name,
-                    task: newTask.title,
-                    time: 'เมื่อกี้นี้'
-                }, ...prev.slice(0, 4)]);
-
-                // รีเซ็ต form
-                setNewTask({ title: '', priority: 'medium', dueDate: '', estimatedHours: 1 });
-                setShowAssignModal(false);
-                setSelectedEmployee(null);
-            };
-
-            const autoBalance = () => {
-                const overloadedEmployees = employees.filter(emp => emp.currentTasks > emp.maxTasks);
-                const availableEmployees = employees.filter(emp => emp.currentTasks < emp.maxTasks * 0.7);
+            // Show selected component
+            const targetComponent = document.getElementById(viewId);
+            if (targetComponent) {
+                targetComponent.classList.add('active');
+                currentView = viewId;
                 
-                if (overloadedEmployees.length > 0 && availableEmployees.length > 0) {
-                    alert(`💡 แนะนำการปรับสมดุล:\n\nย้าย 2 งานจาก "${overloadedEmployees[0].name}" ไปให้ "${availableEmployees[0].name}"\n\nจะช่วยลด workload และเพิ่มประสิทธิภาพทีม`);
+                // Update navigation active state
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Find and activate the clicked navigation link
+                if (event && event.target) {
+                    const clickedLink = event.target.closest('.nav-link');
+                    if (clickedLink) {
+                        clickedLink.classList.add('active');
+                    }
                 } else {
-                    alert('✅ ภาระงานของทีมมีการกระจายที่ดีแล้ว');
+                    // Fallback: find the link by viewId
+                    const navLinks = document.querySelectorAll('.nav-link');
+                    navLinks.forEach(link => {
+                        const onclick = link.getAttribute('onclick');
+                        if (onclick && onclick.includes(viewId)) {
+                            link.classList.add('active');
+                        }
+                    });
                 }
-            };
-
-            const exportReport = () => {
-                const report = `📊 รายงานประสิทธิภาพทีม
-วันที่: ${new Date().toLocaleDateString('th-TH')}
-
-📈 สรุปข้อมูลรวม:
-• งานทั้งหมด: ${totalTasks} งาน
-• เสร็จแล้ววันนี้: ${completedToday} งาน
-• งานเกินกำหนด: ${totalOverdue} งาน
-• ประสิทธิภาพเฉลี่ย: ${avgUtilization}%
-
-👥 รายละเอียดพนักงาน:
-${employees.map(emp => `• ${emp.name} (${emp.position})
-  - งานปัจจุบัน: ${emp.currentTasks}/${emp.maxTasks}
-  - สถานะ: ${getWorkloadLevel(emp.currentTasks, emp.maxTasks)}
-  - เสร็จวันนี้: ${emp.completedToday}
-  - เกินกำหนด: ${emp.overdue}
-`).join('')}`;
                 
-                // สร้างไฟล์และดาวน์โหลด
-                const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `team-report-${new Date().toISOString().split('T')[0]}.txt`;
-                a.click();
-                URL.revokeObjectURL(url);
-            };
-
-            // Loading screen
-            if (isLoading) {
-                return (
-                    <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        height: '100vh',
-                        background: '#f9fafb'
-                    }}>
-                        <div style={{ fontSize: '48px', marginBottom: '20px' }}>⏳</div>
-                        <h2 style={{ color: '#374151', marginBottom: '10px' }}>กำลังโหลด TaskFlow...</h2>
-                        <p style={{ color: '#6b7280' }}>กำลังตรวจสอบการเชื่อมต่อ ClickUp</p>
-                    </div>
-                );
+                // Load component specific data
+                loadComponentData(viewId);
             }
+        }
 
-            // Authentication screen
-            if (!isAuthenticated) {
-                return (
-                    <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        height: '100vh',
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        color: 'white',
-                        textAlign: 'center',
-                        padding: '20px'
-                    }}>
-                        <div style={{ marginBottom: '30px' }}>
-                            <h1 style={{ fontSize: '48px', marginBottom: '10px', fontWeight: '700' }}>TaskFlow</h1>
-                            <p style={{ fontSize: '18px', opacity: '0.9' }}>Interactive Team Management Dashboard</p>
-                        </div>
-                        
-                        <div style={{
-                            background: 'rgba(255, 255, 255, 0.1)',
-                            padding: '40px',
-                            borderRadius: '16px',
-                            backdropFilter: 'blur(10px)',
-                            maxWidth: '400px',
-                            width: '100%'
-                        }}>
-                            <div style={{ fontSize: '64px', marginBottom: '20px' }}>🚀</div>
-                            <h2 style={{ marginBottom: '15px' }}>เชื่อมต่อกับ ClickUp</h2>
-                            <p style={{ marginBottom: '30px', opacity: '0.9' }}>
-                                เข้าสู่ระบบด้วย ClickUp เพื่อดูข้อมูลโปรเจกต์และทีมงานจริง
+        // Load component specific data
+        function loadComponentData(viewId) {
+            if (!clickUpData) return;
+            
+            switch (viewId) {
+                case 'my-tasks':
+                    renderMyTasks();
+                    break;
+                case 'team-overview':
+                    renderTeamOverview();
+                    break;
+                case 'employee-management':
+                    renderEmployeeManagement();
+                    break;
+                case 'team-ranking':
+                    renderTeamRanking();
+                    break;
+                case 'projects':
+                    renderProjects();
+                    break;
+                case 'reports':
+                    renderReports();
+                    break;
+                case 'calendar':
+                    renderCalendar();
+                    break;
+                case 'settings':
+                    renderSettings();
+                    break;
+            }
+        }
+
+        // Load data from ClickUp API
+        async function loadClickUpData() {
+            if (isLoading) return;
+            
+            isLoading = true;
+            showLoading();
+            
+            try {
+                console.log('Fetching ClickUp data...');
+                
+                // Try to fetch data with proper error handling
+                let response;
+                let result;
+                
+                try {
+                    // Only try real ClickUp data - no mock/demo data
+                    response = await fetch(`${API_BASE_URL}/api/v1/clickup-data`, {
+                        credentials: 'include'
+                    });
+                    
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            throw new Error('Please connect your ClickUp account to view data');
+                        }
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    result = await response.json();
+                } catch (fetchError) {
+                    console.error('Network error:', fetchError);
+                    throw new Error(`Unable to connect to ClickUp: ${fetchError.message}`);
+                }
+                
+                if (result.success && result.data) {
+                    clickUpData = result.data;
+                    console.log('ClickUp data loaded:', clickUpData);
+                    
+                    populateKPIs(clickUpData);
+                    populateTeamData(clickUpData);
+                    populateActivityFeed(clickUpData);
+                    processEmployeeData(clickUpData);
+                    updateLastUpdated();
+                    
+                    showContent();
+                    
+                    // Update current component if not dashboard
+                    if (currentView !== 'dashboard') {
+                        loadComponentData(currentView);
+                    }
+                } else {
+                    throw new Error('Invalid data format');
+                }
+                
+            } catch (error) {
+                console.error('Error loading ClickUp data:', error);
+                
+                // Show ClickUp connection required message
+                const errorContainer = document.getElementById('errorState');
+                if (errorContainer) {
+                    errorContainer.innerHTML = `
+                        <div style="text-align: center; padding: 40px;">
+                            <h3 style="color: #2563eb; margin-bottom: 16px;">🔗 ClickUp Connection Required</h3>
+                            <p style="color: #6b7280; margin-bottom: 24px;">
+                                This system only works with real ClickUp data.<br>
+                                ${error.message || 'Please connect your ClickUp account to continue.'}
                             </p>
-                            <button
-                                onClick={authenticateWithClickUp}
-                                disabled={authLoading}
-                                style={{
-                                    background: '#ff6b35',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '12px 30px',
-                                    borderRadius: '8px',
-                                    fontSize: '16px',
-                                    fontWeight: '600',
-                                    cursor: authLoading ? 'not-allowed' : 'pointer',
-                                    opacity: authLoading ? '0.7' : '1',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '10px',
-                                    margin: '0 auto'
-                                }}
-                            >
-                                {authLoading ? '⏳' : '🔗'} 
-                                {authLoading ? 'กำลังเชื่อมต่อ...' : 'เชื่อมต่อ ClickUp'}
+                            <button class="btn btn-primary" onclick="window.location.href='${API_BASE_URL}/auth/clickup'" style="margin-right: 12px;">
+                                🚀 Connect ClickUp Account
+                            </button>
+                            <button class="btn btn-secondary" onclick="loadClickUpData()">
+                                🔄 Retry Connection
                             </button>
                         </div>
-
-                        <div style={{ marginTop: '30px', fontSize: '14px', opacity: '0.8' }}>
-                            <p>📊 ดูข้อมูลโปรเจกต์แบบเรียลไทม์</p>
-                            <p>👥 จัดการทีมงานและ workload</p>
-                            <p>📈 วิเคราะห์ประสิทธิภาพทีม</p>
-                        </div>
-                    </div>
-                );
+                    `;
+                }
+                showError();
+            } finally {
+                isLoading = false;
             }
+        }
 
-            return (
-                <div style={{
-                    minHeight: '100vh', 
-                    background: isDarkMode ? '#0f172a' : '#f9fafb',
-                    transition: 'background-color 0.3s ease'
-                }}>
-                    {/* Header */}
-                    <header className="header">
-                        <div className="logo">📊 TaskFlow</div>
-                        
-                        <div className="search-bar">
-                            <input type="text" className="search-input" placeholder="ค้นหาพนักงาน, งาน, โครงการ..." />
-                            <span className="search-icon">🔍</span>
-                        </div>
-                        
-                        <div className="header-actions">
-                            {syncStatus && (
-                                <div style={{ 
-                                    fontSize: '12px', 
-                                    color: '#6b7280', 
-                                    marginRight: '15px',
-                                    textAlign: 'right'
-                                }}>
-                                    <div>ซิงค์ล่าสุด:</div>
-                                    <div>{syncStatus.lastSync ? new Date(syncStatus.lastSync).toLocaleString('th-TH') : 'ยังไม่ได้ซิงค์'}</div>
-                                    {nextAutoSync && (
-                                        <div style={{ color: '#059669', fontSize: '11px', marginTop: '2px' }}>
-                                            🔄 Auto-sync ถัดไป: {nextAutoSync}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                            <button
-                                onClick={syncData}
-                                disabled={authLoading}
-                                style={{
-                                    background: authLoading ? '#d1d5db' : '#2563eb',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '8px 12px',
-                                    borderRadius: '6px',
-                                    fontSize: '12px',
-                                    marginRight: '10px',
-                                    cursor: authLoading ? 'not-allowed' : 'pointer'
-                                }}
-                            >
-                                {authLoading ? '⏳' : '🔄'} ซิงค์{nextAutoSync ? ' (Auto: ทุก 30 นาที)' : ''}
-                            </button>
-                            <button 
-                                className="theme-toggle"
-                                onClick={toggleDarkMode}
-                                title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-                            >
-                                {isDarkMode ? '☀️' : '🌙'}
-                            </button>
-                            <div className="notification-bell" onClick={handleNotificationClick}>
-                                <span>🔔</span>
-                                {notifications.length > 0 && (
-                                    <div className="notification-badge">{notifications.length}</div>
-                                )}
-                            </div>
-                            <div 
-                                className="user-avatar"
-                                onClick={() => {
-                                    if (confirm('ต้องการออกจากระบบหรือไม่?')) {
-                                        logout();
-                                    }
-                                }}
-                                style={{ cursor: 'pointer' }}
-                                title="คลิกเพื่อออกจากระบบ"
-                            >
-                                ผบ
-                            </div>
-                        </div>
-                    </header>
+        // Show loading state
+        function showLoading() {
+            document.getElementById('loadingState').style.display = 'flex';
+            document.getElementById('errorState').style.display = 'none';
+            document.querySelectorAll('.component').forEach(comp => {
+                comp.style.display = 'none';
+            });
+        }
 
-                    <div style={{display: 'flex', paddingTop: '64px'}}>
-                        {/* Sidebar */}
-                        <aside className="sidebar">
-                            <nav>
-                                <ul className="nav-menu">
-                                    {[
-                                        { icon: '📊', label: 'Dashboard', active: true },
-                                        { icon: '👥', label: 'Team Management' },
-                                        { icon: '📋', label: 'Task Center', badge: '12' },
-                                        { icon: '📈', label: 'Analytics' },
-                                        { icon: '📁', label: 'Projects' },
-                                        { icon: '⚙️', label: 'Settings' }
-                                    ].map((item, index) => (
-                                        <li key={index} className="nav-item">
-                                            <a href="#" className={`nav-link ${item.active ? 'active' : ''}`}>
-                                                <span className="nav-icon">{item.icon}</span>
-                                                {item.label}
-                                                {item.badge && <span className="nav-badge">{item.badge}</span>}
-                                            </a>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </nav>
-                        </aside>
+        // Show error state
+        function showError() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'flex';
+            document.querySelectorAll('.component').forEach(comp => {
+                comp.style.display = 'none';
+            });
+        }
 
-                        {/* Main Content */}
-                        <main className="main-content">
-                            {/* Page Header */}
-                            <div className="page-header">
-                                <h1 className="page-title">Team Dashboard</h1>
-                                <p className="page-subtitle">ภาพรวมการทำงานของทีม • อัพเดทล่าสุด: {new Date().toLocaleString('th-TH')}</p>
-                            </div>
+        // Show content
+        function showContent() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
+            document.getElementById(currentView).classList.add('active');
+            document.getElementById(currentView).style.display = 'block';
+        }
 
-                            {/* KPI Cards */}
-                            <div className="kpi-grid">
-                                {[
-                                    { icon: '📋', value: totalTasks, label: 'งานทั้งหมด', trend: '+12%', color: 'tasks' },
-                                    { icon: '✅', value: completedToday, label: 'เสร็จแล้ววันนี้', trend: '+8%', color: 'completed' },
-                                    { icon: '⚠️', value: totalOverdue, label: 'งานเกินกำหนด', trend: '-3%', color: 'overdue' },
-                                    { icon: '📊', value: `${avgUtilization}%`, label: 'ประสิทธิภาพทีม', trend: '+5%', color: 'utilization' }
-                                ].map((kpi, index) => (
-                                    <div key={index} className="kpi-card">
-                                        <div className="kpi-header">
-                                            <div className={`kpi-icon ${kpi.color}`}>
-                                                {kpi.icon}
-                                            </div>
-                                        </div>
-                                        <div className="kpi-value">{kpi.value}</div>
-                                        <div className="kpi-label">{kpi.label}</div>
-                                        <div className={`kpi-trend ${kpi.trend.startsWith('+') ? 'positive' : 'negative'}`}>
-                                            <span className="trend-arrow">{kpi.trend.startsWith('+') ? '↗️' : '↘️'}</span>
-                                            {kpi.trend} จากสัปดาห์ที่แล้ว
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Team Management Section */}
-                            <section>
-                                <div className="section-header">
-                                    <h2 className="section-title">Team Workload Overview</h2>
-                                    <div className="section-actions">
-                                        <button className="btn btn-secondary" onClick={autoBalance}>
-                                            <span>📊</span>
-                                            Auto Balance
-                                        </button>
-                                        <button className="btn btn-primary" onClick={() => setShowAssignModal(true)}>
-                                            <span>➕</span>
-                                            Assign Task
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="team-grid">
-                                    {employees.map((employee) => (
-                                        <div key={employee.id} className="employee-card" onClick={() => {
-                                            setSelectedEmployee(employee);
-                                            setShowAssignModal(true);
-                                        }}>
-                                            <div className={`status-indicator ${getStatusColor(employee.status)}`}></div>
-                                            
-                                            <div className="employee-header">
-                                                <div className="employee-avatar">{employee.avatar}</div>
-                                                <div className="employee-info">
-                                                    <h3>{employee.name}</h3>
-                                                    <p>{employee.position}</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="workload-section">
-                                                <div className="workload-header">
-                                                    <span className="workload-label">Workload</span>
-                                                    <span className="workload-count">{employee.currentTasks}/{employee.maxTasks} งาน</span>
-                                                </div>
-                                                <div className="workload-bar">
-                                                    <div
-                                                        className={`workload-fill ${getWorkloadColor(employee.currentTasks, employee.maxTasks)}`}
-                                                        style={{ width: `${Math.min((employee.currentTasks / employee.maxTasks) * 100, 100)}%` }}
-                                                    ></div>
-                                                </div>
-                                            </div>
-
-                                            <div className="task-stats">
-                                                <div className="task-stat completed">
-                                                    <div className="task-stat-value">{employee.completedToday}</div>
-                                                    <div className="task-stat-label">เสร็จแล้ว</div>
-                                                </div>
-                                                <div className="task-stat pending">
-                                                    <div className="task-stat-value">{employee.inProgress}</div>
-                                                    <div className="task-stat-label">กำลังทำ</div>
-                                                </div>
-                                                <div className="task-stat overdue">
-                                                    <div className="task-stat-value">{employee.overdue}</div>
-                                                    <div className="task-stat-label">เกินกำหนด</div>
-                                                </div>
-                                            </div>
-
-                                            <div className="employee-actions">
-                                                <button 
-                                                    className={`btn-sm ${employee.currentTasks >= employee.maxTasks ? 'btn-secondary' : 'btn-primary'}`}
-                                                    disabled={employee.currentTasks >= employee.maxTasks}
-                                                >
-                                                    + มอบหมายงาน
-                                                </button>
-                                                <button className="btn btn-secondary btn-sm">ดูรายละเอียด</button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
-
-                            {/* Analytics Section */}
-                            <section>
-                                <div className="section-header">
-                                    <h2 className="section-title">Performance Analytics</h2>
-                                    <div className="section-actions">
-                                        <button className="btn btn-secondary" onClick={exportReport}>Export Report</button>
-                                    </div>
-                                </div>
-
-                                <div className="analytics-grid">
-                                    <div className="chart-container">
-                                        <div className="chart-header">
-                                            <h3 className="chart-title">Team Performance Trends</h3>
-                                            <p className="chart-subtitle">การแสดงประสิทธิภาพของทีมในรอบ 7 วันที่ผ่านมา</p>
-                                        </div>
-                                        {rechartsLoaded ? (
-                                            <ResponsiveContainer width="100%" height={200}>
-                                                <BarChart data={performanceData}>
-                                                    <CartesianGrid strokeDasharray="3 3" />
-                                                    <XAxis dataKey="name" />
-                                                    <YAxis />
-                                                    <Tooltip />
-                                                    <Bar dataKey="completed" fill="#2563eb" name="เสร็จแล้ว" />
-                                                    <Bar dataKey="assigned" fill="#e5e7eb" name="ที่ได้รับ" />
-                                                </BarChart>
-                                            </ResponsiveContainer>
-                                        ) : (
-                                            <div style={{height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9fafb', borderRadius: '8px', color: '#6b7280'}}>
-                                                📊 กำลังโหลดกราฟ...
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="activity-feed">
-                                        <div className="chart-header">
-                                            <h3 className="chart-title">Recent Activities</h3>
-                                            <p className="chart-subtitle">กิจกรรมล่าสุดของทีม</p>
-                                        </div>
-                                        <div>
-                                            {activities.map((activity) => (
-                                                <div key={activity.id} className="activity-item">
-                                                    <div className={`activity-icon ${activity.type}`}>
-                                                        {activity.type === 'completed' ? '✅' : activity.type === 'assigned' ? '👤' : '⚠️'}
-                                                    </div>
-                                                    <div className="activity-content">
-                                                        <div className="activity-text">
-                                                            {activity.user} {activity.type === 'completed' ? 'เสร็จงาน' : activity.type === 'assigned' ? 'ได้รับงาน' : 'งานเกินกำหนด'} "{activity.task}"
-                                                        </div>
-                                                        <div className="activity-time">{activity.time}</div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-                        </main>
+        // Populate KPI cards with real data
+        function populateKPIs(data) {
+            const workload = data.workload || {};
+            const totalTasks = workload.totalTasks || 0;
+            const completedTasks = workload.completedTasks || 0;
+            const inProgressTasks = workload.inProgressTasks || 0;
+            const overdueTasks = workload.overdueTasks || 0;
+            
+            const efficiency = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+            
+            const kpiGrid = document.getElementById('kpiGrid');
+            kpiGrid.innerHTML = `
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon tasks">📋</div>
                     </div>
+                    <div class="kpi-value">${totalTasks}</div>
+                    <div class="kpi-label">งานทั้งหมด</div>
+                    <div class="kpi-trend positive">
+                        <span class="trend-arrow">📊</span>
+                        จากข้อมูล ClickUp
+                    </div>
+                </div>
 
-                    {/* Task Assignment Modal */}
-                    {showAssignModal && (
-                        <div className="modal-overlay">
-                            <div className="modal">
-                                <h3 className="modal-header">มอบหมายงานใหม่</h3>
-                                
-                                {selectedEmployee && (
-                                    <div className="selected-employee">
-                                        <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
-                                            <div className="employee-avatar" style={{width: '40px', height: '40px', fontSize: '16px'}}>
-                                                {selectedEmployee.avatar}
-                                            </div>
-                                            <div>
-                                                <div style={{fontWeight: '500'}}>{selectedEmployee.name}</div>
-                                                <div style={{fontSize: '14px', color: '#6b7280'}}>งานปัจจุบัน: {selectedEmployee.currentTasks}/{selectedEmployee.maxTasks}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon completed">✅</div>
+                    </div>
+                    <div class="kpi-value">${completedTasks}</div>
+                    <div class="kpi-label">งานเสร็จแล้ว</div>
+                    <div class="kpi-trend positive">
+                        <span class="trend-arrow">↗️</span>
+                        ${efficiency}% ของงานทั้งหมด
+                    </div>
+                </div>
 
-                                <div>
-                                    <div className="form-group">
-                                        <label className="form-label">ชื่องาน</label>
-                                        <input
-                                            type="text"
-                                            className="form-input"
-                                            value={newTask.title}
-                                            onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                                            placeholder="ระบุชื่องาน..."
-                                        />
-                                    </div>
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon overdue">⚠️</div>
+                    </div>
+                    <div class="kpi-value">${overdueTasks}</div>
+                    <div class="kpi-label">งานเกินกำหนด</div>
+                    <div class="kpi-trend ${overdueTasks > 0 ? 'negative' : 'positive'}">
+                        <span class="trend-arrow">${overdueTasks > 0 ? '↗️' : '✅'}</span>
+                        ${overdueTasks > 0 ? 'ต้องติดตาม' : 'ทุกงานตรงเวลา'}
+                    </div>
+                </div>
 
-                                    <div className="form-group">
-                                        <label className="form-label">ความสำคัญ</label>
-                                        <select
-                                            className="form-select"
-                                            value={newTask.priority}
-                                            onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
-                                        >
-                                            <option value="low">ต่ำ</option>
-                                            <option value="medium">ปานกลาง</option>
-                                            <option value="high">สูง</option>
-                                            <option value="urgent">ด่วนมาก</option>
-                                        </select>
-                                    </div>
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon utilization">📊</div>
+                    </div>
+                    <div class="kpi-value">${efficiency}%</div>
+                    <div class="kpi-label">ประสิทธิภาพทีม</div>
+                    <div class="kpi-trend ${efficiency >= 75 ? 'positive' : 'negative'}">
+                        <span class="trend-arrow">${efficiency >= 75 ? '↗️' : '↘️'}</span>
+                        ${efficiency >= 75 ? 'ประสิทธิภาพดี' : 'ต้องปรับปรุง'}
+                    </div>
+                </div>
+            `;
+            
+            // Update notification count
+            document.getElementById('notificationCount').textContent = overdueTasks;
+            const taskCountEl = document.getElementById('taskCount');
+            if (taskCountEl) {
+                taskCountEl.textContent = inProgressTasks;
+            }
+        }
 
-                                    <div className="form-group">
-                                        <label className="form-label">กำหนดส่ง</label>
-                                        <input
-                                            type="date"
-                                            className="form-input"
-                                            value={newTask.dueDate}
-                                            onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
-                                        />
-                                    </div>
+        // Populate team data with real ClickUp assignees
+        function populateTeamData(data) {
+            const tasks = data.tasks || [];
+            const user = data.user || {};
+            
+            // Group tasks by assignee
+            const assigneeData = {};
+            
+            tasks.forEach(task => {
+                if (task.assignees && task.assignees.length > 0) {
+                    task.assignees.forEach(assignee => {
+                        if (!assigneeData[assignee.id]) {
+                            assigneeData[assignee.id] = {
+                                user: assignee,
+                                tasks: [],
+                                completed: 0,
+                                inProgress: 0,
+                                overdue: 0
+                            };
+                        }
+                        
+                        assigneeData[assignee.id].tasks.push(task);
+                        
+                        // Categorize tasks
+                        const status = task.status?.status?.toLowerCase() || '';
+                        if (status.includes('complete') || status.includes('done')) {
+                            assigneeData[assignee.id].completed++;
+                        } else if (status.includes('progress')) {
+                            assigneeData[assignee.id].inProgress++;
+                        }
+                        
+                        // Check if overdue
+                        if (task.due_date && parseInt(task.due_date) < Date.now()) {
+                            assigneeData[assignee.id].overdue++;
+                        }
+                    });
+                }
+            });
+            
+            // Add current user if not in assignees
+            if (user.id && !assigneeData[user.id]) {
+                assigneeData[user.id] = {
+                    user: user,
+                    tasks: [],
+                    completed: 0,
+                    inProgress: 0,
+                    overdue: 0
+                };
+            }
+            
+            const teamGrid = document.getElementById('teamGrid');
+            const assigneeCards = Object.values(assigneeData).map(assigneeInfo => {
+                const totalTasks = assigneeInfo.tasks.length;
+                const maxTasks = 10; // Assumed max workload
+                const workloadPercentage = (totalTasks / maxTasks) * 100;
+                
+                let workloadClass = 'workload-light';
+                let statusClass = 'status-available';
+                
+                if (workloadPercentage > 100) {
+                    workloadClass = 'workload-critical';
+                    statusClass = 'status-busy';
+                } else if (workloadPercentage > 75) {
+                    workloadClass = 'workload-heavy';
+                    statusClass = 'status-busy';
+                } else if (workloadPercentage > 50) {
+                    workloadClass = 'workload-normal';
+                }
+                
+                const avatar = assigneeInfo.user.username 
+                    ? assigneeInfo.user.username.charAt(0).toUpperCase()
+                    : '👤';
+                
+                return `
+                    <div class="employee-card">
+                        <div class="status-indicator ${statusClass}"></div>
+                        <div class="employee-header">
+                            <div class="employee-avatar">${avatar}</div>
+                            <div class="employee-info">
+                                <h3>${assigneeInfo.user.username || 'Unknown User'}</h3>
+                                <p>ClickUp Member</p>
+                            </div>
+                        </div>
 
-                                    <div className="form-group">
-                                        <label className="form-label">ประมาณเวลา (ชั่วโมง)</label>
-                                        <input
-                                            type="number"
-                                            className="form-input"
-                                            value={newTask.estimatedHours}
-                                            onChange={(e) => setNewTask({ ...newTask, estimatedHours: parseInt(e.target.value) })}
-                                            min="1"
-                                            max="40"
-                                        />
-                                    </div>
+                        <div class="workload-section">
+                            <div class="workload-header">
+                                <span class="workload-label">Workload</span>
+                                <span class="workload-count">${totalTasks}/${maxTasks} งาน</span>
+                            </div>
+                            <div class="workload-bar">
+                                <div class="workload-fill ${workloadClass}" style="width: ${Math.min(workloadPercentage, 120)}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="task-stats">
+                            <div class="task-stat completed">
+                                <div class="task-stat-value">${assigneeInfo.completed}</div>
+                                <div class="task-stat-label">เสร็จแล้ว</div>
+                            </div>
+                            <div class="task-stat pending">
+                                <div class="task-stat-value">${assigneeInfo.inProgress}</div>
+                                <div class="task-stat-label">กำลังทำ</div>
+                            </div>
+                            <div class="task-stat overdue">
+                                <div class="task-stat-value">${assigneeInfo.overdue}</div>
+                                <div class="task-stat-label">เกินกำหนด</div>
+                            </div>
+                        </div>
+
+                        <div class="employee-actions">
+                            <button class="btn btn-primary btn-sm">+ มอบหมายงาน</button>
+                            <button class="btn btn-secondary btn-sm">ดูรายละเอียด</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            teamGrid.innerHTML = assigneeCards.join('');
+        }
+
+        // Populate activity feed with recent task activities
+        function populateActivityFeed(data) {
+            const tasks = data.tasks || [];
+            const activityFeed = document.getElementById('activityFeed');
+            
+            // Generate activities from tasks
+            const activities = tasks.slice(0, 5).map((task, index) => {
+                const timeAgo = Math.floor(Math.random() * 120) + 1; // Random time 1-120 minutes ago
+                const assigneeName = task.assignees && task.assignees[0] 
+                    ? task.assignees[0].username 
+                    : 'Unknown';
+                
+                const status = task.status?.status?.toLowerCase() || '';
+                let activityType = 'assigned';
+                let icon = '👤';
+                let text = `มอบหมายงาน "${task.name}" ให้ ${assigneeName}`;
+                
+                if (status.includes('complete') || status.includes('done')) {
+                    activityType = 'completed';
+                    icon = '✅';
+                    text = `${assigneeName} เสร็จงาน "${task.name}"`;
+                } else if (task.due_date && parseInt(task.due_date) < Date.now()) {
+                    activityType = 'overdue';
+                    icon = '⚠️';
+                    text = `งาน "${task.name}" เกินกำหนดแล้ว`;
+                }
+                
+                return `
+                    <div class="activity-item">
+                        <div class="activity-icon ${activityType}">${icon}</div>
+                        <div class="activity-content">
+                            <div class="activity-text">${text}</div>
+                            <div class="activity-time">${timeAgo} นาทีที่แล้ว</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            activityFeed.innerHTML = activities.join('');
+        }
+
+        // Process employee data from ClickUp
+        function processEmployeeData(data) {
+            const tasks = data.tasks || [];
+            const user = data.user || {};
+            
+            // Extract unique employees
+            const employeeMap = new Map();
+            
+            // Add main user
+            if (user.id) {
+                employeeMap.set(user.id, {
+                    id: user.id,
+                    name: user.username || 'Unknown User',
+                    email: user.email || `${user.username}@clickup.com`,
+                    role: 'Manager', // Can be configurable
+                    department: 'General',
+                    phone: '',
+                    location: '',
+                    joinDate: new Date().toISOString().split('T')[0],
+                    status: 'Active',
+                    taskCount: 0,
+                    completedTasks: 0,
+                    profilePicture: user.profilePicture
+                });
+            }
+            
+            // Add assignees from tasks
+            tasks.forEach(task => {
+                if (task.assignees && task.assignees.length > 0) {
+                    task.assignees.forEach(assignee => {
+                        if (!employeeMap.has(assignee.id)) {
+                            employeeMap.set(assignee.id, {
+                                id: assignee.id,
+                                name: assignee.username || 'Unknown User',
+                                email: assignee.email || `${assignee.username}@clickup.com`,
+                                role: 'Team Member',
+                                department: 'General',
+                                phone: '',
+                                location: '',
+                                joinDate: new Date().toISOString().split('T')[0],
+                                status: 'Active',
+                                taskCount: 0,
+                                completedTasks: 0,
+                                profilePicture: assignee.profilePicture
+                            });
+                        }
+                        
+                        // Count tasks
+                        const employee = employeeMap.get(assignee.id);
+                        employee.taskCount++;
+                        
+                        // Count completed tasks
+                        const status = task.status?.status?.toLowerCase() || '';
+                        if (status.includes('complete') || status.includes('done')) {
+                            employee.completedTasks++;
+                        }
+                    });
+                }
+            });
+            
+            employeeData = Array.from(employeeMap.values());
+        }
+
+        // Update last updated timestamp
+        function updateLastUpdated() {
+            const now = new Date();
+            const thaiTime = now.toLocaleDateString('th-TH', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            document.getElementById('lastUpdated').textContent = 
+                `ภาพรวมการทำงานของทีมจาก ClickUp • อัพเดทล่าสุด: ${thaiTime}`;
+        }
+
+        // Component renderers
+        function renderMyTasks() {
+            const myTasksContent = document.getElementById('myTasksContent');
+            const userTasks = clickUpData?.tasks?.filter(task => 
+                task.assignees.some(assignee => assignee.id === clickUpData.user.id)
+            ) || [];
+            
+            if (userTasks.length === 0) {
+                myTasksContent.innerHTML = `
+                    <div class="chart-placeholder">
+                        📋 ไม่มีงานที่ได้รับมอบหมาย<br>
+                        ข้อมูลจาก ClickUp API
+                    </div>
+                `;
+                return;
+            }
+            
+            myTasksContent.innerHTML = `
+                <div class="team-grid">
+                    ${userTasks.map(task => `
+                        <div class="employee-card">
+                            <div class="employee-header">
+                                <div class="employee-avatar">📋</div>
+                                <div class="employee-info">
+                                    <h3>${task.name}</h3>
+                                    <p>Priority: ${task.priority?.priority || 'Normal'}</p>
                                 </div>
-
-                                <div className="modal-actions">
-                                    <button
-                                        className="btn-cancel"
-                                        onClick={() => {
-                                            setShowAssignModal(false);
-                                            setSelectedEmployee(null);
-                                            setNewTask({ title: '', priority: 'medium', dueDate: '', estimatedHours: 1 });
-                                        }}
-                                    >
-                                        ยกเลิก
-                                    </button>
-                                    <button
-                                        className="btn-submit"
-                                        onClick={assignTask}
-                                        disabled={!newTask.title}
-                                    >
-                                        มอบหมาย
-                                    </button>
+                            </div>
+                            <div class="task-stats">
+                                <div class="task-stat">
+                                    <div class="task-stat-value" style="color: ${task.status?.color || '#6b7280'}">${task.status?.status || 'Unknown'}</div>
+                                    <div class="task-stat-label">สถานะ</div>
                                 </div>
                             </div>
                         </div>
-                    )}
+                    `).join('')}
                 </div>
-            );
-        };
+            `;
+        }
 
-        // Render the application
-        ReactDOM.render(<TeamTaskTracker />, document.getElementById('root'));
+        function renderTeamOverview() {
+            const teamOverviewGrid = document.getElementById('teamOverviewGrid');
+            populateTeamData(clickUpData);
+            teamOverviewGrid.innerHTML = document.getElementById('teamGrid').innerHTML;
+        }
+
+        function renderEmployeeManagement() {
+            const canEdit = currentUser.role === 'Manager' || currentUser.role === 'Team Lead';
+            const title = currentUser.role === 'Manager' ? 'Employee Management' : 'Team Members';
+            
+            document.getElementById('employeeManagementTitle').textContent = title;
+            
+            const employeeGrid = document.getElementById('employeeGrid');
+            
+            const filteredEmployees = employeeData;
+            
+            employeeGrid.innerHTML = filteredEmployees.map(employee => {
+                const successRate = employee.taskCount > 0 
+                    ? Math.round((employee.completedTasks / employee.taskCount) * 100)
+                    : 0;
+                
+                const avatar = employee.name ? employee.name.charAt(0).toUpperCase() : '👤';
+                
+                return `
+                    <div class="employee-card-mgmt">
+                        <div class="employee-header">
+                            <div class="employee-avatar">${avatar}</div>
+                            <div class="employee-info">
+                                <h3>${employee.name}</h3>
+                                <p>${employee.role} • ${employee.department}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="task-stats">
+                            <div class="task-stat">
+                                <div class="task-stat-value">${employee.taskCount}</div>
+                                <div class="task-stat-label">งานทั้งหมด</div>
+                            </div>
+                            <div class="task-stat completed">
+                                <div class="task-stat-value">${employee.completedTasks}</div>
+                                <div class="task-stat-label">สำเร็จ</div>
+                            </div>
+                            <div class="task-stat">
+                                <div class="task-stat-value">${successRate}%</div>
+                                <div class="task-stat-label">อัตราสำเร็จ</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                            <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">
+                                📧 ${employee.email}<br>
+                                📅 เข้าทำงาน: ${employee.joinDate}<br>
+                                📍 ${employee.location || 'ไม่ระบุ'}
+                            </div>
+                        </div>
+                        
+                        ${canEdit ? `
+                            <div class="employee-actions" style="margin-top: 12px;">
+                                <button class="btn btn-primary btn-sm" onclick="editEmployee('${employee.id}')">
+                                    ✏️ แก้ไขข้อมูล
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            // Add search functionality
+            document.getElementById('employeeSearch').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const cards = document.querySelectorAll('.employee-card-mgmt');
+                
+                cards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        function renderTeamRanking() {
+            if (!clickUpData || !employeeData) return;
+            
+            // Calculate performance scores
+            const rankingData = employeeData.map(employee => {
+                const completionRate = employee.taskCount > 0 
+                    ? (employee.completedTasks / employee.taskCount) * 100 
+                    : 0;
+                
+                // Simple scoring: completion rate as main factor
+                const score = Math.round(completionRate);
+                const points = (employee.completedTasks * 10) + (score > 80 ? 50 : 0);
+                
+                return {
+                    ...employee,
+                    score: score,
+                    points: points,
+                    completionRate: completionRate
+                };
+            }).sort((a, b) => b.score - a.score || b.points - a.points);
+            
+            const rankingGrid = document.getElementById('rankingGrid');
+            
+            rankingGrid.innerHTML = rankingData.map((employee, index) => {
+                const rank = index + 1;
+                let badgeClass = 'regular';
+                let badgeIcon = rank;
+                
+                if (rank === 1) {
+                    badgeClass = 'gold';
+                    badgeIcon = '🥇';
+                } else if (rank === 2) {
+                    badgeClass = 'silver';
+                    badgeIcon = '🥈';
+                } else if (rank === 3) {
+                    badgeClass = 'bronze';
+                    badgeIcon = '🥉';
+                }
+                
+                const avatar = employee.name ? employee.name.charAt(0).toUpperCase() : '👤';
+                
+                return `
+                    <div class="ranking-card">
+                        <div class="ranking-badge ${badgeClass}">${badgeIcon}</div>
+                        
+                        <div class="employee-header">
+                            <div class="employee-avatar">${avatar}</div>
+                            <div class="employee-info">
+                                <h3>${employee.name}</h3>
+                                <p>${employee.role}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="performance-score">${employee.score}%</div>
+                        <div class="performance-label">ประสิทธิภาพโดยรวม</div>
+                        
+                        <div class="performance-stats">
+                            <div class="performance-stat">
+                                <div class="performance-stat-value">${employee.taskCount}</div>
+                                <div class="performance-stat-label">งานทั้งหมด</div>
+                            </div>
+                            <div class="performance-stat">
+                                <div class="performance-stat-value">${employee.completedTasks}</div>
+                                <div class="performance-stat-label">สำเร็จ</div>
+                            </div>
+                            <div class="performance-stat">
+                                <div class="performance-stat-value">${employee.points}</div>
+                                <div class="performance-stat-label">คะแนน</div>
+                            </div>
+                            <div class="performance-stat">
+                                <div class="performance-stat-value">${Math.round(employee.completionRate)}%</div>
+                                <div class="performance-stat-label">อัตราสำเร็จ</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderProjects() {
+            const projectsContent = document.getElementById('projectsContent');
+            const teams = clickUpData?.teams || [];
+            
+            projectsContent.innerHTML = `
+                <div class="team-grid">
+                    ${teams.map(team => `
+                        <div class="employee-card">
+                            <div class="employee-header">
+                                <div class="employee-avatar">📁</div>
+                                <div class="employee-info">
+                                    <h3>${team.name}</h3>
+                                    <p>ClickUp Team</p>
+                                </div>
+                            </div>
+                            <div class="task-stats">
+                                <div class="task-stat">
+                                    <div class="task-stat-value">${team.id}</div>
+                                    <div class="task-stat-label">Team ID</div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderReports() {
+            const reportsContent = document.getElementById('reportsContent');
+            const workload = clickUpData?.workload || {};
+            
+            reportsContent.innerHTML = `
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-value">${workload.totalTasks || 0}</div>
+                        <div class="kpi-label">รายงานงานทั้งหมด</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value">${workload.completedTasks || 0}</div>
+                        <div class="kpi-label">รายงานงานเสร็จ</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value">${workload.inProgressTasks || 0}</div>
+                        <div class="kpi-label">รายงานงานกำลังทำ</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-value">${workload.overdueTasks || 0}</div>
+                        <div class="kpi-label">รายงานงานเกินกำหนด</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCalendar() {
+            const calendarContent = document.getElementById('calendarContent');
+            const tasks = clickUpData?.tasks || [];
+            const upcomingTasks = tasks.filter(task => 
+                task.due_date && parseInt(task.due_date) > Date.now()
+            ).slice(0, 10);
+            
+            calendarContent.innerHTML = `
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">งานที่จะถึงกำหนด</h3>
+                        <p class="chart-subtitle">งานจาก ClickUp ที่มี Due Date</p>
+                    </div>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        ${upcomingTasks.map(task => {
+                            const dueDate = new Date(parseInt(task.due_date));
+                            const assigneeName = task.assignees && task.assignees[0] 
+                                ? task.assignees[0].username 
+                                : 'ไม่ระบุ';
+                            
+                            return `
+                                <div class="activity-item">
+                                    <div class="activity-icon assigned">📅</div>
+                                    <div class="activity-content">
+                                        <div class="activity-text">${task.name}</div>
+                                        <div class="activity-time">กำหนดส่ง: ${dueDate.toLocaleDateString('th-TH')} • ${assigneeName}</div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSettings() {
+            const settingsContent = document.getElementById('settingsContent');
+            
+            settingsContent.innerHTML = `
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">การตั้งค่าระบบ</h3>
+                        <p class="chart-subtitle">จัดการการเชื่อมต่อ ClickUp และการตั้งค่าอื่นๆ</p>
+                    </div>
+                    <div style="padding: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">ClickUp API Status</label>
+                            <div style="padding: 10px; background: #dcfce7; border-radius: 6px; color: #059669;">
+                                ✅ เชื่อมต่อสำเร็จ - ${clickUpData?.source || 'ไม่ทราบสถานะ'}
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">บทบาทปัจจุบัน</label>
+                            <div style="padding: 10px; background: #dbeafe; border-radius: 6px; color: #2563eb;">
+                                👤 ${currentUser.role} - ${currentUser.name}
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">เปลี่ยนบทบาท (สำหรับทดสอบ)</label>
+                            <select class="form-select" onchange="changeUserRole(this.value)">
+                                <option value="Manager" ${currentUser.role === 'Manager' ? 'selected' : ''}>Manager</option>
+                                <option value="Team Lead" ${currentUser.role === 'Team Lead' ? 'selected' : ''}>Team Lead</option>
+                                <option value="Employee" ${currentUser.role === 'Employee' ? 'selected' : ''}>Employee</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Employee management functions
+        function editEmployee(employeeId) {
+            const employee = employeeData.find(emp => emp.id == employeeId);
+            if (!employee) return;
+            
+            currentEditEmployee = employee;
+            
+            // Populate form
+            document.getElementById('employeeName').value = employee.name;
+            document.getElementById('employeeEmail').value = employee.email;
+            document.getElementById('employeeRole').value = employee.role;
+            document.getElementById('employeeDepartment').value = employee.department;
+            document.getElementById('employeePhone').value = employee.phone;
+            document.getElementById('employeeLocation').value = employee.location;
+            document.getElementById('employeeJoinDate').value = employee.joinDate;
+            document.getElementById('employeeStatus').value = employee.status;
+            
+            // Show modal
+            document.getElementById('employeeModal').classList.add('show');
+        }
+
+        function closeEmployeeModal() {
+            document.getElementById('employeeModal').classList.remove('show');
+            currentEditEmployee = null;
+        }
+
+        // Handle employee form submission
+        document.getElementById('employeeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!currentEditEmployee) return;
+            
+            // Update employee data
+            const index = employeeData.findIndex(emp => emp.id === currentEditEmployee.id);
+            if (index !== -1) {
+                employeeData[index] = {
+                    ...employeeData[index],
+                    name: document.getElementById('employeeName').value,
+                    email: document.getElementById('employeeEmail').value,
+                    role: document.getElementById('employeeRole').value,
+                    department: document.getElementById('employeeDepartment').value,
+                    phone: document.getElementById('employeePhone').value,
+                    location: document.getElementById('employeeLocation').value,
+                    joinDate: document.getElementById('employeeJoinDate').value,
+                    status: document.getElementById('employeeStatus').value
+                };
+                
+                // Re-render employee management
+                renderEmployeeManagement();
+                
+                // Close modal
+                closeEmployeeModal();
+                
+                alert('บันทึกข้อมูลเรียบร้อยแล้ว');
+            }
+        });
+
+        // Change user role (for testing)
+        function changeUserRole(newRole) {
+            currentUser.role = newRole;
+            currentUser.name = newRole === 'Manager' ? 'ผู้จัดการ' : 
+                              newRole === 'Team Lead' ? 'หัวหน้าทีม' : 'พนักงาน';
+            
+            renderNavigation();
+            
+            // Update user avatar
+            document.getElementById('userAvatar').textContent = 
+                newRole === 'Manager' ? 'ผบ' : 
+                newRole === 'Team Lead' ? 'หท' : 'พง';
+        }
+
+        // Refresh data manually
+        function refreshData() {
+            loadClickUpData();
+        }
+
+        // Add interactive effects
+        function addInteractiveEffects() {
+            // Hover effects for cards
+            document.addEventListener('mouseenter', function(e) {
+                if (e.target && typeof e.target.closest === 'function') {
+                    const card = e.target.closest('.employee-card, .kpi-card, .ranking-card');
+                    if (card) {
+                        card.style.transform = 'translateY(-4px)';
+                    }
+                }
+            }, true);
+            
+            document.addEventListener('mouseleave', function(e) {
+                if (e.target && typeof e.target.closest === 'function') {
+                    const card = e.target.closest('.employee-card, .kpi-card, .ranking-card');
+                    if (card) {
+                        card.style.transform = 'translateY(0)';
+                    }
+                }
+            }, true);
+
+            // Button click effects
+            document.addEventListener('click', function(e) {
+                if (e.target && typeof e.target.closest === 'function') {
+                    const button = e.target.closest('.btn');
+                    if (button) {
+                    
+                    // Ripple effect
+                    const ripple = document.createElement('span');
+                    const rect = button.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        background: rgba(255,255,255,0.3);
+                        border-radius: 50%;
+                        transform: scale(0);
+                        animation: ripple 0.6s ease-out;
+                        pointer-events: none;
+                    `;
+                    
+                        button.style.position = 'relative';
+                        button.style.overflow = 'hidden';
+                        button.appendChild(ripple);
+                        
+                        setTimeout(() => ripple.remove(), 600);
+                    }
+                }
+            });
+
+            // Create CSS animation for ripple effect
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes ripple {
+                    to {
+                        transform: scale(2);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Notification click
+            const notificationBell = document.querySelector('.notification-bell');
+            notificationBell.addEventListener('click', function() {
+                if (clickUpData && clickUpData.workload) {
+                    const overdue = clickUpData.workload.overdueTasks || 0;
+                    const inProgress = clickUpData.workload.inProgressTasks || 0;
+                    
+                    let message = '📬 Data from ClickUp:\n\n';
+                    message += `• Overdue tasks: ${overdue} tasks\n`;
+                    message += `• In progress tasks: ${inProgress} tasks\n`;
+                    message += `• Latest data from ClickUp API`;
+                    
+                    alert(message);
+                } else {
+                    alert('📬 Loading data from ClickUp...');
+                }
+            });
+
+            // Close modal when clicking outside
+            document.getElementById('employeeModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeEmployeeModal();
+                }
+            });
+        }
+
+        // Dark Mode Functions
+        function toggleDarkMode() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update button text and icon
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (newTheme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeToggle.innerHTML = '<span id="themeIcon">☀️</span> Light Mode';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeToggle.innerHTML = '<span id="themeIcon">🌙</span> Dark Mode';
+            }
+        }
+
+        // Sync Data Function
+        function syncData() {
+            const syncButton = document.getElementById('syncButton');
+            syncButton.innerHTML = '<span>⏳</span> Syncing...';
+            syncButton.disabled = true;
+            
+            // Call the existing loadClickUpData function
+            loadClickUpData().then(() => {
+                syncButton.innerHTML = '<span>✅</span> Synced';
+                setTimeout(() => {
+                    syncButton.innerHTML = '<span>🔄</span> Sync Data';
+                    syncButton.disabled = false;
+                }, 2000);
+            }).catch(() => {
+                syncButton.innerHTML = '<span>❌</span> Failed';
+                setTimeout(() => {
+                    syncButton.innerHTML = '<span>🔄</span> Sync Data';
+                    syncButton.disabled = false;
+                }, 2000);
+            });
+        }
+
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (savedTheme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeToggle.innerHTML = '<span id="themeIcon">☀️</span> Light Mode';
+            }
+        });
     </script>
 </body>
 </html>

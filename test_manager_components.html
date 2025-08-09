@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manager Component Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .nav-test { display: flex; gap: 10px; margin: 10px 0; }
+        .nav-button { 
+            padding: 8px 16px; 
+            border: 1px solid #007bff; 
+            background: #007bff; 
+            color: white; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            text-decoration: none;
+        }
+        .nav-button:hover { background: #0056b3; }
+        .component { display: none; margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; }
+        .component.active { display: block; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Manager Dashboard Component Test</h1>
+    
+    <div class="test-section">
+        <h2>📋 Manager Navigation Menu</h2>
+        <p>คลิกปุ่มเหล่านี้เพื่อทดสอบ Manager components:</p>
+        
+        <div class="nav-test">
+            <a class="nav-button" onclick="switchView('dashboard', event)">📊 Dashboard</a>
+            <a class="nav-button" onclick="switchView('all-tasks', event)">📋 All Tasks</a>
+            <a class="nav-button" onclick="switchView('team-overview', event)">👥 Team Overview</a>
+            <a class="nav-button" onclick="switchView('team-analytics', event)">📈 Team Analytics</a>
+            <a class="nav-button" onclick="switchView('employee-management', event)">👤 Employee Management</a>
+            <a class="nav-button" onclick="switchView('team-ranking', event)">🏆 Team Ranking</a>
+            <a class="nav-button" onclick="switchView('reports', event)">📊 Reports</a>
+            <a class="nav-button" onclick="switchView('team-attendance', event)">📅 Team Attendance</a>
+            <a class="nav-button" onclick="switchView('settings', event)">⚙️ Settings</a>
+        </div>
+        
+        <div id="test-status" class="status">เลือก component เพื่อทดสอบ...</div>
+    </div>
+
+    <!-- Test Components -->
+    <div id="dashboard" class="component active">
+        <h3>📊 Dashboard Component</h3>
+        <p>✅ Manager Dashboard is working!</p>
+    </div>
+
+    <div id="all-tasks" class="component">
+        <h3>📋 All Tasks Component</h3>
+        <p>✅ All Tasks component is working!</p>
+        <p>This would show all team tasks from ClickUp.</p>
+    </div>
+
+    <div id="team-overview" class="component">
+        <h3>👥 Team Overview Component</h3>
+        <p>✅ Team Overview component is working!</p>
+        <p>This shows team statistics, members, and performance metrics.</p>
+    </div>
+
+    <div id="team-analytics" class="component">
+        <h3>📈 Team Analytics Component</h3>
+        <p>✅ Team Analytics component is working!</p>
+        <p>This would show detailed team performance analytics.</p>
+    </div>
+
+    <div id="employee-management" class="component">
+        <h3>👤 Employee Management Component</h3>
+        <p>✅ Employee Management component is working!</p>
+        <p>This allows managing employee data and permissions.</p>
+    </div>
+
+    <div id="team-ranking" class="component">
+        <h3>🏆 Team Ranking Component</h3>
+        <p>✅ Team Ranking component is working!</p>
+        <p>This shows team performance rankings and leaderboards.</p>
+    </div>
+
+    <div id="reports" class="component">
+        <h3>📊 Reports Component</h3>
+        <p>✅ Reports component is working!</p>
+        <p>This provides various team and attendance reports.</p>
+    </div>
+
+    <div id="team-attendance" class="component">
+        <h3>📅 Team Attendance Component</h3>
+        <p>✅ Team Attendance component is working!</p>
+        <p>This manages team attendance tracking and reports.</p>
+    </div>
+
+    <div id="settings" class="component">
+        <h3>⚙️ Settings Component</h3>
+        <p>✅ Settings component is working!</p>
+        <p>This provides system configuration options.</p>
+    </div>
+
+    <script>
+        let currentView = 'dashboard';
+
+        function switchView(viewId, event) {
+            console.log('Switching to view:', viewId);
+            
+            // Update status
+            const statusDiv = document.getElementById('test-status');
+            statusDiv.className = 'status';
+            statusDiv.textContent = 'กำลังสลับไปยัง ' + viewId + '...';
+
+            // Hide all components
+            document.querySelectorAll('.component').forEach(comp => {
+                comp.classList.remove('active');
+            });
+
+            // Show selected component
+            const targetComponent = document.getElementById(viewId);
+            if (targetComponent) {
+                targetComponent.classList.add('active');
+                currentView = viewId;
+                statusDiv.className = 'status success';
+                statusDiv.textContent = '✅ สำเร็จ: ' + viewId + ' component กำลังแสดงผล';
+                console.log('Successfully switched to:', viewId);
+            } else {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ ผิดพลาด: ไม่พบ ' + viewId + ' component';
+                console.error('Component not found:', viewId);
+            }
+
+            // Update button states
+            document.querySelectorAll('.nav-button').forEach(btn => {
+                btn.style.background = '#007bff';
+            });
+            if (event && event.target) {
+                event.target.style.background = '#28a745';
+            }
+        }
+
+        // Test on page load
+        window.onload = function() {
+            console.log('Manager Component Test Page Loaded');
+            console.log('Available components:', document.querySelectorAll('.component').length);
+            document.getElementById('test-status').className = 'status success';
+            document.getElementById('test-status').textContent = '✅ พร้อมทดสอบ Manager components ทั้ง 9 รายการ';
+        };
+    </script>
+</body>
+</html>

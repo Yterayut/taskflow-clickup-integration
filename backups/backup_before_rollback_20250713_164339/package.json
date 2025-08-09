@@ -1,0 +1,100 @@
+{
+  "name": "taskflow-master-auth",
+  "version": "1.0.0",
+  "description": "TaskFlow Master Authentication Service - Real ClickUp Integration",
+  "main": "master_auth_service.js",
+  "scripts": {
+    "start": "node master_auth_service.js",
+    "dev": "nodemon master_auth_service.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "keywords": [
+    "taskflow",
+    "authentication",
+    "clickup",
+    "team-management",
+    "oauth"
+  ],
+  "author": "TaskFlow Team",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.0.0",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.5.1",
+    "express-session": "^1.18.1",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "node-cron": "^3.0.2",
+    "node-fetch": "^3.3.2",
+    "pg": "^8.16.3",
+    "redis": "^4.6.5",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^30.0.2",
+    "jsdom": "^23.0.0",
+    "nodemon": "^3.0.1",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "master_auth_service.js"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup.js"
+    ],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/taskflow_deployment/",
+      "<rootDir>/checkpoints/"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/taskflow_deployment/",
+      "<rootDir>/checkpoints/"
+    ],
+    "projects": [
+      {
+        "displayName": "node",
+        "testEnvironment": "node",
+        "testMatch": [
+          "**/tests/simple.test.js",
+          "**/tests/auth*.test.js",
+          "**/tests/integration.test.js",
+          "**/tests/master-auth.test.js",
+          "**/tests/unit/*.test.js",
+          "**/tests/integration/*.test.js",
+          "**/tests/e2e/*.test.js"
+        ]
+      },
+      {
+        "displayName": "jsdom",
+        "testEnvironment": "jsdom",
+        "testMatch": [
+          "**/tests/frontend.test.js"
+        ],
+        "setupFilesAfterEnv": []
+      }
+    ]
+  }
+}

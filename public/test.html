@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - Unit Tests</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 2rem; background: #f8fafc; }
+        .test-suite { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .test-case { margin: 0.5rem 0; padding: 0.5rem; border-left: 4px solid #ccc; }
+        .test-pass { border-color: #10b981; background: #f0fdf4; }
+        .test-fail { border-color: #ef4444; background: #fef2f2; }
+        .test-pending { border-color: #f59e0b; background: #fffbeb; }
+        .test-result { font-weight: bold; }
+        .summary { background: #e0f2fe; padding: 1rem; border-radius: 8px; margin-top: 2rem; }
+    </style>
+</head>
+<body>
+    <h1>🧪 TaskFlow Pro - Unit Tests</h1>
+    
+    <div id="test-results"></div>
+    
+    <script>
+        // Simple Test Framework
+        class TestSuite {
+            constructor(name) {
+                this.name = name;
+                this.tests = [];
+                this.results = { passed: 0, failed: 0, pending: 0 };
+            }
+            
+            test(name, fn) {
+                this.tests.push({ name, fn });
+            }
+            
+            async run() {
+                console.log(`Running test suite: ${this.name}`);
+                const suiteDiv = document.createElement('div');
+                suiteDiv.className = 'test-suite';
+                suiteDiv.innerHTML = `<h2>${this.name}</h2>`;
+                
+                for (const test of this.tests) {
+                    try {
+                        const result = await test.fn();
+                        const status = result ? 'pass' : 'fail';
+                        this.results[status === 'pass' ? 'passed' : 'failed']++;
+                        
+                        const testDiv = document.createElement('div');
+                        testDiv.className = `test-case test-${status}`;
+                        testDiv.innerHTML = `
+                            <span class="test-result">${status === 'pass' ? '✅' : '❌'}</span> 
+                            ${test.name}
+                        `;
+                        suiteDiv.appendChild(testDiv);
+                        
+                    } catch (error) {
+                        this.results.failed++;
+                        const testDiv = document.createElement('div');
+                        testDiv.className = 'test-case test-fail';
+                        testDiv.innerHTML = `
+                            <span class="test-result">❌</span> 
+                            ${test.name} - Error: ${error.message}
+                        `;
+                        suiteDiv.appendChild(testDiv);
+                    }
+                }
+                
+                document.getElementById('test-results').appendChild(suiteDiv);
+                return this.results;
+            }
+        }
+        
+        // Test Utilities
+        function fetchWithTimeout(url, timeout = 5000) {
+            return Promise.race([
+                fetch(url),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Timeout')), timeout)
+                )
+            ]);
+        }
+        
+        async function testApplicationLoad() {
+            try {
+                const response = await fetchWithTimeout('http://192.168.20.10:555');
+                return response.ok && response.status === 200;
+            } catch (error) {
+                console.error('Application load test failed:', error);
+                return false;
+            }
+        }
+        
+        async function testUserDatabase() {
+            // Test if user database is properly defined
+            try {
+                const response = await fetchWithTimeout('http://192.168.20.10:555');
+                const html = await response.text();
+                
+                // Check if user database contains expected users
+                const hasManagerUser = html.includes('yterayut@gmail.com');
+                const hasTeamLeadUser = html.includes('chaiwutwck@gmail.com');
+                const hasEmployeeUsers = html.includes('athakorn.natung@gmail.com');
+                
+                return hasManagerUser && hasTeamLeadUser && hasEmployeeUsers;
+            } catch (error) {
+                console.error('User database test failed:', error);
+                return false;
+            }
+        }
+        
+        async function testReactComponents() {
+            try {
+                const response = await fetchWithTimeout('http://192.168.20.10:555');
+                const html = await response.text();
+                
+                // Check if essential React components are defined
+                const hasLoginComponent = html.includes('function LoginPage');
+                const hasDashboardComponent = html.includes('function Dashboard');
+                const hasAppComponent = html.includes('function App');
+                const hasHeaderComponent = html.includes('function Header');
+                
+                return hasLoginComponent && hasDashboardComponent && hasAppComponent && hasHeaderComponent;
+            } catch (error) {
+                console.error('React components test failed:', error);
+                return false;
+            }
+        }
+        
+        async function testJSXSyntax() {
+            try {
+                const response = await fetchWithTimeout('http://192.168.20.10:555');
+                const html = await response.text();
+                
+                // Check for proper JSX syntax (no adjacent elements)
+                const hasReactCreateElement = html.includes('React.createElement');
+                const noAdjacentJSXError = !html.includes('Adjacent JSX elements');
+                
+                return hasReactCreateElement && noAdjacentJSXError;
+            } catch (error) {
+                console.error('JSX syntax test failed:', error);
+                return false;
+            }
+        }
+        
+        async function testNavigationStructure() {
+            try {
+                const response = await fetchWithTimeout('http://192.168.20.10:555');
+                const html = await response.text();
+                
+                // Check if navigation items are properly defined
+                const hasNavItems = html.includes('Dashboard') && 
+                                   html.includes('My Tasks') && 
+                                   html.includes('Employee Management') &&
+                                   html.includes('Team Ranking') &&
+                                   html.includes('Reports') &&
+                                   html.includes('Settings');
+                
+                return hasNavItems;
+            } catch (error) {
+                console.error('Navigation structure test failed:', error);
+                return false;
+            }
+        }
+        
+        async function testBackendAPI() {
+            try {
+                const response = await fetchWithTimeout('http://192.168.20.10:777/health');
+                return response.ok && response.status === 200;
+            } catch (error) {
+                console.error('Backend API test failed:', error);
+                return false;
+            }
+        }
+        
+        // Run Tests
+        async function runAllTests() {
+            const suites = [];
+            
+            // Frontend Tests
+            const frontendSuite = new TestSuite('Frontend Application Tests');
+            frontendSuite.test('Application loads successfully', testApplicationLoad);
+            frontendSuite.test('User database is properly configured', testUserDatabase);
+            frontendSuite.test('React components are defined', testReactComponents);
+            frontendSuite.test('JSX syntax is valid (no adjacent elements)', testJSXSyntax);
+            frontendSuite.test('Navigation structure is complete', testNavigationStructure);
+            suites.push(frontendSuite);
+            
+            // Backend Tests
+            const backendSuite = new TestSuite('Backend API Tests');
+            backendSuite.test('Backend API health check', testBackendAPI);
+            suites.push(backendSuite);
+            
+            // Run all test suites
+            let totalResults = { passed: 0, failed: 0, pending: 0 };
+            
+            for (const suite of suites) {
+                const results = await suite.run();
+                totalResults.passed += results.passed;
+                totalResults.failed += results.failed;
+                totalResults.pending += results.pending;
+            }
+            
+            // Display summary
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = 'summary';
+            summaryDiv.innerHTML = `
+                <h2>📊 Test Summary</h2>
+                <p><strong>Total Tests:</strong> ${totalResults.passed + totalResults.failed + totalResults.pending}</p>
+                <p><strong>✅ Passed:</strong> ${totalResults.passed}</p>
+                <p><strong>❌ Failed:</strong> ${totalResults.failed}</p>
+                <p><strong>⏳ Pending:</strong> ${totalResults.pending}</p>
+                <p><strong>Success Rate:</strong> ${Math.round((totalResults.passed / (totalResults.passed + totalResults.failed)) * 100)}%</p>
+                
+                <hr style="margin: 1rem 0;">
+                <h3>🎯 Test Status</h3>
+                ${totalResults.failed === 0 ? 
+                    '<p style="color: #10b981; font-weight: bold;">🎉 All tests passed! TaskFlow Pro is ready for production.</p>' :
+                    '<p style="color: #ef4444; font-weight: bold;">⚠️ Some tests failed. Please review and fix issues.</p>'
+                }
+            `;
+            document.getElementById('test-results').appendChild(summaryDiv);
+            
+            return totalResults;
+        }
+        
+        // Auto-run tests when page loads
+        window.addEventListener('load', () => {
+            console.log('Starting TaskFlow Pro Unit Tests...');
+            runAllTests().then(results => {
+                console.log('Test Results:', results);
+            });
+        });
+    </script>
+</body>
+</html>

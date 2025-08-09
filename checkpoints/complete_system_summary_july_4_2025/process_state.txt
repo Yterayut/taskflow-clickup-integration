@@ -1,0 +1,5 @@
+one-cli+ 2010129  0.0  0.0   7372  1652 ?        S    Jul03   0:00 bash -c cd /home/one-climate/team-workload && PORT=7812 nohup node single_login_backend.js > backend_test.log 2>&1 & echo 'Started in background'
+one-cli+ 2010130  0.0  0.8 11783040 66824 ?      Sl   Jul03   0:05 node single_login_backend.js
+one-cli+ 2187477  0.1  0.9 1305196 76024 ?       Ssl  Jul04   1:34 node /home/one-climate/km-base/backend/src/app.js
+one-cli+ 2266146  0.0  0.0   7372  3620 ?        Ss   00:07   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/complete_system_summary_july_4_2025/process_state.txt
+one-cli+ 2266148  0.0  0.0   6612  2360 ?        S    00:07   0:00 grep backend

@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - Team Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Enhanced Dark Mode CSS Variables */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --bg-accent: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            --border-primary: #e5e7eb;
+            --border-secondary: #d1d5db;
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1d4ed8;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --bg-tertiary: #374151;
+            --bg-accent: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-tertiary: #9ca3af;
+            --border-primary: #374151;
+            --border-secondary: #4b5563;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            transition: var(--transition);
+        }
+
+        /* Login Page Styles */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--bg-primary);
+            padding: 48px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-logo {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-secondary);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 16px;
+        }
+
+        .login-button:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-1px);
+        }
+
+        .login-error {
+            color: var(--danger-red);
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        /* Main Dashboard Layout */
+        .app-container {
+            display: none;
+        }
+
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-primary);
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2563eb;
+            margin-right: 48px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .theme-toggle {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-secondary);
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .logout-btn {
+            background: var(--danger-red);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 64px;
+            bottom: 0;
+            width: 280px;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-primary);
+            padding: 24px 0;
+            overflow-y: auto;
+            transition: var(--transition);
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--bg-tertiary);
+            color: var(--primary-blue);
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 16px;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            margin-top: 64px;
+            padding: 32px;
+            min-height: calc(100vh - 64px);
+        }
+
+        .dashboard-section {
+            display: none;
+        }
+
+        .dashboard-section.active {
+            display: block;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-primary);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-primary);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Table Styles */
+        .table-container {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-primary);
+        }
+
+        .table-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .table-filters {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-secondary);
+            border-radius: 6px;
+            font-size: 14px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-secondary);
+            border-radius: 6px;
+            font-size: 14px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 16px 24px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-primary);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th:hover {
+            background: var(--bg-accent);
+        }
+
+        .sort-icon {
+            margin-left: 8px;
+            opacity: 0.5;
+        }
+
+        .sort-icon.active {
+            opacity: 1;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-todo { background: #fee2e2; color: #991b1b; }
+        .status-in-progress { background: #fef3c7; color: #92400e; }
+        .status-review { background: #dbeafe; color: #1e40af; }
+        .status-done { background: #dcfce7; color: #166534; }
+
+        .priority-high { color: var(--danger-red); font-weight: 600; }
+        .priority-medium { color: var(--warning-orange); font-weight: 600; }
+        .priority-low { color: var(--success-green); font-weight: 600; }
+
+        /* Action Buttons */
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-right: 8px;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-secondary);
+        }
+
+        .btn-success {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-red);
+            color: white;
+        }
+
+        /* Performance Leaderboard */
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .leaderboard-rank {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-right: 16px;
+            min-width: 40px;
+        }
+
+        .leaderboard-info {
+            flex: 1;
+        }
+
+        .leaderboard-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .leaderboard-role {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .leaderboard-score {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--success-green);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+        }
+
+        /* Dark mode adjustments */
+        [data-theme="dark"] .status-todo { background: #7f1d1d; color: #fca5a5; }
+        [data-theme="dark"] .status-in-progress { background: #78350f; color: #fcd34d; }
+        [data-theme="dark"] .status-review { background: #1e3a8a; color: #93c5fd; }
+        [data-theme="dark"] .status-done { background: #14532d; color: #86efac; }
+
+        .demo-info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #1e40af;
+        }
+
+        [data-theme="dark"] .demo-info {
+            background: #1e3a8a;
+            border-color: #3b82f6;
+            color: #bfdbfe;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="login-logo">🚀 TaskFlow Pro</div>
+            <div class="login-subtitle">Team Management System</div>
+            
+            <div class="demo-info">
+                <strong>Demo Accounts:</strong><br>
+                Manager: yterayut@gmail.com<br>
+                Team Lead: chaiwutwck@gmail.com<br>
+                Employee: atthakorn.na@ku.th<br>
+                Password: 12345
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="loginEmail" class="form-input" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="login-button">Sign In</button>
+                <div id="loginError" class="login-error"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="appContainer" class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                🚀 TaskFlow Pro
+            </div>
+            
+            <div class="header-actions">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">TY</div>
+                    <span id="userName">Teerayut Yeerahem</span>
+                    <span id="userRole" style="color: var(--text-secondary); font-size: 14px;">(Manager)</span>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <ul class="nav-menu" id="navMenu">
+                <!-- Navigation will be populated based on user role -->
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Manager Dashboard -->
+            <div id="manager-dashboard" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">Manager Dashboard</h1>
+                    <p class="page-subtitle">Overview of all team activities and performance</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalTasks">125</div>
+                        <div class="stat-label">Total Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="completedTasks">87</div>
+                        <div class="stat-label">Completed Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="activeEmployees">11</div>
+                        <div class="stat-label">Active Employees</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="teamScore">92%</div>
+                        <div class="stat-label">Team Performance</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Quick Actions</h2>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn-primary action-btn" onclick="showSection('all-tasks')">View All Tasks</button>
+                        <button class="btn-secondary action-btn" onclick="showSection('team-overview')">Team Overview</button>
+                        <button class="btn-success action-btn" onclick="showSection('employee-management')">Manage Employees</button>
+                        <button class="btn-primary action-btn" onclick="showSection('team-ranking')">Team Ranking</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Tasks Section -->
+            <div id="all-tasks" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">All Tasks</h1>
+                    <p class="page-subtitle">Manage and track all team tasks</p>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2 class="table-title">Task Management</h2>
+                        <div class="table-filters">
+                            <input type="text" class="filter-input" placeholder="Search tasks..." id="taskSearch">
+                            <select class="filter-select" id="statusFilter">
+                                <option value="">All Status</option>
+                                <option value="todo">To Do</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="review">Review</option>
+                                <option value="done">Done</option>
+                            </select>
+                            <select class="filter-select" id="priorityFilter">
+                                <option value="">All Priority</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <table id="tasksTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('name')">Task Name <span class="sort-icon">↕️</span></th>
+                                <th onclick="sortTable('assignee')">Assignee <span class="sort-icon">↕️</span></th>
+                                <th onclick="sortTable('startDate')">Start Date <span class="sort-icon">↕️</span></th>
+                                <th onclick="sortTable('dueDate')">Due Date <span class="sort-icon">↕️</span></th>
+                                <th onclick="sortTable('priority')">Priority <span class="sort-icon">↕️</span></th>
+                                <th onclick="sortTable('status')">Status <span class="sort-icon">↕️</span></th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasksTableBody">
+                            <!-- Tasks will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Team Overview Section -->
+            <div id="team-overview" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">Team Overview</h1>
+                    <p class="page-subtitle">Team analytics and insights</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">98%</div>
+                        <div class="stat-label">Task Completion Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">4.2</div>
+                        <div class="stat-label">Avg. Days per Task</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">15</div>
+                        <div class="stat-label">Active Projects</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">92%</div>
+                        <div class="stat-label">Team Satisfaction</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Team Analytics</h2>
+                    </div>
+                    <p>Detailed analytics charts and reports would be displayed here.</p>
+                </div>
+            </div>
+
+            <!-- Employee Management Section -->
+            <div id="employee-management" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">Employee Management</h1>
+                    <p class="page-subtitle">Manage team members and their roles</p>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2 class="table-title">Team Members</h2>
+                        <button class="btn-primary action-btn">Add Employee</button>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeesTableBody">
+                            <!-- Employees will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Team Ranking Section -->
+            <div id="team-ranking" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">Team Ranking</h1>
+                    <p class="page-subtitle">Performance leaderboard and scoring</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Performance Leaderboard</h2>
+                        <button class="btn-secondary action-btn" onclick="showSection('system-settings')">Configure Scoring</button>
+                    </div>
+                    
+                    <div id="leaderboardContainer">
+                        <!-- Leaderboard will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Settings Section -->
+            <div id="system-settings" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">System Settings</h1>
+                    <p class="page-subtitle">Configure system preferences and scoring rules</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Performance Scoring Rules</h2>
+                    </div>
+                    
+                    <div style="display: grid; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">Task Completion Points</label>
+                            <input type="number" class="form-input" value="10" style="max-width: 200px;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Early Completion Bonus</label>
+                            <input type="number" class="form-input" value="5" style="max-width: 200px;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Quality Score Multiplier</label>
+                            <input type="number" class="form-input" value="1.5" step="0.1" style="max-width: 200px;">
+                        </div>
+                        <button class="btn-primary action-btn">Save Settings</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Lead Dashboard -->
+            <div id="teamlead-dashboard" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">Team Lead Dashboard</h1>
+                    <p class="page-subtitle">Manage your team and track progress</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">35</div>
+                        <div class="stat-label">My Team Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">Team Members</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">89%</div>
+                        <div class="stat-label">Completion Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">95%</div>
+                        <div class="stat-label">Team Performance</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Quick Actions</h2>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn-primary action-btn" onclick="showSection('my-team-members')">My Team Members</button>
+                        <button class="btn-secondary action-btn" onclick="showSection('team-tasks')">Team Tasks</button>
+                        <button class="btn-success action-btn" onclick="showSection('team-analytics')">Team Analytics</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Team Members Section -->
+            <div id="my-team-members" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">My Team Members</h1>
+                    <p class="page-subtitle">Manage your direct reports</p>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2 class="table-title">Team Members</h2>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Current Tasks</th>
+                                <th>Performance Score</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teamMembersTableBody">
+                            <!-- Team members will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Team Tasks Section -->
+            <div id="team-tasks" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">Team Tasks</h1>
+                    <p class="page-subtitle">Tasks assigned to your team</p>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2 class="table-title">Team Task Management</h2>
+                        <div class="table-filters">
+                            <input type="text" class="filter-input" placeholder="Search team tasks..." id="teamTaskSearch">
+                            <select class="filter-select" id="teamStatusFilter">
+                                <option value="">All Status</option>
+                                <option value="todo">To Do</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="review">Review</option>
+                                <option value="done">Done</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Task Name</th>
+                                <th>Assignee</th>
+                                <th>Start Date</th>
+                                <th>Due Date</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teamTasksTableBody">
+                            <!-- Team tasks will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Team Analytics Section -->
+            <div id="team-analytics" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">Team Analytics</h1>
+                    <p class="page-subtitle">Performance insights for your team</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">94%</div>
+                        <div class="stat-label">Team Efficiency</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">3.8</div>
+                        <div class="stat-label">Avg. Task Duration</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">Active Projects</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">96%</div>
+                        <div class="stat-label">Quality Score</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Team Performance Trends</h2>
+                    </div>
+                    <p>Detailed performance charts and analytics would be displayed here.</p>
+                </div>
+            </div>
+
+            <!-- Employee Dashboard -->
+            <div id="employee-dashboard" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">My Dashboard</h1>
+                    <p class="page-subtitle">Your personal workspace and tasks</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">My Active Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">Completed This Week</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">92%</div>
+                        <div class="stat-label">My Performance Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Upcoming Deadlines</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Quick Actions</h2>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn-primary action-btn" onclick="showSection('my-tasks')">My Tasks</button>
+                        <button class="btn-secondary action-btn" onclick="showSection('my-profile')">My Profile</button>
+                        <button class="btn-success action-btn" onclick="showSection('knowledge-management')">Knowledge Base</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Tasks Section -->
+            <div id="my-tasks" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">My Tasks</h1>
+                    <p class="page-subtitle">Your assigned tasks and deadlines</p>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2 class="table-title">My Task List</h2>
+                        <div class="table-filters">
+                            <input type="text" class="filter-input" placeholder="Search my tasks..." id="myTaskSearch">
+                            <select class="filter-select" id="myStatusFilter">
+                                <option value="">All Status</option>
+                                <option value="todo">To Do</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="review">Review</option>
+                                <option value="done">Done</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Task Name</th>
+                                <th>Project</th>
+                                <th>Start Date</th>
+                                <th>Due Date</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="myTasksTableBody">
+                            <!-- My tasks will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- My Profile Section -->
+            <div id="my-profile" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">My Profile</h1>
+                    <p class="page-subtitle">View and update your profile information</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Profile Information</h2>
+                    </div>
+                    
+                    <div style="display: grid; gap: 16px; max-width: 500px;">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-input" id="profileName" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-input" id="profileEmail" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Role</label>
+                            <input type="text" class="form-input" id="profileRole" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Department</label>
+                            <input type="text" class="form-input" id="profileDepartment" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Knowledge Management Section -->
+            <div id="knowledge-management" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">Knowledge Management</h1>
+                    <p class="page-subtitle">Access documentation and resources</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Knowledge Base</h2>
+                    </div>
+                    <p>Documentation, guides, and resources would be displayed here.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // User Database with predefined accounts
+        const USERS = {
+            'yterayut@gmail.com': {
+                name: 'Teerayut Yeerahem',
+                role: 'Manager',
+                department: 'Management',
+                password: '12345'
+            },
+            'chaiwutwck@gmail.com': {
+                name: 'Chaiwut Waichuengka',
+                role: 'Team Lead',
+                department: 'Development',
+                password: '12345'
+            },
+            'atthakorn.na@ku.th': {
+                name: 'Athakorn NATUNG',
+                role: 'Employee',
+                department: 'Development',
+                password: '12345'
+            },
+            'sahassavas.rim@gmail.com': {
+                name: 'Sahatsawat Rimphongern',
+                role: 'Employee',
+                department: 'Development',
+                password: '12345'
+            },
+            'primshi1719@gmail.com': {
+                name: 'Matthanaporn Kaew-umpai',
+                role: 'Employee',
+                department: 'Design',
+                password: '12345'
+            },
+            'panuwantung@gmail.com': {
+                name: 'PANUWAT PROMRAKSA',
+                role: 'Employee',
+                department: 'Development',
+                password: '12345'
+            },
+            'jirapat.sripanya@gmail.com': {
+                name: 'Jirapat Sripanya',
+                role: 'Employee',
+                department: 'Development',
+                password: '12345'
+            },
+            'chutithep_ar@kkumail.com': {
+                name: 'Chutithep Phakdeebut',
+                role: 'Employee',
+                department: 'QA',
+                password: '12345'
+            },
+            'pongsanzakom@gmail.com': {
+                name: 'Pong',
+                role: 'Employee',
+                department: 'Development',
+                password: '12345'
+            },
+            'nisareen.dk@gmail.com': {
+                name: 'Nisareen Daklee',
+                role: 'Employee',
+                department: 'Design',
+                password: '12345'
+            },
+            'jthammakit2546@gmail.com': {
+                name: 'Thammakit Ch',
+                role: 'Employee',
+                department: 'Development',
+                password: '12345'
+            }
+        };
+
+        // Sample task data
+        const SAMPLE_TASKS = [
+            {
+                id: 1,
+                name: 'Implement User Authentication',
+                assignee: 'Athakorn NATUNG',
+                startDate: '2025-06-20',
+                dueDate: '2025-06-25',
+                priority: 'high',
+                status: 'in-progress',
+                project: 'TaskFlow Pro'
+            },
+            {
+                id: 2,
+                name: 'Design Dashboard UI',
+                assignee: 'Matthanaporn Kaew-umpai',
+                startDate: '2025-06-21',
+                dueDate: '2025-06-28',
+                priority: 'medium',
+                status: 'todo',
+                project: 'TaskFlow Pro'
+            },
+            {
+                id: 3,
+                name: 'API Integration Testing',
+                assignee: 'Chutithep Phakdeebut',
+                startDate: '2025-06-19',
+                dueDate: '2025-06-24',
+                priority: 'high',
+                status: 'review',
+                project: 'TaskFlow Pro'
+            },
+            {
+                id: 4,
+                name: 'Database Schema Design',
+                assignee: 'Jirapat Sripanya',
+                startDate: '2025-06-18',
+                dueDate: '2025-06-22',
+                priority: 'medium',
+                status: 'done',
+                project: 'TaskFlow Pro'
+            },
+            {
+                id: 5,
+                name: 'Performance Optimization',
+                assignee: 'PANUWAT PROMRAKSA',
+                startDate: '2025-06-22',
+                dueDate: '2025-06-30',
+                priority: 'low',
+                status: 'todo',
+                project: 'TaskFlow Pro'
+            }
+        ];
+
+        // Current user state
+        let currentUser = null;
+        let currentTasks = [...SAMPLE_TASKS];
+        let sortColumn = null;
+        let sortDirection = 'asc';
+
+        // Navigation menus for different roles
+        const NAVIGATION = {
+            Manager: [
+                { id: 'manager-dashboard', label: 'Dashboard', icon: '📊' },
+                { id: 'all-tasks', label: 'All Tasks', icon: '📋' },
+                { id: 'team-overview', label: 'Team Overview', icon: '👥' },
+                { id: 'employee-management', label: 'Employee Management', icon: '👤' },
+                { id: 'team-ranking', label: 'Team Ranking', icon: '🏆' },
+                { id: 'system-settings', label: 'System Settings', icon: '⚙️' }
+            ],
+            'Team Lead': [
+                { id: 'teamlead-dashboard', label: 'My Team Dashboard', icon: '📊' },
+                { id: 'my-team-members', label: 'My Team Members', icon: '👥' },
+                { id: 'team-tasks', label: 'Team Tasks', icon: '📋' },
+                { id: 'team-analytics', label: 'Team Analytics', icon: '📈' }
+            ],
+            Employee: [
+                { id: 'employee-dashboard', label: 'My Dashboard', icon: '📊' },
+                { id: 'my-tasks', label: 'My Tasks', icon: '📋' },
+                { id: 'my-profile', label: 'My Profile', icon: '👤' },
+                { id: 'knowledge-management', label: 'Knowledge Management', icon: '📚' }
+            ]
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is already logged in
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showDashboard();
+            }
+
+            // Setup login form
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+            // Setup search and filter functionality
+            setupTableFilters();
+            
+            // Load initial data
+            loadTasks();
+            loadEmployees();
+            loadLeaderboard();
+        });
+
+        // Handle login
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            // Validate credentials
+            if (USERS[email] && USERS[email].password === password) {
+                currentUser = { email, ...USERS[email] };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                errorDiv.style.display = 'none';
+                showDashboard();
+            } else {
+                errorDiv.textContent = 'Invalid email or password';
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // Show dashboard based on user role
+        function showDashboard() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            
+            // Update user info in header
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userRole').textContent = `(${currentUser.role})`;
+            document.getElementById('userAvatar').textContent = getInitials(currentUser.name);
+            
+            // Setup navigation
+            setupNavigation();
+            
+            // Show default section based on role
+            const defaultSection = currentUser.role === 'Manager' ? 'manager-dashboard' :
+                                 currentUser.role === 'Team Lead' ? 'teamlead-dashboard' :
+                                 'employee-dashboard';
+            showSection(defaultSection);
+            
+            // Update profile information if viewing profile
+            updateProfileInfo();
+        }
+
+        // Setup navigation menu
+        function setupNavigation() {
+            const navMenu = document.getElementById('navMenu');
+            const menuItems = NAVIGATION[currentUser.role] || [];
+            
+            navMenu.innerHTML = menuItems.map(item => `
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showSection('${item.id}')">
+                        <span class="nav-icon">${item.icon}</span>
+                        ${item.label}
+                    </a>
+                </li>
+            `).join('');
+        }
+
+        // Show specific section
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.dashboard-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+            
+            // Update navigation active state
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            const activeLink = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+            
+            // Load section-specific data
+            loadSectionData(sectionId);
+        }
+
+        // Load section-specific data
+        function loadSectionData(sectionId) {
+            switch(sectionId) {
+                case 'all-tasks':
+                case 'team-tasks':
+                    loadTasks();
+                    break;
+                case 'my-tasks':
+                    loadMyTasks();
+                    break;
+                case 'employee-management':
+                case 'my-team-members':
+                    loadEmployees();
+                    break;
+                case 'team-ranking':
+                    loadLeaderboard();
+                    break;
+            }
+        }
+
+        // Load tasks data
+        function loadTasks() {
+            const tbody = document.getElementById('tasksTableBody') || 
+                         document.getElementById('teamTasksTableBody');
+            
+            if (!tbody) return;
+
+            tbody.innerHTML = currentTasks.map(task => `
+                <tr>
+                    <td>${task.name}</td>
+                    <td>${task.assignee}</td>
+                    <td>${formatDate(task.startDate)}</td>
+                    <td>${formatDate(task.dueDate)}</td>
+                    <td><span class="priority-${task.priority}">${capitalizeFirst(task.priority)}</span></td>
+                    <td><span class="status-badge status-${task.status}">${task.status.replace('-', ' ')}</span></td>
+                    <td>
+                        <button class="btn-primary action-btn">Edit</button>
+                        <button class="btn-secondary action-btn">View</button>
+                        ${currentUser.role === 'Manager' ? '<button class="btn-danger action-btn">Delete</button>' : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Load my tasks (for employees)
+        function loadMyTasks() {
+            const tbody = document.getElementById('myTasksTableBody');
+            if (!tbody) return;
+
+            const myTasks = currentTasks.filter(task => 
+                task.assignee === currentUser.name
+            );
+
+            tbody.innerHTML = myTasks.map(task => `
+                <tr>
+                    <td>${task.name}</td>
+                    <td>${task.project}</td>
+                    <td>${formatDate(task.startDate)}</td>
+                    <td>${formatDate(task.dueDate)}</td>
+                    <td><span class="priority-${task.priority}">${capitalizeFirst(task.priority)}</span></td>
+                    <td><span class="status-badge status-${task.status}">${task.status.replace('-', ' ')}</span></td>
+                    <td>
+                        <button class="btn-primary action-btn">Update Status</button>
+                        <button class="btn-secondary action-btn">View Details</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Load employees data
+        function loadEmployees() {
+            const tbody = document.getElementById('employeesTableBody') || 
+                         document.getElementById('teamMembersTableBody');
+            
+            if (!tbody) return;
+
+            const employees = Object.entries(USERS).map(([email, user]) => ({
+                email,
+                ...user
+            }));
+
+            // Filter employees based on user role
+            const filteredEmployees = currentUser.role === 'Team Lead' 
+                ? employees.filter(emp => emp.role === 'Employee')
+                : employees;
+
+            tbody.innerHTML = filteredEmployees.map(employee => `
+                <tr>
+                    <td>${employee.name}</td>
+                    <td>${employee.email}</td>
+                    <td>${currentUser.role === 'Manager' ? employee.role : getRandomNumber(3, 8)}</td>
+                    <td>${employee.department}</td>
+                    <td>${currentUser.role === 'Manager' ? 
+                         '<span class="status-badge status-done">Active</span>' : 
+                         `${getRandomNumber(85, 98)}%`}</td>
+                    <td>
+                        <button class="btn-primary action-btn">View</button>
+                        ${currentUser.role === 'Manager' ? '<button class="btn-secondary action-btn">Edit</button>' : ''}
+                        ${currentUser.role === 'Manager' ? '<button class="btn-danger action-btn">Remove</button>' : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Load leaderboard data
+        function loadLeaderboard() {
+            const container = document.getElementById('leaderboardContainer');
+            if (!container) return;
+
+            const employees = Object.entries(USERS)
+                .filter(([email, user]) => user.role === 'Employee')
+                .map(([email, user]) => ({
+                    email,
+                    ...user,
+                    score: getRandomNumber(75, 98)
+                }))
+                .sort((a, b) => b.score - a.score);
+
+            container.innerHTML = employees.map((employee, index) => `
+                <div class="leaderboard-item">
+                    <div class="leaderboard-rank">${index + 1}</div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">${employee.name}</div>
+                        <div class="leaderboard-role">${employee.department}</div>
+                    </div>
+                    <div class="leaderboard-score">${employee.score}</div>
+                </div>
+            `).join('');
+        }
+
+        // Setup table filters and search
+        function setupTableFilters() {
+            // Task search
+            ['taskSearch', 'teamTaskSearch', 'myTaskSearch'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('input', filterTasks);
+                }
+            });
+
+            // Status filters
+            ['statusFilter', 'teamStatusFilter', 'myStatusFilter'].forEach(id => {
+                const select = document.getElementById(id);
+                if (select) {
+                    select.addEventListener('change', filterTasks);
+                }
+            });
+
+            // Priority filter
+            const priorityFilter = document.getElementById('priorityFilter');
+            if (priorityFilter) {
+                priorityFilter.addEventListener('change', filterTasks);
+            }
+        }
+
+        // Filter tasks based on search and filters
+        function filterTasks() {
+            let filteredTasks = [...SAMPLE_TASKS];
+
+            // Get filter values
+            const searchTerm = (document.getElementById('taskSearch')?.value || 
+                              document.getElementById('teamTaskSearch')?.value ||
+                              document.getElementById('myTaskSearch')?.value || '').toLowerCase();
+            
+            const statusFilter = document.getElementById('statusFilter')?.value ||
+                               document.getElementById('teamStatusFilter')?.value ||
+                               document.getElementById('myStatusFilter')?.value || '';
+            
+            const priorityFilter = document.getElementById('priorityFilter')?.value || '';
+
+            // Apply filters
+            if (searchTerm) {
+                filteredTasks = filteredTasks.filter(task =>
+                    task.name.toLowerCase().includes(searchTerm) ||
+                    task.assignee.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            if (statusFilter) {
+                filteredTasks = filteredTasks.filter(task => task.status === statusFilter);
+            }
+
+            if (priorityFilter) {
+                filteredTasks = filteredTasks.filter(task => task.priority === priorityFilter);
+            }
+
+            // Filter for current user if in My Tasks section
+            if (document.getElementById('my-tasks')?.classList.contains('active')) {
+                filteredTasks = filteredTasks.filter(task => task.assignee === currentUser.name);
+            }
+
+            currentTasks = filteredTasks;
+            loadTasks();
+        }
+
+        // Sort table by column
+        function sortTable(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+
+            currentTasks.sort((a, b) => {
+                let aValue = a[column];
+                let bValue = b[column];
+
+                // Handle date sorting
+                if (column.includes('Date')) {
+                    aValue = new Date(aValue);
+                    bValue = new Date(bValue);
+                }
+
+                if (sortDirection === 'asc') {
+                    return aValue > bValue ? 1 : -1;
+                } else {
+                    return aValue < bValue ? 1 : -1;
+                }
+            });
+
+            // Update sort icons
+            document.querySelectorAll('.sort-icon').forEach(icon => {
+                icon.classList.remove('active');
+                icon.textContent = '↕️';
+            });
+
+            const activeIcon = document.querySelector(`th[onclick="sortTable('${column}')"] .sort-icon`);
+            if (activeIcon) {
+                activeIcon.classList.add('active');
+                activeIcon.textContent = sortDirection === 'asc' ? '↑' : '↓';
+            }
+
+            loadTasks();
+        }
+
+        // Update profile information
+        function updateProfileInfo() {
+            if (currentUser) {
+                const nameInput = document.getElementById('profileName');
+                const emailInput = document.getElementById('profileEmail');
+                const roleInput = document.getElementById('profileRole');
+                const deptInput = document.getElementById('profileDepartment');
+
+                if (nameInput) nameInput.value = currentUser.name;
+                if (emailInput) emailInput.value = currentUser.email;
+                if (roleInput) roleInput.value = currentUser.role;
+                if (deptInput) deptInput.value = currentUser.department;
+            }
+        }
+
+        // Utility functions
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase();
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString();
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function getRandomNumber(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update theme toggle button
+            const themeToggle = document.querySelector('.theme-toggle');
+            themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'flex';
+            
+            // Reset form
+            document.getElementById('loginForm').reset();
+            document.getElementById('loginError').style.display = 'none';
+        }
+
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            
+            const themeToggle = document.querySelector('.theme-toggle');
+            if (themeToggle) {
+                themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+            }
+        });
+    </script>
+</body>
+</html>

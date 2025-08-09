@@ -1,0 +1,38 @@
+{
+  "name": "taskflow-pro",
+  "version": "2.0.0",
+  "description": "TaskFlow Pro - Team Management Dashboard with ClickUp Integration",
+  "main": "backend.js",
+  "scripts": {
+    "start": "node backend.js",
+    "dev": "nodemon backend.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "health": "curl -f http://localhost:777/health || exit 1"
+  },
+  "keywords": [
+    "taskflow",
+    "team-management",
+    "clickup",
+    "dashboard",
+    "react",
+    "nodejs"
+  ],
+  "author": "TaskFlow Pro Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "express-rate-limit": "^6.7.0",
+    "dotenv": "^16.0.3",
+    "axios": "^1.4.0",
+    "redis": "^4.6.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - Team Management Dashboard</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            /* Light theme */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #64748b;
+            --border-color: #e2e8f0;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        
+        [data-theme="dark"] {
+            /* Dark theme */
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --border-color: #475569;
+            --accent-color: #60a5fa;
+            --accent-hover: #3b82f6;
+            --success-color: #34d399;
+            --warning-color: #fbbf24;
+            --danger-color: #f87171;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+        
+        /* Login Page Styles */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: var(--bg-primary);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 2rem;
+            background: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .login-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .login-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .login-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+        
+        /* Header */
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-right: 3rem;
+        }
+        
+        .header-logo img {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+        
+        .header-search {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+            margin-right: 2rem;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            padding-right: 3rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .theme-toggle {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+        }
+        
+        .theme-toggle:hover {
+            background: var(--bg-tertiary);
+            color: var(--accent-color);
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .user-profile:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 70px;
+            width: 280px;
+            height: calc(100vh - 70px);
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 0;
+            overflow-y: auto;
+            z-index: 50;
+        }
+        
+        .sidebar-nav {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin: 0.25rem 1rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: var(--text-secondary);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: var(--bg-secondary);
+            color: var(--accent-color);
+        }
+        
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            margin-top: 70px;
+            padding: 2rem;
+            min-height: calc(100vh - 70px);
+        }
+        
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 1rem;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .card-action {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .card-action:hover {
+            background: var(--bg-secondary);
+            color: var(--accent-color);
+        }
+        
+        /* KPI Cards */
+        .kpi-card {
+            text-align: center;
+            padding: 2rem 1.5rem;
+        }
+        
+        .kpi-value {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .kpi-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .kpi-change {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .kpi-change.positive {
+            color: var(--success-color);
+        }
+        
+        .kpi-change.negative {
+            color: var(--danger-color);
+        }
+        
+        /* Task Management */
+        .task-form {
+            background: var(--bg-primary);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+        
+        /* Task List */
+        .task-list {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        
+        .task-header {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr auto;
+            gap: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .task-row {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr auto;
+            gap: 1rem;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .task-row:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .task-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .task-assignee {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .assignee-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .priority-badge, .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .priority-high {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .priority-medium {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .priority-low {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+        
+        .status-todo {
+            background: rgba(107, 114, 128, 0.1);
+            color: var(--text-tertiary);
+        }
+        
+        .status-progress {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-color);
+        }
+        
+        .status-done {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .task-action {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            background: var(--bg-secondary);
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .task-action:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        /* Team Grid */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .team-member-card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .team-member-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .member-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0 auto 1rem;
+        }
+        
+        .member-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .member-role {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .member-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Ranking Component */
+        .ranking-card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .ranking-item:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .rank-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .rank-number.gold {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #92400e;
+        }
+        
+        .rank-number.silver {
+            background: linear-gradient(135deg, #c0c0c0, #e5e7eb);
+            color: #374151;
+        }
+        
+        .rank-number.bronze {
+            background: linear-gradient(135deg, #cd7f32, #d97706);
+            color: white;
+        }
+        
+        .rank-info {
+            flex: 1;
+        }
+        
+        .rank-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .rank-score {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .rank-points {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .header {
+                padding: 0 1rem;
+            }
+            
+            .header-search {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .login-card {
+                padding: 2rem;
+                margin: 1rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .task-header, .task-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            
+            .task-header {
+                display: none;
+            }
+            
+            .task-row {
+                display: block;
+                padding: 1rem;
+            }
+            
+            .task-row > div {
+                margin-bottom: 0.5rem;
+            }
+            
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+        
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Sync Status */
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .sync-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-color);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .sync-indicator.syncing {
+            background: var(--warning-color);
+            animation: spin 1s linear infinite;
+        }
+        
+        .sync-indicator.error {
+            background: var(--danger-color);
+            animation: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Theme Context
+        const ThemeContext = React.createContext();
+
+        // Main App Component
+        function App() {
+            const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+            const [isAuthenticated, setIsAuthenticated] = useState(false);
+            const [currentUser, setCurrentUser] = useState(null);
+            const [loading, setLoading] = useState(true);
+            const [currentView, setCurrentView] = useState('dashboard');
+            const [sidebarOpen, setSidebarOpen] = useState(false);
+            const [syncStatus, setSyncStatus] = useState({ status: 'idle', lastSync: null });
+
+            useEffect(() => {
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+            }, [theme]);
+
+            useEffect(() => {
+                checkAuthStatus();
+                if (isAuthenticated) {
+                    startAutoSync();
+                }
+            }, [isAuthenticated]);
+
+            const checkAuthStatus = async () => {
+                try {
+                    const response = await fetch('/api/v1/auth/status');
+                    if (response.ok) {
+                        const data = await response.json();
+                        setIsAuthenticated(data.authenticated);
+                        setCurrentUser(data.user);
+                    }
+                } catch (error) {
+                    console.error('Auth check failed:', error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const startAutoSync = () => {
+                // Auto-sync every 30 minutes
+                const interval = setInterval(async () => {
+                    await syncData();
+                }, 30 * 60 * 1000);
+
+                return () => clearInterval(interval);
+            };
+
+            const syncData = async () => {
+                setSyncStatus({ status: 'syncing', lastSync: syncStatus.lastSync });
+                try {
+                    const response = await fetch('/api/v1/test/clickup-data', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        setSyncStatus({ 
+                            status: 'success', 
+                            lastSync: new Date().toISOString() 
+                        });
+                    } else {
+                        setSyncStatus({ 
+                            status: 'error', 
+                            lastSync: syncStatus.lastSync 
+                        });
+                    }
+                } catch (error) {
+                    console.error('Sync failed:', error);
+                    setSyncStatus({ 
+                        status: 'error', 
+                        lastSync: syncStatus.lastSync 
+                    });
+                }
+            };
+
+            const toggleTheme = () => {
+                setTheme(theme === 'light' ? 'dark' : 'light');
+            };
+
+            const login = () => {
+                window.location.href = '/api/v1/auth/clickup/authorize';
+            };
+
+            const logout = async () => {
+                try {
+                    await fetch('/api/v1/auth/logout', { method: 'POST' });
+                    setIsAuthenticated(false);
+                    setCurrentUser(null);
+                } catch (error) {
+                    console.error('Logout failed:', error);
+                }
+            };
+
+            if (loading) {
+                return (
+                    <div className="loading">
+                        <div className="spinner"></div>
+                        Loading...
+                    </div>
+                );
+            }
+
+            if (!isAuthenticated) {
+                return <LoginPage onLogin={login} theme={theme} onToggleTheme={toggleTheme} />;
+            }
+
+            return (
+                <ThemeContext.Provider value={{ theme, toggleTheme }}>
+                    <div className="app">
+                        <Header 
+                            user={currentUser} 
+                            onLogout={logout} 
+                            onToggleTheme={toggleTheme}
+                            theme={theme}
+                            syncStatus={syncStatus}
+                            onManualSync={syncData}
+                        />
+                        <Sidebar 
+                            currentView={currentView} 
+                            onViewChange={setCurrentView}
+                            isOpen={sidebarOpen}
+                            onToggle={() => setSidebarOpen(!sidebarOpen)}
+                        />
+                        <main className="main-content">
+                            <MainContent 
+                                currentView={currentView} 
+                                user={currentUser}
+                                onSync={syncData}
+                                syncStatus={syncStatus}
+                            />
+                        </main>
+                    </div>
+                </ThemeContext.Provider>
+            );
+        }
+
+        // Login Page Component
+        function LoginPage({ onLogin, theme, onToggleTheme }) {
+            return (
+                <div className="login-container">
+                    <div className="login-card">
+                        <div className="login-logo">
+                            <img 
+                                src="https://oneclimate.one.th/_next/static/media/logo-oneClimate.abb1dc61.svg" 
+                                alt="One Climate Logo"
+                                style={{ width: '60px', height: '60px' }}
+                                onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'flex';
+                                }}
+                            />
+                            <div style={{ display: 'none', fontSize: '2rem' }}>
+                                <i className="fas fa-leaf"></i>
+                            </div>
+                        </div>
+                        <h1 className="login-title">TaskFlow Pro</h1>
+                        <p className="login-subtitle">
+                            Connect with ClickUp to manage your team efficiently
+                        </p>
+                        <button className="login-btn" onClick={onLogin}>
+                            <i className="fab fa-clickup"></i>
+                            Connect with ClickUp
+                        </button>
+                        <button 
+                            className="theme-toggle" 
+                            onClick={onToggleTheme}
+                            style={{ 
+                                marginTop: '1rem',
+                                width: '100%',
+                                background: 'transparent',
+                                border: '1px solid var(--border-color)',
+                                color: 'var(--text-secondary)'
+                            }}
+                        >
+                            <i className={`fas fa-${theme === 'light' ? 'moon' : 'sun'}`}></i>
+                            {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // Header Component
+        function Header({ user, onLogout, onToggleTheme, theme, syncStatus, onManualSync }) {
+            return (
+                <header className="header">
+                    <div className="header-logo">
+                        <img 
+                            src="https://oneclimate.one.th/_next/static/media/logo-oneClimate.abb1dc61.svg" 
+                            alt="One Climate"
+                            onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'block';
+                            }}
+                        />
+                        <div style={{ display: 'none', fontSize: '1.5rem', color: 'var(--accent-color)' }}>
+                            <i className="fas fa-leaf"></i>
+                        </div>
+                        <span className="header-title">TaskFlow Pro</span>
+                    </div>
+                    
+                    <div className="header-search">
+                        <input 
+                            type="text" 
+                            className="search-input" 
+                            placeholder="Search tasks, projects, or team members..."
+                        />
+                        <i className="fas fa-search search-icon"></i>
+                    </div>
+                    
+                    <div className="header-actions">
+                        <div className="sync-status">
+                            <div className={`sync-indicator ${syncStatus.status}`}></div>
+                            <span>
+                                {syncStatus.status === 'syncing' ? 'Syncing...' : 
+                                 syncStatus.status === 'error' ? 'Sync Error' : 'Synced'}
+                            </span>
+                            <button 
+                                className="btn btn-secondary"
+                                onClick={onManualSync}
+                                disabled={syncStatus.status === 'syncing'}
+                                style={{ padding: '0.5rem', marginLeft: '0.5rem' }}
+                            >
+                                <i className="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        
+                        <button className="theme-toggle" onClick={onToggleTheme}>
+                            <i className={`fas fa-${theme === 'light' ? 'moon' : 'sun'}`}></i>
+                        </button>
+                        
+                        <div className="user-profile" onClick={onLogout}>
+                            <div className="user-avatar">
+                                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                            </div>
+                            <span>{user?.name || 'User'}</span>
+                        </div>
+                    </div>
+                </header>
+            );
+        }
+
+        // Sidebar Component
+        function Sidebar({ currentView, onViewChange, isOpen, onToggle }) {
+            const navigation = [
+                { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-chart-line' },
+                { id: 'my-tasks', label: 'My Tasks', icon: 'fas fa-tasks' },
+                { id: 'team-overview', label: 'Team Overview', icon: 'fas fa-users' },
+                { id: 'ranking', label: 'Team Ranking', icon: 'fas fa-trophy' },
+                { id: 'projects', label: 'Projects', icon: 'fas fa-project-diagram' },
+                { id: 'calendar', label: 'Calendar', icon: 'fas fa-calendar' },
+                { id: 'reports', label: 'Reports', icon: 'fas fa-chart-bar' },
+                { id: 'settings', label: 'Settings', icon: 'fas fa-cog' }
+            ];
+
+            return (
+                <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+                    <nav>
+                        <ul className="sidebar-nav">
+                            {navigation.map(item => (
+                                <li key={item.id} className="nav-item">
+                                    <a 
+                                        href="#" 
+                                        className={`nav-link ${currentView === item.id ? 'active' : ''}`}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            onViewChange(item.id);
+                                        }}
+                                    >
+                                        <i className={`nav-icon ${item.icon}`}></i>
+                                        <span>{item.label}</span>
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
+                </aside>
+            );
+        }
+
+        // Main Content Component
+        function MainContent({ currentView, user, onSync, syncStatus }) {
+            const renderContent = () => {
+                switch (currentView) {
+                    case 'dashboard':
+                        return <Dashboard onSync={onSync} syncStatus={syncStatus} />;
+                    case 'my-tasks':
+                        return <MyTasks user={user} />;
+                    case 'team-overview':
+                        return <TeamOverview />;
+                    case 'ranking':
+                        return <TeamRanking />;
+                    case 'projects':
+                        return <Projects />;
+                    case 'calendar':
+                        return <Calendar />;
+                    case 'reports':
+                        return <Reports />;
+                    case 'settings':
+                        return <Settings />;
+                    default:
+                        return <Dashboard onSync={onSync} syncStatus={syncStatus} />;
+                }
+            };
+
+            return renderContent();
+        }
+
+        // Dashboard Component
+        function Dashboard({ onSync, syncStatus }) {
+            const [dashboardData, setDashboardData] = useState({
+                kpis: {
+                    totalTasks: 0,
+                    completedTasks: 0,
+                    inProgress: 0,
+                    overdue: 0
+                },
+                recentActivity: [],
+                teamMembers: []
+            });
+            const [loading, setLoading] = useState(true);
+
+            useEffect(() => {
+                fetchDashboardData();
+            }, []);
+
+            const fetchDashboardData = async () => {
+                try {
+                    const response = await fetch('/api/v1/test/clickup-data');
+                    if (response.ok) {
+                        const data = await response.json();
+                        setDashboardData(data);
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch dashboard data:', error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            if (loading) {
+                return (
+                    <div className="loading">
+                        <div className="spinner"></div>
+                        Loading dashboard...
+                    </div>
+                );
+            }
+
+            return (
+                <div>
+                    <div className="dashboard-header" style={{ marginBottom: '2rem' }}>
+                        <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                            Dashboard
+                        </h1>
+                        <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                            Welcome back! Here's what's happening with your team.
+                        </p>
+                    </div>
+
+                    <div className="dashboard-grid">
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--accent-color)' }}>
+                                {dashboardData.kpis.totalTasks}
+                            </div>
+                            <div className="kpi-label">Total Tasks</div>
+                            <div className="kpi-change positive">
+                                <i className="fas fa-arrow-up"></i> +12% from last week
+                            </div>
+                        </div>
+
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--success-color)' }}>
+                                {dashboardData.kpis.completedTasks}
+                            </div>
+                            <div className="kpi-label">Completed</div>
+                            <div className="kpi-change positive">
+                                <i className="fas fa-arrow-up"></i> +8% from last week
+                            </div>
+                        </div>
+
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--warning-color)' }}>
+                                {dashboardData.kpis.inProgress}
+                            </div>
+                            <div className="kpi-label">In Progress</div>
+                            <div className="kpi-change">
+                                <i className="fas fa-minus"></i> No change
+                            </div>
+                        </div>
+
+                        <div className="card kpi-card">
+                            <div className="kpi-value" style={{ color: 'var(--danger-color)' }}>
+                                {dashboardData.kpis.overdue}
+                            </div>
+                            <div className="kpi-label">Overdue</div>
+                            <div className="kpi-change negative">
+                                <i className="fas fa-arrow-down"></i> -5% from last week
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', marginTop: '2rem' }}>
+                        <div className="card">
+                            <div className="card-header">
+                                <h3 className="card-title">Team Activity</h3>
+                                <button className="card-action">
+                                    <i className="fas fa-ellipsis-h"></i>
+                                </button>
+                            </div>
+                            <div style={{ minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <canvas id="activityChart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <div className="card-header">
+                                <h3 className="card-title">Quick Actions</h3>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <button className="btn btn-primary" onClick={onSync}>
+                                    <i className="fas fa-sync-alt"></i>
+                                    Sync Data
+                                </button>
+                                <button className="btn btn-secondary">
+                                    <i className="fas fa-plus"></i>
+                                    Create Task
+                                </button>
+                                <button className="btn btn-secondary">
+                                    <i className="fas fa-users"></i>
+                                    Invite Member
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // My Tasks Component
+        function MyTasks({ user }) {
+            const [tasks, setTasks] = useState([]);
+            const [showForm, setShowForm] = useState(false);
+            const [editingTask, setEditingTask] = useState(null);
+            const [formData, setFormData] = useState({
+                name: '',
+                assignee: '',
+                startDate: '',
+                dueDate: '',
+                priority: 'medium',
+                status: 'todo',
+                notes: ''
+            });
+
+            useEffect(() => {
+                fetchTasks();
+            }, []);
+
+            const fetchTasks = async () => {
+                // Mock data for demonstration
+                const mockTasks = [
+                    {
+                        id: 1,
+                        name: 'Update project documentation',
+                        assignee: 'John Doe',
+                        startDate: '2025-06-19',
+                        dueDate: '2025-06-25',
+                        priority: 'high',
+                        status: 'progress',
+                        notes: 'Include API changes and new features'
+                    },
+                    {
+                        id: 2,
+                        name: 'Review code changes',
+                        assignee: 'Jane Smith',
+                        startDate: '2025-06-20',
+                        dueDate: '2025-06-22',
+                        priority: 'medium',
+                        status: 'todo',
+                        notes: 'Focus on security improvements'
+                    }
+                ];
+                setTasks(mockTasks);
+            };
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (editingTask) {
+                    setTasks(tasks.map(task => 
+                        task.id === editingTask.id 
+                            ? { ...formData, id: editingTask.id }
+                            : task
+                    ));
+                } else {
+                    setTasks([...tasks, { ...formData, id: Date.now() }]);
+                }
+                resetForm();
+            };
+
+            const resetForm = () => {
+                setFormData({
+                    name: '',
+                    assignee: '',
+                    startDate: '',
+                    dueDate: '',
+                    priority: 'medium',
+                    status: 'todo',
+                    notes: ''
+                });
+                setShowForm(false);
+                setEditingTask(null);
+            };
+
+            const editTask = (task) => {
+                setFormData(task);
+                setEditingTask(task);
+                setShowForm(true);
+            };
+
+            const deleteTask = (id) => {
+                setTasks(tasks.filter(task => task.id !== id));
+            };
+
+            return (
+                <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                        <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                            My Tasks
+                        </h1>
+                        <button 
+                            className="btn btn-primary"
+                            onClick={() => setShowForm(!showForm)}
+                        >
+                            <i className="fas fa-plus"></i>
+                            Add Task
+                        </button>
+                    </div>
+
+                    {showForm && (
+                        <form className="task-form" onSubmit={handleSubmit}>
+                            <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)' }}>
+                                {editingTask ? 'Edit Task' : 'Create New Task'}
+                            </h3>
+                            
+                            <div className="form-group">
+                                <label className="form-label">Task Name</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label className="form-label">Assignee</label>
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        value={formData.assignee}
+                                        onChange={(e) => setFormData({...formData, assignee: e.target.value})}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="form-label">Priority</label>
+                                    <select
+                                        className="form-select"
+                                        value={formData.priority}
+                                        onChange={(e) => setFormData({...formData, priority: e.target.value})}
+                                    >
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label className="form-label">Start Date</label>
+                                    <input
+                                        type="date"
+                                        className="form-input"
+                                        value={formData.startDate}
+                                        onChange={(e) => setFormData({...formData, startDate: e.target.value})}
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="form-label">Due Date</label>
+                                    <input
+                                        type="date"
+                                        className="form-input"
+                                        value={formData.dueDate}
+                                        onChange={(e) => setFormData({...formData, dueDate: e.target.value})}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label className="form-label">Status</label>
+                                    <select
+                                        className="form-select"
+                                        value={formData.status}
+                                        onChange={(e) => setFormData({...formData, status: e.target.value})}
+                                    >
+                                        <option value="todo">To Do</option>
+                                        <option value="progress">In Progress</option>
+                                        <option value="done">Done</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Notes</label>
+                                <textarea
+                                    className="form-textarea"
+                                    value={formData.notes}
+                                    onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                                    placeholder="Add any additional notes or details..."
+                                ></textarea>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '1rem' }}>
+                                <button type="submit" className="btn btn-primary">
+                                    <i className="fas fa-save"></i>
+                                    {editingTask ? 'Update Task' : 'Create Task'}
+                                </button>
+                                <button type="button" className="btn btn-secondary" onClick={resetForm}>
+                                    <i className="fas fa-times"></i>
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    )}
+
+                    <div className="task-list">
+                        <div className="task-header">
+                            <div>Task Name</div>
+                            <div>Assignee</div>
+                            <div>Start Date</div>
+                            <div>Due Date</div>
+                            <div>Priority</div>
+                            <div>Status</div>
+                            <div>Actions</div>
+                        </div>
+                        
+                        {tasks.map(task => (
+                            <div key={task.id} className="task-row">
+                                <div className="task-name">{task.name}</div>
+                                <div className="task-assignee">
+                                    <div className="assignee-avatar">
+                                        {task.assignee.charAt(0)}
+                                    </div>
+                                    <span>{task.assignee}</span>
+                                </div>
+                                <div>{task.startDate}</div>
+                                <div>{task.dueDate}</div>
+                                <div>
+                                    <span className={`priority-badge priority-${task.priority}`}>
+                                        {task.priority}
+                                    </span>
+                                </div>
+                                <div>
+                                    <span className={`status-badge status-${task.status}`}>
+                                        {task.status.replace('-', ' ')}
+                                    </span>
+                                </div>
+                                <div className="task-actions">
+                                    <button 
+                                        className="task-action"
+                                        onClick={() => editTask(task)}
+                                        title="Edit Task"
+                                    >
+                                        <i className="fas fa-edit"></i>
+                                    </button>
+                                    <button 
+                                        className="task-action"
+                                        onClick={() => deleteTask(task.id)}
+                                        title="Delete Task"
+                                    >
+                                        <i className="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // Team Overview Component
+        function TeamOverview() {
+            const [teamMembers, setTeamMembers] = useState([]);
+
+            useEffect(() => {
+                // Mock team data
+                const mockTeam = [
+                    {
+                        id: 1,
+                        name: 'John Doe',
+                        role: 'Team Lead',
+                        avatar: 'JD',
+                        tasksCompleted: 24,
+                        tasksInProgress: 3,
+                        efficiency: 92
+                    },
+                    {
+                        id: 2,
+                        name: 'Jane Smith',
+                        role: 'Senior Developer',
+                        avatar: 'JS',
+                        tasksCompleted: 18,
+                        tasksInProgress: 5,
+                        efficiency: 87
+                    },
+                    {
+                        id: 3,
+                        name: 'Mike Johnson',
+                        role: 'Developer',
+                        avatar: 'MJ',
+                        tasksCompleted: 15,
+                        tasksInProgress: 2,
+                        efficiency: 89
+                    },
+                    {
+                        id: 4,
+                        name: 'Sarah Wilson',
+                        role: 'Designer',
+                        avatar: 'SW',
+                        tasksCompleted: 20,
+                        tasksInProgress: 4,
+                        efficiency: 94
+                    }
+                ];
+                setTeamMembers(mockTeam);
+            }, []);
+
+            return (
+                <div>
+                    <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '2rem' }}>
+                        Team Overview
+                    </h1>
+
+                    <div className="team-grid">
+                        {teamMembers.map(member => (
+                            <div key={member.id} className="team-member-card">
+                                <div className="member-avatar">
+                                    {member.avatar}
+                                </div>
+                                <div className="member-name">{member.name}</div>
+                                <div className="member-role">{member.role}</div>
+                                
+                                <div className="member-stats">
+                                    <div className="stat-item">
+                                        <div className="stat-value">{member.tasksCompleted}</div>
+                                        <div className="stat-label">Completed</div>
+                                    </div>
+                                    <div className="stat-item">
+                                        <div className="stat-value">{member.tasksInProgress}</div>
+                                        <div className="stat-label">In Progress</div>
+                                    </div>
+                                    <div className="stat-item">
+                                        <div className="stat-value">{member.efficiency}%</div>
+                                        <div className="stat-label">Efficiency</div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // Team Ranking Component
+        function TeamRanking() {
+            const [rankings, setRankings] = useState([]);
+
+            useEffect(() => {
+                // Mock ranking data
+                const mockRankings = [
+                    {
+                        id: 1,
+                        name: 'Sarah Wilson',
+                        role: 'Designer',
+                        score: 94,
+                        points: 2840,
+                        rank: 1
+                    },
+                    {
+                        id: 2,
+                        name: 'John Doe',
+                        role: 'Team Lead',
+                        score: 92,
+                        points: 2760,
+                        rank: 2
+                    },
+                    {
+                        id: 3,
+                        name: 'Mike Johnson',
+                        role: 'Developer',
+                        score: 89,
+                        points: 2670,
+                        rank: 3
+                    },
+                    {
+                        id: 4,
+                        name: 'Jane Smith',
+                        role: 'Senior Developer',
+                        score: 87,
+                        points: 2610,
+                        rank: 4
+                    }
+                ];
+                setRankings(mockRankings);
+            }, []);
+
+            const getRankClass = (rank) => {
+                if (rank === 1) return 'gold';
+                if (rank === 2) return 'silver';
+                if (rank === 3) return 'bronze';
+                return '';
+            };
+
+            return (
+                <div>
+                    <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '2rem' }}>
+                        Team Ranking
+                    </h1>
+
+                    <div className="ranking-card">
+                        <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)' }}>
+                            Performance Leaderboard
+                        </h3>
+                        
+                        {rankings.map(member => (
+                            <div key={member.id} className="ranking-item">
+                                <div className={`rank-number ${getRankClass(member.rank)}`}>
+                                    {member.rank}
+                                </div>
+                                <div className="rank-info">
+                                    <div className="rank-name">{member.name}</div>
+                                    <div className="rank-score">{member.role} • Score: {member.score}%</div>
+                                </div>
+                                <div className="rank-points">
+                                    {member.points} pts
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // Other Components (Placeholders)
+        function Projects() {
+            return (
+                <div>
+                    <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '2rem' }}>
+                        Projects
+                    </h1>
+                    <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+                        <i className="fas fa-project-diagram" style={{ fontSize: '3rem', color: 'var(--text-tertiary)', marginBottom: '1rem' }}></i>
+                        <h3 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Projects Coming Soon</h3>
+                        <p style={{ color: 'var(--text-secondary)' }}>This feature will be available in the next update.</p>
+                    </div>
+                </div>
+            );
+        }
+
+        function Calendar() {
+            return (
+                <div>
+                    <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '2rem' }}>
+                        Calendar
+                    </h1>
+                    <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+                        <i className="fas fa-calendar" style={{ fontSize: '3rem', color: 'var(--text-tertiary)', marginBottom: '1rem' }}></i>
+                        <h3 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Calendar Coming Soon</h3>
+                        <p style={{ color: 'var(--text-secondary)' }}>This feature will be available in the next update.</p>
+                    </div>
+                </div>
+            );
+        }
+
+        function Reports() {
+            return (
+                <div>
+                    <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '2rem' }}>
+                        Reports
+                    </h1>
+                    <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+                        <i className="fas fa-chart-bar" style={{ fontSize: '3rem', color: 'var(--text-tertiary)', marginBottom: '1rem' }}></i>
+                        <h3 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Reports Coming Soon</h3>
+                        <p style={{ color: 'var(--text-secondary)' }}>This feature will be available in the next update.</p>
+                    </div>
+                </div>
+            );
+        }
+
+        function Settings() {
+            return (
+                <div>
+                    <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '2rem' }}>
+                        Settings
+                    </h1>
+                    <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+                        <i className="fas fa-cog" style={{ fontSize: '3rem', color: 'var(--text-tertiary)', marginBottom: '1rem' }}></i>
+                        <h3 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Settings Coming Soon</h3>
+                        <p style={{ color: 'var(--text-secondary)' }}>This feature will be available in the next update.</p>
+                    </div>
+                </div>
+            );
+        }
+
+        // Render the app
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

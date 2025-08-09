@@ -1,0 +1,75 @@
+TaskFlow Pro - Checkpoint Comparison Report
+===========================================
+Comparison Date: Mon 23 Jun 2025 10:19:42 +07
+Server: 192.168.20.10:/home/one-climate/team-workload
+Checkpoint 1: enhanced_v5_0_0_stable
+Checkpoint 2: 23_6_2025_ADD
+
+Checkpoint Metadata Comparison:
+==============================
+
+Checkpoint 1 (enhanced_v5_0_0_stable):
+- Created: Mon 23 Jun 2025 07:26:50 +07
+- Size: 47M
+
+Checkpoint 2 (23_6_2025_ADD):
+- Created: Mon 23 Jun 2025 10:17:28 +07
+- Size: 164K
+
+Files in enhanced_v5_0_0_stable:
+drwxrwxr-x   3 one-climate one-climate   4096 Jun 23 07:26 .
+drwxrwxr-x   4 one-climate one-climate   4096 Jun 23 09:59 ..
+-rw-rw-r--   1 one-climate one-climate    634 Jun 23 07:26 backend_779.log
+-rw-rw-r--   1 one-climate one-climate    631 Jun 23 07:26 backend_clickup.log
+-rw-r--r--   1 one-climate one-climate  33508 Jun 23 07:26 backend_comprehensive_enhanced.js
+-rw-rw-r--   1 one-climate one-climate  12758 Jun 23 07:26 backend_comprehensive.log
+-rw-rw-r--   1 one-climate one-climate  97951 Jun 23 07:26 backend_enhanced.log
+-rw-rw-r--   1 one-climate one-climate   1710 Jun 23 07:26 backend_fixed.log
+-rw-rw-r--   1 one-climate one-climate   9013 Jun 23 07:26 backend.log
+-rw-rw-r--   1 one-climate one-climate    632 Jun 23 07:26 backend_new.log
+-rw-rw-r--   1 one-climate one-climate    987 Jun 23 07:26 backend_production.log
+-rw-rw-r--   1 one-climate one-climate    631 Jun 23 07:26 backend_real_clickup.log
+-rw-rw-r--   1 one-climate one-climate  13558 Jun 23 07:26 backend_real.log
+-rw-rw-r--   1 one-climate one-climate   2661 Jun 23 07:26 backend_simple.log
+-rw-rw-r--   1 one-climate one-climate    398 Jun 23 07:26 checkpoint_info.txt
+-rw-rw-r--   1 one-climate one-climate    400 Jun 23 07:26 clickup_backend.log
+-rw-rw-r--   1 one-climate one-climate    905 Jun 23 07:26 frontend.log
+-rw-rw-r--   1 one-climate one-climate    358 Jun 23 07:26 health_check.json
+-rwxr-xr-x   1 one-climate one-climate 109156 Jun 23 07:26 index.html
+drwxrwxr-x 308 one-climate one-climate  12288 Jun 23 07:26 node_modules
+-rw-r--r--   1 one-climate one-climate   1079 Jun 23 07:26 package.json
+-rw-rw-r--   1 one-climate one-climate    564 Jun 23 07:26 process_state.txt
+-rw-rw-r--   1 one-climate one-climate    293 Jun 23 07:26 real_clickup_bg.log
+-rw-rw-r--   1 one-climate one-climate    293 Jun 23 07:26 real_clickup.log
+-rw-rw-r--   1 one-climate one-climate 219726 Jun 23 07:26 server.log
+
+Files in 23_6_2025_ADD:
+drwxrwxr-x 2 one-climate one-climate   4096 Jun 23 10:17 .
+drwxrwxr-x 4 one-climate one-climate   4096 Jun 23 09:59 ..
+-rw-r--r-- 1 one-climate one-climate  33508 Jun 23 10:00 backend_comprehensive_enhanced.js
+-rw-rw-r-- 1 one-climate one-climate    344 Jun 23 10:17 checkpoint_info.txt
+-rw-rw-r-- 1 one-climate one-climate    358 Jun 23 10:13 health_check.json
+-rwxr-xr-x 1 one-climate one-climate 109156 Jun 23 10:00 index.html
+-rw-r--r-- 1 one-climate one-climate   1079 Jun 23 10:00 package.json
+-rw-rw-r-- 1 one-climate one-climate    555 Jun 23 10:00 process_state.txt
+
+Backend Comparison:
+==================
+Frontend files: Identical
+Package.json: Identical
+Versions: Same (5.0.0-enhanced)
+
+Detailed File Comparison:
+========================
+
+
+Comparison Summary:
+==================
+Major Differences: 1 areas
+Recommendation: 23_6_2025_ADD is newer and likely contains more recent features
+
+Rollback Commands:
+- To enhanced_v5_0_0_stable: ./rollback_to_checkpoint.sh enhanced_v5_0_0_stable
+- To 23_6_2025_ADD: ./rollback_to_checkpoint.sh 23_6_2025_ADD
+
+Report Generated: Mon 23 Jun 2025 10:19:48 +07

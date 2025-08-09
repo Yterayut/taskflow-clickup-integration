@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - หน้าแรก</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1.2rem;
+            margin: 0.5rem 0;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .link-btn {
+            background: none;
+            border: none;
+            color: #3b82f6;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+
+        .link-btn:hover {
+            color: #1d4ed8;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-weight: 500;
+            display: none;
+        }
+
+        .message.success {
+            background: #dcfce7;
+            color: #059669;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- หน้าแรก - เลือกระหว่างสมัครหรือเข้าสู่ระบบ -->
+        <div id="welcome-page">
+            <h1 class="title">📊 TaskFlow Pro</h1>
+            <p class="subtitle">ระบบจัดการทีมงานขั้นสูง</p>
+            
+            <button class="btn btn-primary" onclick="showLoginForm()">
+                🔐 ลงชื่อเข้าใช้
+            </button>
+            
+            <button class="btn btn-secondary" onclick="showRegisterForm()">
+                ✨ สมัครสมาชิก
+            </button>
+
+            <div style="margin-top: 2rem; padding: 1.2rem; background: #f8fafc; border-radius: 12px; font-size: 0.9rem; color: #64748b; text-align: left;">
+                <strong>🚀 ฟีเจอร์ขั้นสูง:</strong><br />
+                ✅ ระบบควบคุมการเข้าถึงตามบทบาท<br />
+                ✅ เชื่อมต่อกับ ClickUp พร้อมใช้งาน<br />
+                ✅ วิเคราะห์ทีมแบบ Real-time<br />
+                ✅ จัดการภาระงานขั้นสูง
+            </div>
+        </div>
+
+        <!-- ฟอร์มลงชื่อเข้าใช้ -->
+        <div id="login-page" class="hidden">
+            <h1 class="title">🔐 ลงชื่อเข้าใช้</h1>
+            <p class="subtitle">เข้าสู่ระบบ TaskFlow Pro</p>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">อีเมล</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">รหัสผ่าน</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">เข้าสู่ระบบ</button>
+            </form>
+
+            <div class="message" id="login-message"></div>
+
+            <button class="link-btn" onclick="showWelcomePage()">
+                ← กลับหน้าแรก
+            </button>
+        </div>
+
+        <!-- ฟอร์มสมัครสมาชิก -->
+        <div id="register-page" class="hidden">
+            <h1 class="title">✨ สมัครสมาชิก</h1>
+            <p class="subtitle">สร้างบัญชีใหม่</p>
+            
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="reg-name">ชื่อ-นามสกุล</label>
+                    <input type="text" id="reg-name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg-email">อีเมล</label>
+                    <input type="email" id="reg-email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg-password">รหัสผ่าน</label>
+                    <input type="password" id="reg-password" name="password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg-role">บทบาท</label>
+                    <select id="reg-role" name="role" required>
+                        <option value="">เลือกบทบาท</option>
+                        <option value="employee">พนักงาน (Employee)</option>
+                        <option value="teamlead">หัวหน้าทีม (Team Lead)</option>
+                        <option value="manager">ผู้จัดการ (Manager)</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-secondary">สมัครสมาชิก</button>
+            </form>
+
+            <div class="message" id="register-message"></div>
+
+            <button class="link-btn" onclick="showWelcomePage()">
+                ← กลับหน้าแรก
+            </button>
+        </div>
+
+        <!-- หน้า Dashboard หลังจาก Login -->
+        <div id="dashboard-page" class="hidden">
+            <div id="dashboard-content">
+                <!-- เนื้อหา Dashboard จะถูกโหลดที่นี่ -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // จัดการการแสดงหน้าต่างๆ
+        function showPage(pageId) {
+            // ซ่อนทุกหน้า
+            document.getElementById('welcome-page').classList.add('hidden');
+            document.getElementById('login-page').classList.add('hidden');
+            document.getElementById('register-page').classList.add('hidden');
+            document.getElementById('dashboard-page').classList.add('hidden');
+            
+            // แสดงหน้าที่ต้องการ
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        function showWelcomePage() {
+            showPage('welcome-page');
+        }
+
+        function showLoginForm() {
+            showPage('login-page');
+        }
+
+        function showRegisterForm() {
+            showPage('register-page');
+        }
+
+        function showMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `message ${type}`;
+            element.style.display = 'block';
+            
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        // ฟังก์ชัน Login
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // เก็บข้อมูลการเข้าสู่ระบบ
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userData', JSON.stringify(data.user));
+                    
+                    showMessage('login-message', 'เข้าสู่ระบบสำเร็จ!', 'success');
+                    
+                    // เปลี่ยนไปหน้า Dashboard
+                    setTimeout(() => {
+                        loadDashboard(data.user);
+                    }, 1000);
+                } else {
+                    showMessage('login-message', data.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง', 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showMessage('login-message', 'เกิดข้อผิดพลาด กรุณาลองอีกครั้ง', 'error');
+            }
+        });
+
+        // ฟังก์ชัน Register
+        document.getElementById('register-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const role = document.getElementById('reg-role').value;
+
+            try {
+                const response = await fetch('/api/v1/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, password, role })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('register-message', 'สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ', 'success');
+                    
+                    setTimeout(() => {
+                        showLoginForm();
+                    }, 2000);
+                } else {
+                    showMessage('register-message', data.message || 'ไม่สามารถสมัครสมาชิกได้', 'error');
+                }
+            } catch (error) {
+                console.error('Register error:', error);
+                showMessage('register-message', 'เกิดข้อผิดพลาด กรุณาลองอีกครั้ง', 'error');
+            }
+        });
+
+        // โหลด Dashboard ตาม Role
+        async function loadDashboard(user) {
+            showPage('dashboard-page');
+            
+            const dashboardContent = document.getElementById('dashboard-content');
+            
+            try {
+                const token = localStorage.getItem('authToken');
+                const headers = {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                };
+
+                // โหลด KPIs
+                const kpiResponse = await fetch('/api/v1/dashboard/kpis', { headers });
+                const kpiData = await kpiResponse.json();
+
+                // โหลด Tasks
+                const tasksResponse = await fetch('/api/v1/tasks', { headers });
+                const tasksData = await tasksResponse.json();
+
+                // สร้าง Dashboard HTML ตาม Role
+                let dashboardHTML = `
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <h1 style="color: #1f2937; margin-bottom: 0.5rem;">สวัสดี, ${user.name}!</h1>
+                        <p style="color: #64748b;">บทบาท: ${getRoleDisplayName(user.role)}</p>
+                        <button onclick="logout()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer;">ออกจากระบบ</button>
+                    </div>
+                `;
+
+                // แสดง KPIs
+                if (kpiData.success && kpiData.kpis) {
+                    dashboardHTML += createKPISection(kpiData.kpis, user.role);
+                }
+
+                // แสดง Tasks
+                if (tasksData.success && tasksData.tasks) {
+                    dashboardHTML += createTasksSection(tasksData.tasks, user.role);
+                }
+
+                // แสดงสิทธิ์การใช้งาน
+                dashboardHTML += createPermissionsSection(user);
+
+                dashboardContent.innerHTML = dashboardHTML;
+
+            } catch (error) {
+                console.error('Dashboard loading error:', error);
+                dashboardContent.innerHTML = `
+                    <div style="text-align: center;">
+                        <h2 style="color: #ef4444;">เกิดข้อผิดพลาดในการโหลด Dashboard</h2>
+                        <button onclick="logout()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer;">กลับหน้าแรก</button>
+                    </div>
+                `;
+            }
+        }
+
+        function getRoleDisplayName(role) {
+            const roleNames = {
+                'manager': 'ผู้จัดการ',
+                'teamlead': 'หัวหน้าทีม',
+                'employee': 'พนักงาน'
+            };
+            return roleNames[role] || role;
+        }
+
+        function createKPISection(kpis, role) {
+            return `
+                <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                    <h3 style="color: #1f2937; margin-bottom: 1rem;">📊 สถิติการทำงาน</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                        ${Object.entries(kpis).map(([key, value]) => `
+                            <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: #3b82f6;">${value}</div>
+                                <div style="font-size: 0.9rem; color: #64748b;">${getKPILabel(key)}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function createTasksSection(tasks, role) {
+            const taskCount = tasks.length;
+            return `
+                <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                    <h3 style="color: #1f2937; margin-bottom: 1rem;">📋 งานของฉัน (${taskCount} งาน)</h3>
+                    ${taskCount > 0 ? `
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            ${tasks.slice(0, 5).map(task => `
+                                <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; border-left: 4px solid ${getTaskColor(task.priority)};">
+                                    <div style="font-weight: bold; color: #1f2937;">${task.title}</div>
+                                    <div style="font-size: 0.9rem; color: #64748b; margin: 0.5rem 0;">${task.description}</div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                                        <span style="background: ${getStatusColor(task.status)}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">${getStatusDisplayName(task.status)}</span>
+                                        <span style="color: #64748b;">ความคืบหน้า: ${task.progress}%</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : '<p style="color: #64748b; text-align: center;">ไม่มีงานในขณะนี้</p>'}
+                </div>
+            `;
+        }
+
+        function createPermissionsSection(user) {
+            return `
+                <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px;">
+                    <h3 style="color: #1f2937; margin-bottom: 1rem;">🔑 สิทธิ์การใช้งาน</h3>
+                    <div style="text-align: left;">
+                        <p style="margin-bottom: 0.5rem;"><strong>อีเมล:</strong> ${user.email}</p>
+                        <p style="margin-bottom: 0.5rem;"><strong>ทีม:</strong> ${user.team || 'ไม่ระบุ'}</p>
+                        <p style="margin-bottom: 1rem;"><strong>สิทธิ์:</strong></p>
+                        <ul style="margin-left: 1rem;">
+                            ${user.permissions ? user.permissions.map(permission => `
+                                <li style="margin-bottom: 0.3rem;">✅ ${getPermissionDisplayName(permission)}</li>
+                            `).join('') : '<li>ไม่มีข้อมูลสิทธิ์</li>'}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Helper functions
+        function getKPILabel(key) {
+            const labels = {
+                'totalTasks': 'งานทั้งหมด',
+                'completedToday': 'เสร็จวันนี้',
+                'overdue': 'เกินกำหนด',
+                'efficiency': 'ประสิทธิภาพ (%)',
+                'teamMembers': 'สมาชิกทีม',
+                'teamTasks': 'งานของทีม',
+                'teamEfficiency': 'ประสิทธิภาพทีม (%)',
+                'inProgress': 'กำลังดำเนินการ',
+                'completedTasks': 'งานที่เสร็จ'
+            };
+            return labels[key] || key;
+        }
+
+        function getTaskColor(priority) {
+            const colors = {
+                'high': '#ef4444',
+                'medium': '#f59e0b',
+                'low': '#10b981'
+            };
+            return colors[priority] || '#6b7280';
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'completed': '#10b981',
+                'in_progress': '#3b82f6',
+                'todo': '#6b7280',
+                'overdue': '#ef4444'
+            };
+            return colors[status] || '#6b7280';
+        }
+
+        function getStatusDisplayName(status) {
+            const names = {
+                'completed': 'เสร็จแล้ว',
+                'in_progress': 'กำลังดำเนินการ',
+                'todo': 'รอดำเนินการ',
+                'overdue': 'เกินกำหนด'
+            };
+            return names[status] || status;
+        }
+
+        function getPermissionDisplayName(permission) {
+            const names = {
+                'view_all': 'ดูข้อมูลทั้งหมด',
+                'manage_all': 'จัดการทั้งหมด',
+                'create_user': 'สร้างผู้ใช้',
+                'delete_user': 'ลบผู้ใช้',
+                'view_team': 'ดูข้อมูลทีม',
+                'manage_team': 'จัดการทีม',
+                'assign_tasks': 'มอบหมายงาน',
+                'view_own': 'ดูข้อมูลตนเอง',
+                'update_own': 'แก้ไขข้อมูลตนเอง'
+            };
+            return names[permission] || permission;
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
+            showWelcomePage();
+        }
+
+        // ตรวจสอบว่าเข้าสู่ระบบแล้วหรือยัง
+        window.onload = function() {
+            const token = localStorage.getItem('authToken');
+            const userData = localStorage.getItem('userData');
+            
+            if (token && userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    loadDashboard(user);
+                } catch (error) {
+                    console.error('Error parsing user data:', error);
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userData');
+                    showWelcomePage();
+                }
+            } else {
+                showWelcomePage();
+            }
+        };
+    </script>
+</body>
+</html>

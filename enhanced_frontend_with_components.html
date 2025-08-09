@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - Enhanced with Real ClickUp Integration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --primary-purple: #7c3aed;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .app-layout {
+            display: grid;
+            grid-template-areas: 
+                "header header"
+                "sidebar main";
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: 64px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            grid-area: header;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+
+        .logo i {
+            margin-right: 12px;
+            font-size: 24px;
+        }
+
+        /* 🆕 User Menu with Logout */
+        .user-menu {
+            position: relative;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .user-profile:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .user-name {
+            font-weight: 500;
+            margin-right: 8px;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            min-width: 180px;
+            z-index: 1000;
+            margin-top: 4px;
+        }
+
+        .user-dropdown a {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: background-color 0.2s;
+        }
+
+        .user-dropdown a:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .user-dropdown a i {
+            margin-right: 8px;
+            width: 16px;
+        }
+
+        .user-dropdown hr {
+            margin: 8px 0;
+            border: none;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .logout-link {
+            color: #dc2626 !important;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            grid-area: sidebar;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            padding: 24px 0;
+            overflow-y: auto;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0 16px;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-link.active {
+            background: var(--primary-blue);
+            color: var(--bg-primary);
+        }
+
+        .nav-link:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 20px;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: #dc2626;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        /* Main Content */
+        .main-content {
+            grid-area: main;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .component {
+            display: none;
+        }
+
+        .component.active {
+            display: block;
+        }
+
+        /* 🆕 Real Data Indicator */
+        .data-source-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .real-data {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .sample-data {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        .data-source-indicator i {
+            margin-right: 8px;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            margin-right: 16px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 8px 0;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* 🆕 Component-specific Styling */
+        .my-tasks-container,
+        .team-overview-container,
+        .projects-container {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+
+        .task-item:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-blue);
+        }
+
+        .task-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .task-status.complete { background: #10b981; }
+        .task-status.in-progress { background: #f59e0b; }
+        .task-status.pending { background: #6b7280; }
+
+        .task-content {
+            flex-grow: 1;
+        }
+
+        .task-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .task-meta {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .team-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .team-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .team-stats {
+            display: flex;
+            gap: 16px;
+        }
+
+        .team-stat {
+            text-align: center;
+        }
+
+        .team-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+
+        .team-stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .project-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .project-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .project-name {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .project-progress {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px;
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        .loading i {
+            margin-right: 8px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error States */
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 24px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-layout {
+                grid-template-areas: 
+                    "header"
+                    "main";
+                grid-template-columns: 1fr;
+                grid-template-rows: 64px 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                padding: 16px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-tasks"></i>
+                TaskFlow Pro
+            </div>
+            
+            <!-- 🆕 User Menu with Logout -->
+            <div class="user-menu">
+                <div class="user-profile" onclick="toggleUserMenu()">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <span class="user-name" id="userName">Loading...</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                
+                <div class="user-dropdown" id="userDropdown" style="display: none;">
+                    <a href="#" onclick="showProfile()">
+                        <i class="fas fa-user"></i> โปรไฟล์
+                    </a>
+                    <a href="#" onclick="showSettings()">
+                        <i class="fas fa-cog"></i> ตั้งค่า
+                    </a>
+                    <hr>
+                    <a href="#" onclick="logout()" class="logout-link">
+                        <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav>
+                <ul class="nav-menu" id="navMenu">
+                    <!-- Navigation items will be populated by JavaScript -->
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- 🆕 Real Data Source Indicator -->
+            <div class="data-source-indicator real-data" id="dataSourceIndicator" style="display: none;">
+                <i class="fas fa-check-circle"></i>
+                <span id="dataSourceText">Loading data source...</span>
+            </div>
+
+            <!-- Dashboard Component -->
+            <div id="dashboard" class="component active">
+                <div class="dashboard-grid">
+                    <!-- Overview Cards -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-title">งานทั้งหมด</h3>
+                                <div class="metric-value" id="totalTasks">0</div>
+                                <div class="metric-label">งานหลัก: <span id="mainTasks">0</span> | งานย่อย: <span id="subtasks">0</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-title">งานที่เสร็จแล้ว</h3>
+                                <div class="metric-value" id="completedTasks">0</div>
+                                <div class="metric-label">อัตราความสำเร็จ: <span id="completionRate">0%</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-title">งานที่กำลังทำ</h3>
+                                <div class="metric-value" id="inProgressTasks">0</div>
+                                <div class="metric-label">งานค้าง: <span id="overdueTasks">0</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-title">ทีมงาน</h3>
+                                <div class="metric-value" id="teamMembers">0</div>
+                                <div class="metric-label">เกรด: <span id="performanceGrade">N/A</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">กิจกรรมล่าสุด</h3>
+                        <button onclick="refreshData()" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-sync-alt"></i> รีเฟรช
+                        </button>
+                    </div>
+                    <div id="recentActivity">
+                        <div class="loading">
+                            <i class="fas fa-spinner"></i>
+                            กำลังโหลดข้อมูล...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🆕 My Tasks Component -->
+            <div id="my-tasks" class="component">
+                <div class="my-tasks-container">
+                    <div class="card-header">
+                        <h3 class="card-title">งานของฉัน</h3>
+                        <button onclick="refreshMyTasks()" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-sync-alt"></i> รีเฟรช
+                        </button>
+                    </div>
+                    <div id="myTasksList">
+                        <div class="loading">
+                            <i class="fas fa-spinner"></i>
+                            กำลังโหลดงานของคุณ...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🆕 Team Overview Component -->
+            <div id="team-overview" class="component">
+                <div class="team-overview-container">
+                    <div class="card-header">
+                        <h3 class="card-title">ภาพรวมทีมงาน</h3>
+                        <button onclick="refreshTeamOverview()" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-sync-alt"></i> รีเฟรช
+                        </button>
+                    </div>
+                    <div id="teamOverviewList">
+                        <div class="loading">
+                            <i class="fas fa-spinner"></i>
+                            กำลังโหลดข้อมูลทีมงาน...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🆕 Projects Component -->
+            <div id="projects" class="component">
+                <div class="projects-container">
+                    <div class="card-header">
+                        <h3 class="card-title">โครงการ</h3>
+                        <button onclick="refreshProjects()" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-sync-alt"></i> รีเฟรช
+                        </button>
+                    </div>
+                    <div id="projectsList">
+                        <div class="loading">
+                            <i class="fas fa-spinner"></i>
+                            กำลังโหลดโครงการ...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Components (Employee Management, Team Ranking, Reports, Calendar, Settings) -->
+            <div id="employee-management" class="component">
+                <div class="card">
+                    <h3 class="card-title">การจัดการพนักงาน</h3>
+                    <p>ฟีเจอร์การจัดการพนักงาน - กำลังพัฒนา</p>
+                </div>
+            </div>
+
+            <div id="team-ranking" class="component">
+                <div class="card">
+                    <h3 class="card-title">อันดับทีม</h3>
+                    <p>ระบบจัดอันดับทีม - กำลังพัฒนา</p>
+                </div>
+            </div>
+
+            <div id="reports" class="component">
+                <div class="card">
+                    <h3 class="card-title">รายงาน</h3>
+                    <p>ระบบรายงาน - กำลังพัฒนา</p>
+                </div>
+            </div>
+
+            <div id="calendar" class="component">
+                <div class="card">
+                    <h3 class="card-title">ปฏิทิน</h3>
+                    <p>ปฏิทินงาน - กำลังพัฒนา</p>
+                </div>
+            </div>
+
+            <div id="settings" class="component">
+                <div class="card">
+                    <h3 class="card-title">ตั้งค่า</h3>
+                    <p>การตั้งค่าระบบ - กำลังพัฒนา</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let currentView = 'dashboard';
+
+        // Navigation configuration based on role
+        const navigationConfig = {
+            'Manager': [
+                { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+                { id: 'my-tasks', label: 'My Tasks', icon: '📋' },
+                { id: 'team-overview', label: 'Team Overview', icon: '👥' },
+                { id: 'employee-management', label: 'Employee Management', icon: '👤' },
+                { id: 'team-ranking', label: 'Team Ranking', icon: '🏆' },
+                { id: 'projects', label: 'Projects', icon: '📁' },
+                { id: 'reports', label: 'Reports', icon: '📈' },
+                { id: 'calendar', label: 'Calendar', icon: '📅' },
+                { id: 'settings', label: 'Settings', icon: '⚙️' }
+            ],
+            'Employee': [
+                { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+                { id: 'my-tasks', label: 'My Tasks', icon: '📋' },
+                { id: 'projects', label: 'Projects', icon: '📁' },
+                { id: 'calendar', label: 'Calendar', icon: '📅' }
+            ]
+        };
+
+        // 🚀 Initialize Application
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 TaskFlow Pro Enhanced - Initializing...');
+            
+            // Check authentication
+            const authResult = await checkAuthentication();
+            if (!authResult.success) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            currentUser = authResult.user;
+            setupUI();
+            loadDashboard();
+            
+            // Handle URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialView = urlParams.get('view');
+            if (initialView && initialView !== 'dashboard') {
+                setTimeout(() => switchView(initialView), 500);
+            }
+        });
+
+        // 🔐 Check Authentication
+        async function checkAuthentication() {
+            try {
+                const response = await fetch('/api/v2/auth/verify', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.authenticated) {
+                        return { success: true, user: data.user };
+                    }
+                }
+                
+                return { success: false };
+            } catch (error) {
+                console.error('Authentication check error:', error);
+                return { success: false };
+            }
+        }
+
+        // 🎨 Setup UI
+        function setupUI() {
+            renderNavigation();
+            updateUserInfo();
+        }
+
+        // 🗺️ Render navigation based on user role
+        function renderNavigation() {
+            const navMenu = document.getElementById('navMenu');
+            const userNavigation = navigationConfig[currentUser.role] || navigationConfig['Employee'];
+            
+            navMenu.innerHTML = userNavigation.map(item => `
+                <li class="nav-item">
+                    <a class="nav-link ${item.id === currentView ? 'active' : ''}" 
+                       onclick="switchView('${item.id}', event)">
+                        <span class="nav-icon">${item.icon}</span>
+                        ${item.label}
+                        ${item.id === 'my-tasks' ? '<span class="nav-badge" id="taskCount">0</span>' : ''}
+                    </a>
+                </li>
+            `).join('');
+        }
+
+        // 👤 Update user information in header
+        function updateUserInfo() {
+            const userName = document.getElementById('userName');
+            const userAvatar = document.getElementById('userAvatar');
+            
+            userName.textContent = currentUser.name || 'User';
+            userAvatar.textContent = (currentUser.name || 'U').charAt(0).toUpperCase();
+        }
+
+        // 🆕 Switch between components with data loading
+        async function switchView(viewId, event) {
+            console.log(`🔄 Switching to view: ${viewId}`);
+            
+            // Hide all components
+            document.querySelectorAll('.component').forEach(comp => {
+                comp.classList.remove('active');
+            });
+            
+            // Show selected component
+            const targetComponent = document.getElementById(viewId);
+            if (targetComponent) {
+                targetComponent.classList.add('active');
+                currentView = viewId;
+                
+                // Update URL
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('view', viewId);
+                window.history.pushState({ view: viewId }, document.title, newUrl.toString());
+                
+                // Update navigation active state
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                if (event && event.target) {
+                    const clickedLink = event.target.closest('.nav-link');
+                    if (clickedLink) {
+                        clickedLink.classList.add('active');
+                    }
+                }
+                
+                // 🆕 Load component-specific data
+                await loadComponentData(viewId);
+            }
+        }
+
+        // 🆕 Load component-specific data
+        async function loadComponentData(viewId) {
+            try {
+                switch(viewId) {
+                    case 'dashboard':
+                        await loadDashboard();
+                        break;
+                    case 'my-tasks':
+                        await loadMyTasks();
+                        break;
+                    case 'team-overview':
+                        await loadTeamOverview();
+                        break;
+                    case 'projects':
+                        await loadProjects();
+                        break;
+                    default:
+                        console.log(`No specific data loading for ${viewId}`);
+                }
+            } catch (error) {
+                console.error(`Error loading data for ${viewId}:`, error);
+            }
+        }
+
+        // 📊 Load dashboard data
+        async function loadDashboard() {
+            try {
+                console.log('📊 Loading dashboard data...');
+                
+                const response = await fetch('/api/v2/dashboard/analytics', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('📊 Dashboard data received:', data);
+
+                if (data.success) {
+                    updateDashboard(data.data);
+                    updateDataSourceIndicator(data.data);
+                } else {
+                    showError('Failed to load dashboard data');
+                }
+
+            } catch (error) {
+                console.error('❌ Dashboard loading error:', error);
+                showError('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+            }
+        }
+
+        // 🆕 Load my tasks
+        async function loadMyTasks() {
+            try {
+                console.log('📋 Loading my tasks...');
+                
+                const myTasksList = document.getElementById('myTasksList');
+                myTasksList.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> กำลังโหลดงานของคุณ...</div>';
+                
+                const response = await fetch('/api/v2/tasks/my-tasks', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                console.log('📋 My tasks data:', data);
+
+                if (data.success && data.tasks) {
+                    renderMyTasks(data.tasks);
+                } else {
+                    myTasksList.innerHTML = '<div class="error-message">ไม่สามารถโหลดงานของคุณได้</div>';
+                }
+
+            } catch (error) {
+                console.error('❌ My tasks loading error:', error);
+                document.getElementById('myTasksList').innerHTML = '<div class="error-message">เกิดข้อผิดพลาดในการโหลดงาน</div>';
+            }
+        }
+
+        // 🆕 Load team overview
+        async function loadTeamOverview() {
+            try {
+                console.log('👥 Loading team overview...');
+                
+                const teamOverviewList = document.getElementById('teamOverviewList');
+                teamOverviewList.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> กำลังโหลดข้อมูลทีมงาน...</div>';
+                
+                const response = await fetch('/api/v2/team/overview', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                console.log('👥 Team overview data:', data);
+
+                if (data.success && data.teams) {
+                    renderTeamOverview(data.teams);
+                } else {
+                    teamOverviewList.innerHTML = '<div class="error-message">ไม่สามารถโหลดข้อมูลทีมงานได้</div>';
+                }
+
+            } catch (error) {
+                console.error('❌ Team overview loading error:', error);
+                document.getElementById('teamOverviewList').innerHTML = '<div class="error-message">เกิดข้อผิดพลาดในการโหลดข้อมูลทีมงาน</div>';
+            }
+        }
+
+        // 🆕 Load projects
+        async function loadProjects() {
+            try {
+                console.log('📁 Loading projects...');
+                
+                const projectsList = document.getElementById('projectsList');
+                projectsList.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> กำลังโหลดโครงการ...</div>';
+                
+                const response = await fetch('/api/v2/projects', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                console.log('📁 Projects data:', data);
+
+                if (data.success && data.projects) {
+                    renderProjects(data.projects);
+                } else {
+                    projectsList.innerHTML = '<div class="error-message">ไม่สามารถโหลดโครงการได้</div>';
+                }
+
+            } catch (error) {
+                console.error('❌ Projects loading error:', error);
+                document.getElementById('projectsList').innerHTML = '<div class="error-message">เกิดข้อผิดพลาดในการโหลดโครงการ</div>';
+            }
+        }
+
+        // 🎨 Update dashboard display
+        function updateDashboard(data) {
+            // Update overview cards
+            document.getElementById('totalTasks').textContent = data.overview.total_tasks || 0;
+            document.getElementById('mainTasks').textContent = data.overview.main_tasks || 0;
+            document.getElementById('subtasks').textContent = data.overview.subtasks || 0;
+            document.getElementById('completedTasks').textContent = data.overview.completed_tasks || 0;
+            document.getElementById('completionRate').textContent = `${data.team_performance.completion_rate || 0}%`;
+            document.getElementById('inProgressTasks').textContent = data.overview.in_progress_tasks || 0;
+            document.getElementById('overdueTasks').textContent = data.overview.overdue_tasks || 0;
+            document.getElementById('teamMembers').textContent = data.team_performance.active_members || 0;
+            document.getElementById('performanceGrade').textContent = data.team_performance.performance_grade || 'N/A';
+            
+            // Update task count badge
+            const taskCountBadge = document.getElementById('taskCount');
+            if (taskCountBadge) {
+                taskCountBadge.textContent = data.overview.total_tasks || 0;
+            }
+
+            // Update recent activity
+            const recentActivityDiv = document.getElementById('recentActivity');
+            if (data.recent_activity && data.recent_activity.length > 0) {
+                recentActivityDiv.innerHTML = data.recent_activity.map(activity => `
+                    <div style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                        <div style="display: flex; align-items: center;">
+                            <i class="fas ${getActivityIcon(activity.type)}" style="margin-right: 8px; color: ${getActivityColor(activity.type)};"></i>
+                            <div>
+                                <div style="font-weight: 500;">${activity.message}</div>
+                                <div style="font-size: 12px; color: #6b7280;">${formatDateTime(activity.timestamp)} - ${activity.user}</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                recentActivityDiv.innerHTML = '<div style="text-align: center; padding: 24px; color: #6b7280;">ไม่มีกิจกรรมล่าสุด</div>';
+            }
+        }
+
+        // 🆕 Render my tasks
+        function renderMyTasks(tasks) {
+            const myTasksList = document.getElementById('myTasksList');
+            
+            if (tasks.length === 0) {
+                myTasksList.innerHTML = '<div style="text-align: center; padding: 48px; color: #6b7280;">ไม่มีงานที่ได้รับมอบหมาย</div>';
+                return;
+            }
+
+            myTasksList.innerHTML = tasks.map(task => `
+                <div class="task-item">
+                    <div class="task-status ${getStatusClass(task.status)}"></div>
+                    <div class="task-content">
+                        <div class="task-title">${task.name}</div>
+                        <div class="task-meta">
+                            สถานะ: ${task.status || 'ไม่ระบุ'} | 
+                            ${task.due_date ? `กำหนด: ${formatDate(task.due_date)}` : 'ไม่มีกำหนดส่ง'}
+                            ${task.parent_id ? ' | งานย่อย' : ' | งานหลัก'}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 🆕 Render team overview
+        function renderTeamOverview(teams) {
+            const teamOverviewList = document.getElementById('teamOverviewList');
+            
+            if (teams.length === 0) {
+                teamOverviewList.innerHTML = '<div style="text-align: center; padding: 48px; color: #6b7280;">ไม่มีข้อมูลทีมงาน</div>';
+                return;
+            }
+
+            teamOverviewList.innerHTML = teams.map(team => `
+                <div class="team-card">
+                    <div class="team-name">${team.team_name}</div>
+                    <div class="team-stats">
+                        <div class="team-stat">
+                            <div class="team-stat-value">${team.member_count || 0}</div>
+                            <div class="team-stat-label">สมาชิก</div>
+                        </div>
+                        <div class="team-stat">
+                            <div class="team-stat-value">${team.total_tasks || 0}</div>
+                            <div class="team-stat-label">งานทั้งหมด</div>
+                        </div>
+                        <div class="team-stat">
+                            <div class="team-stat-value">${team.completed_tasks || 0}</div>
+                            <div class="team-stat-label">งานเสร็จ</div>
+                        </div>
+                        <div class="team-stat">
+                            <div class="team-stat-value">${team.total_tasks > 0 ? Math.round((team.completed_tasks / team.total_tasks) * 100) : 0}%</div>
+                            <div class="team-stat-label">ความสำเร็จ</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 🆕 Render projects
+        function renderProjects(projects) {
+            const projectsList = document.getElementById('projectsList');
+            
+            if (projects.length === 0) {
+                projectsList.innerHTML = '<div style="text-align: center; padding: 48px; color: #6b7280;">ไม่มีโครงการ</div>';
+                return;
+            }
+
+            projectsList.innerHTML = projects.map(project => `
+                <div class="project-card" style="border-left-color: ${project.color || '#3b82f6'};">
+                    <div class="project-header">
+                        <div class="project-name">${project.name}</div>
+                        <div class="project-progress">${project.task_count > 0 ? Math.round((project.completed_count / project.task_count) * 100) : 0}%</div>
+                    </div>
+                    <div style="display: flex; gap: 16px; font-size: 14px; color: #6b7280;">
+                        <span>รายการ: ${project.list_count || 0}</span>
+                        <span>งาน: ${project.task_count || 0}</span>
+                        <span>เสร็จแล้ว: ${project.completed_count || 0}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 🆕 Update data source indicator
+        function updateDataSourceIndicator(data) {
+            const indicator = document.getElementById('dataSourceIndicator');
+            const text = document.getElementById('dataSourceText');
+            
+            indicator.style.display = 'flex';
+            
+            if (data.data_source === 'Real ClickUp Data') {
+                indicator.className = 'data-source-indicator real-data';
+                text.textContent = '✅ ข้อมูลจริงจาก ClickUp - ซิงค์แล้ว';
+            } else {
+                indicator.className = 'data-source-indicator sample-data';
+                text.textContent = '⚠️ รอการเชื่อมต่อ ClickUp - ใช้ข้อมูลตัวอย่าง';
+            }
+        }
+
+        // 🆕 User menu toggle
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // 🆕 Logout function
+        async function logout() {
+            try {
+                console.log('🚪 Logging out...');
+                
+                const response = await fetch('/api/v2/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    // Clear local data
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    
+                    // Redirect to login
+                    window.location.href = '/login.html';
+                } else {
+                    console.error('Logout failed');
+                    alert('ไม่สามารถออกจากระบบได้ กรุณาลองใหม่');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('เกิดข้อผิดพลาดในการออกจากระบบ');
+            }
+        }
+
+        // 🆕 Refresh functions
+        async function refreshData() {
+            await loadDashboard();
+        }
+
+        async function refreshMyTasks() {
+            await loadMyTasks();
+        }
+
+        async function refreshTeamOverview() {
+            await loadTeamOverview();
+        }
+
+        async function refreshProjects() {
+            await loadProjects();
+        }
+
+        // Placeholder functions
+        function showProfile() {
+            alert('ฟีเจอร์โปรไฟล์ - กำลังพัฒนา');
+            toggleUserMenu();
+        }
+
+        function showSettings() {
+            switchView('settings');
+            toggleUserMenu();
+        }
+
+        // Helper functions
+        function getActivityIcon(type) {
+            switch(type) {
+                case 'task_completed': return 'fa-check-circle';
+                case 'task_updated': return 'fa-edit';
+                case 'task_created': return 'fa-plus-circle';
+                case 'user_login': return 'fa-sign-in-alt';
+                default: return 'fa-circle';
+            }
+        }
+
+        function getActivityColor(type) {
+            switch(type) {
+                case 'task_completed': return '#10b981';
+                case 'task_updated': return '#f59e0b';
+                case 'task_created': return '#3b82f6';
+                case 'user_login': return '#8b5cf6';
+                default: return '#6b7280';
+            }
+        }
+
+        function getStatusClass(status) {
+            if (!status) return 'pending';
+            
+            const normalizedStatus = status.toLowerCase();
+            if (normalizedStatus.includes('complete') || normalizedStatus.includes('done') || normalizedStatus.includes('closed')) {
+                return 'complete';
+            } else if (normalizedStatus.includes('progress') || normalizedStatus.includes('working') || normalizedStatus.includes('review')) {
+                return 'in-progress';
+            } else {
+                return 'pending';
+            }
+        }
+
+        function formatDateTime(dateTime) {
+            if (!dateTime) return 'ไม่ระบุ';
+            
+            try {
+                const date = new Date(dateTime);
+                return date.toLocaleString('th-TH', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (error) {
+                return 'ไม่ระบุ';
+            }
+        }
+
+        function formatDate(dateTime) {
+            if (!dateTime) return 'ไม่ระบุ';
+            
+            try {
+                const date = new Date(dateTime);
+                return date.toLocaleDateString('th-TH', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            } catch (error) {
+                return 'ไม่ระบุ';
+            }
+        }
+
+        function showError(message) {
+            console.error('Error:', message);
+            // You could add a toast notification here
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.querySelector('.user-menu');
+            if (!userMenu.contains(event.target)) {
+                const dropdown = document.getElementById('userDropdown');
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // Handle browser back/forward
+        window.addEventListener('popstate', function(event) {
+            if (event.state && event.state.view) {
+                switchView(event.state.view);
+            }
+        });
+    </script>
+</body>
+</html>

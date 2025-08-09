@@ -1,0 +1,27 @@
+[Unit]
+Description=TaskFlow Master Auth Service
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/home/one-climate/team-workload
+ExecStart=/usr/bin/node master_auth_service.js
+Restart=always
+RestartSec=10
+Environment=NODE_ENV=production
+Environment=PORT=7810
+
+# Logging
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=taskflow-auth
+
+# Security
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/home/one-climate/team-workload
+
+[Install]
+WantedBy=multi-user.target

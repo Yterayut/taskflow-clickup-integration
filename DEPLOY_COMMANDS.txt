@@ -1,0 +1,77 @@
+# ==============================================
+# TaskFlow Master Auth - Manual Deployment Commands
+# Server: one-climate@192.168.20.10
+# Password: U8@1v3z#14
+# ==============================================
+
+# 1. COPY FILES TO SERVER (ใช้ SFTP/SCP GUI หรือคำสั่งต่อไปนี้)
+# Copy ไฟล์เหล่านี้ไปยัง /home/one-climate/team-workload/
+# - master_auth_service.js
+# - taskflow_master_auth.html
+# - users_config.json
+# - taskflow.nginx.conf
+# - package.json
+
+# 2. SSH TO SERVER
+ssh one-climate@192.168.20.10
+# Password: U8@1v3z#14
+
+# 3. SETUP SERVICE (Copy paste ทีละบล็อก)
+
+# Navigate to directory
+cd /home/one-climate/team-workload
+
+# Stop old services
+pkill -f real_clickup_service.js 2>/dev/null || true
+pkill -f hybrid_auth_service.js 2>/dev/null || true
+pkill -f master_auth_service.js 2>/dev/null || true
+
+# Install dependencies
+npm install express cors axios
+
+# Start service
+nohup node master_auth_service.js > master_auth.log 2>&1 &
+
+# Test service
+curl http://localhost:781/health
+
+# 4. UPDATE NGINX (Copy paste ทีละบล็อก)
+
+# Copy nginx config
+sudo cp taskflow.nginx.conf /etc/nginx/sites-available/taskflow
+
+# Enable site
+sudo ln -sf /etc/nginx/sites-available/taskflow /etc/nginx/sites-enabled/
+
+# Test and reload nginx
+sudo nginx -t && sudo systemctl reload nginx
+
+# 5. FINAL TESTS (Copy paste ทีละบล็อก)
+
+# Test login
+curl "http://localhost:781/api/v1/auth/login" -X POST -H "Content-Type: application/json" -d '{"email":"yterayut@gmail.com","password":"12345"}'
+
+# Check service status
+ps aux | grep master_auth_service.js | grep -v grep
+
+# Test frontend (should show HTML)
+curl http://localhost:8080 | head -10
+
+# ==============================================
+# EXPECTED RESULTS:
+# - Service health check: {"status":"OK",...}
+# - Login test: {"success":true,...}
+# - Process check: Shows node master_auth_service.js
+# - Frontend test: Shows HTML content
+# ==============================================
+
+# ACCESS URLS:
+# Frontend: http://192.168.20.10:8080
+# API: http://192.168.20.10:8080/health
+
+# TEST USERS:
+# Master: yterayut@gmail.com / 12345
+# Team Lead: chaiwutwck@gmail.com / 12345  
+# Employee: kittipong@example.com / 12345
+
+# ==============================================

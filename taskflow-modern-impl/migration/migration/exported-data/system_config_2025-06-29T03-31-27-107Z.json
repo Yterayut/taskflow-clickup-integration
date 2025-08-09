@@ -1,0 +1,30 @@
+{
+  "exported_at": "2025-06-29T03:31:27.248Z",
+  "source": "legacy_system_files",
+  "files": {
+    "master_auth_service.js": {
+      "path": "/Users/teerayutyeerahem/team-workload/master_auth_service.js",
+      "size": 33510,
+      "modified": "2025-06-29T03:05:35.386Z",
+      "exists": true
+    },
+    "current_frontend.html": {
+      "path": "/Users/teerayutyeerahem/team-workload/current_frontend.html",
+      "size": 132028,
+      "modified": "2025-06-29T03:08:04.045Z",
+      "exists": true
+    },
+    "users_config.json": {
+      "path": "/Users/teerayutyeerahem/team-workload/users_config.json",
+      "size": 3048,
+      "modified": "2025-06-24T09:58:38.899Z",
+      "exists": true
+    },
+    "deploy_real_clickup.sh": {
+      "path": "/Users/teerayutyeerahem/team-workload/deploy_real_clickup.sh",
+      "size": 2001,
+      "modified": "2025-06-23T20:40:07.348Z",
+      "exists": true
+    }
+  }
+}

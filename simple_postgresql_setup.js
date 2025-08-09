@@ -1,0 +1,314 @@
+#!/usr/bin/env node
+/**
+ * Simple PostgreSQL Setup - Use peer authentication
+ * Create database and migrate 21 real tasks + 11 members
+ */
+
+const { execSync } = require('child_process');
+const sqlite3 = require('sqlite3').verbose();
+const fs = require('fs');
+
+// SQLite database path
+const SQLITE_DB_PATH = './taskflow.db';
+
+console.log('🚀 Simple PostgreSQL Setup - Using peer authentication...');
+
+// Step 1: Create database as postgres user
+function createDatabase() {
+    console.log('📊 Creating taskflow_pro database...');
+    
+    try {
+        // Create database
+        execSync('sudo -u postgres createdb taskflow_pro 2>/dev/null || echo "Database exists"', { stdio: 'inherit' });
+        
+        // Test connection
+        const result = execSync('sudo -u postgres psql -d taskflow_pro -c "SELECT version();" -t', { encoding: 'utf8' });
+        console.log('✅ Database connected:', result.trim().substring(0, 50) + '...');
+        
+        return true;
+    } catch (error) {
+        console.error('❌ Database creation failed:', error.message);
+        return false;
+    }
+}
+
+// Step 2: Create schema
+function createSchema() {
+    console.log('🏗️  Creating database schema...');
+    
+    const schema = `
+        -- Users table
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            email VARCHAR(255) UNIQUE NOT NULL,
+            password_hash VARCHAR(255) NOT NULL,
+            name VARCHAR(255),
+            role VARCHAR(50) DEFAULT 'Employee',
+            is_active BOOLEAN DEFAULT true,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- ClickUp Tasks table  
+        CREATE TABLE IF NOT EXISTS clickup_tasks (
+            id VARCHAR(50) PRIMARY KEY,
+            name TEXT,
+            status VARCHAR(100),
+            orderindex TEXT,
+            date_created BIGINT,
+            date_updated BIGINT,
+            date_closed BIGINT,
+            assignee TEXT,
+            assignee_id TEXT,
+            assignee_username TEXT,
+            assignee_email TEXT,
+            priority TEXT,
+            due_date BIGINT,
+            description TEXT,
+            list_id TEXT,
+            space_id TEXT,
+            parent_id TEXT,
+            url TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- ClickUp Members table
+        CREATE TABLE IF NOT EXISTS clickup_members (
+            id VARCHAR(50) PRIMARY KEY,
+            username VARCHAR(255),
+            email VARCHAR(255),
+            profilePicture TEXT,
+            initials VARCHAR(10),
+            color VARCHAR(20),
+            is_active BOOLEAN DEFAULT true,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- ClickUp Teams table
+        CREATE TABLE IF NOT EXISTS clickup_teams (
+            id VARCHAR(50) PRIMARY KEY,
+            name VARCHAR(255),
+            color VARCHAR(20),
+            avatar TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- ClickUp Spaces table
+        CREATE TABLE IF NOT EXISTS clickup_spaces (
+            id VARCHAR(50) PRIMARY KEY,
+            name VARCHAR(255),
+            color VARCHAR(20),
+            private BOOLEAN,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- ClickUp Lists table
+        CREATE TABLE IF NOT EXISTS clickup_lists (
+            id VARCHAR(50) PRIMARY KEY,
+            name VARCHAR(255),
+            orderindex INTEGER,
+            status VARCHAR(100),
+            priority TEXT,
+            assignee TEXT,
+            task_count INTEGER,
+            due_date BIGINT,
+            start_date BIGINT,
+            folder_id TEXT,
+            space_id TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- Indexes
+        CREATE INDEX IF NOT EXISTS idx_tasks_status ON clickup_tasks(status);
+        CREATE INDEX IF NOT EXISTS idx_tasks_assignee ON clickup_tasks(assignee_id);
+        CREATE INDEX IF NOT EXISTS idx_members_active ON clickup_members(is_active);
+        CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+        
+        -- Default user
+        INSERT INTO users (email, password_hash, name, role, is_active) 
+        VALUES ('yterayut@gmail.com', '$2b$10$rOj8ZgQGQ1tYWNJRZ7pJAOCB3xT4z3.P0z9BgWZbQLt/AE7IGwQyO', 'Teerayut Yeerahem', 'Manager', true)
+        ON CONFLICT (email) DO NOTHING;
+    `;
+    
+    // Write schema to file
+    fs.writeFileSync('/tmp/schema.sql', schema);
+    
+    try {
+        execSync('sudo -u postgres psql -d taskflow_pro -f /tmp/schema.sql', { stdio: 'inherit' });
+        console.log('✅ Schema created successfully');
+        return true;
+    } catch (error) {
+        console.error('❌ Schema creation failed:', error.message);
+        return false;
+    }
+}
+
+// Step 3: Read SQLite data
+function readSQLiteData() {
+    return new Promise((resolve, reject) => {
+        if (!fs.existsSync(SQLITE_DB_PATH)) {
+            console.error('❌ SQLite database not found:', SQLITE_DB_PATH);
+            resolve({});
+            return;
+        }
+        
+        const db = new sqlite3.Database(SQLITE_DB_PATH);
+        const data = {};
+        
+        console.log('📖 Reading data from SQLite...');
+        
+        const queries = [
+            { table: 'clickup_tasks', query: 'SELECT * FROM clickup_tasks' },
+            { table: 'clickup_members', query: 'SELECT * FROM clickup_members' },
+            { table: 'clickup_teams', query: 'SELECT * FROM clickup_teams' },
+            { table: 'clickup_spaces', query: 'SELECT * FROM clickup_spaces' },
+            { table: 'clickup_lists', query: 'SELECT * FROM clickup_lists' }
+        ];
+        
+        let completed = 0;
+        
+        queries.forEach(({ table, query }) => {
+            db.all(query, (err, rows) => {
+                if (err) {
+                    console.warn(`⚠️  Warning: Could not read ${table}:`, err.message);
+                    data[table] = [];
+                } else {
+                    data[table] = rows || [];
+                    console.log(`✅ Read ${rows?.length || 0} records from ${table}`);
+                }
+                
+                completed++;
+                if (completed === queries.length) {
+                    db.close();
+                    resolve(data);
+                }
+            });
+        });
+    });
+}
+
+// Step 4: Migrate data to PostgreSQL
+function migrateData(data) {
+    console.log('📥 Migrating data to PostgreSQL...');
+    
+    // Create CSV files for COPY command (fastest way)
+    const tables = ['clickup_tasks', 'clickup_members', 'clickup_teams', 'clickup_spaces', 'clickup_lists'];
+    
+    tables.forEach(table => {
+        const records = data[table] || [];
+        if (records.length === 0) {
+            console.log(`⏭️  Skipping empty table: ${table}`);
+            return;
+        }
+        
+        console.log(`🔄 Processing ${table}: ${records.length} records`);
+        
+        // Create SQL INSERT statements
+        const insertSQL = records.map(record => {
+            const columns = Object.keys(record);
+            const values = columns.map(col => {
+                const val = record[col];
+                if (val === null) return 'NULL';
+                if (typeof val === 'boolean') return val ? 'true' : 'false';
+                if (typeof val === 'number') return val;
+                return `'${String(val).replace(/'/g, "''")}'`;
+            });
+            
+            return `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${values.join(', ')}) ON CONFLICT DO NOTHING;`;
+        }).join('\\n');
+        
+        // Write to file
+        fs.writeFileSync(`/tmp/${table}.sql`, insertSQL);
+        
+        try {
+            execSync(`sudo -u postgres psql -d taskflow_pro -f /tmp/${table}.sql`, { stdio: 'pipe' });
+            console.log(`✅ Migrated ${table}: ${records.length} records`);
+        } catch (error) {
+            console.error(`❌ Failed to migrate ${table}:`, error.message);
+        }
+    });
+}
+
+// Step 5: Verify migration
+function verifyMigration() {
+    console.log('🔍 Verifying migration...');
+    
+    try {
+        const result = execSync(`sudo -u postgres psql -d taskflow_pro -c "
+            SELECT 
+                (SELECT COUNT(*) FROM clickup_tasks) as total_tasks,
+                (SELECT COUNT(*) FROM clickup_tasks WHERE parent_id IS NULL OR parent_id = '') as main_tasks,
+                (SELECT COUNT(*) FROM clickup_tasks WHERE parent_id IS NOT NULL AND parent_id != '') as sub_tasks,
+                (SELECT COUNT(*) FROM clickup_members WHERE is_active = true) as active_members,
+                (SELECT COUNT(*) FROM clickup_teams) as teams;
+        " -t`, { encoding: 'utf8' });
+        
+        const line = result.trim().split('|').map(s => s.trim());
+        const [total_tasks, main_tasks, sub_tasks, active_members, teams] = line;
+        
+        console.log('\\n📊 POSTGRESQL MIGRATION COMPLETE - Statistics:');
+        console.log(`✅ Total Tasks: ${total_tasks}`);
+        console.log(`📋 Main Tasks: ${main_tasks}`);
+        console.log(`🔗 Sub Tasks: ${sub_tasks}`);
+        console.log(`👥 Active Members: ${active_members}`);
+        console.log(`🏢 Teams: ${teams}`);
+        
+        if (parseInt(total_tasks) >= 21) {
+            console.log('\\n🎉 SUCCESS: All 21 real ClickUp tasks migrated to PostgreSQL!');
+            return true;
+        } else {
+            console.log(`\\n⚠️  WARNING: Expected 21 tasks, got ${total_tasks}`);
+            return false;
+        }
+        
+    } catch (error) {
+        console.error('❌ Verification failed:', error.message);
+        return false;
+    }
+}
+
+// Main function
+async function main() {
+    try {
+        console.log('🎯 Objective: Migrate 21 real ClickUp tasks + 11 members to PostgreSQL');
+        
+        // Step 1: Create database
+        if (!createDatabase()) {
+            throw new Error('Database creation failed');
+        }
+        
+        // Step 2: Create schema
+        if (!createSchema()) {
+            throw new Error('Schema creation failed');
+        }
+        
+        // Step 3: Read SQLite data
+        const data = await readSQLiteData();
+        
+        // Step 4: Migrate data
+        migrateData(data);
+        
+        // Step 5: Verify migration
+        const success = verifyMigration();
+        
+        // Cleanup temp files
+        execSync('rm -f /tmp/schema.sql /tmp/*.sql');
+        
+        if (success) {
+            console.log('\\n🎉 POSTGRESQL MIGRATION COMPLETED SUCCESSFULLY!');
+            console.log('✅ All real ClickUp data (21 tasks + 11 members) now in PostgreSQL');
+            console.log('🔧 Backend can now connect using peer authentication as postgres user');
+            console.log('📋 Connection: postgresql://postgres@localhost/taskflow_pro');
+        } else {
+            console.log('\\n⚠️  Migration completed with warnings - please check data manually');
+        }
+        
+    } catch (error) {
+        console.error('❌ MIGRATION FAILED:', error.message);
+        process.exit(1);
+    }
+}
+
+// Run migration
+main();

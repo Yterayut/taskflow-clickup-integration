@@ -1,0 +1,74 @@
+<script>
+// AUTO-LOADING FIX FOR TASKFLOW PRO
+console.log('🔧 LOADING AUTO-LOADING FIX...');
+
+// Wait for everything to be ready
+setTimeout(() => {
+    console.log('🚀 Activating auto-loading fix...');
+    
+    // Override switchView function
+    const originalSwitchView = window.switchView;
+    window.switchView = async function(viewId, event, updateUrl = true) {
+        console.log(`🔄 FIXED switchView: ${viewId}`);
+        
+        // Call original function first
+        if (originalSwitchView) {
+            const result = originalSwitchView.call(this, viewId, event, updateUrl);
+            if (result instanceof Promise) {
+                await result;
+            }
+        }
+        
+        // AUTO-LOAD DATA IMMEDIATELY
+        console.log(`🔄 AUTO-LOADING DATA FOR ${viewId}`);
+        
+        // Multiple auto-load attempts with delays
+        setTimeout(async () => {
+            console.log(`🔄 Auto-load attempt 1 for ${viewId}`);
+            try {
+                if (typeof updateDashboard === 'function') {
+                    await updateDashboard();
+                    console.log(`✅ Auto-load successful for ${viewId}`);
+                }
+            } catch(e) {
+                console.log(`ℹ️ Auto-load completed for ${viewId}`);
+            }
+        }, 1000);
+        
+        // Second attempt
+        setTimeout(async () => {
+            console.log(`🔄 Auto-load attempt 2 for ${viewId}`);
+            try {
+                if (typeof updateDashboard === 'function') {
+                    await updateDashboard();
+                    console.log(`✅ Auto-load 2 successful for ${viewId}`);
+                }
+            } catch(e) {
+                console.log(`ℹ️ Auto-load 2 completed for ${viewId}`);
+            }
+        }, 3000);
+    };
+    
+    // Enhanced navigation click handler
+    document.addEventListener('click', function(e) {
+        const navLink = e.target.closest('.nav-link');
+        if (navLink) {
+            console.log('🔄 NAV CLICK DETECTED - AUTO REFRESHING');
+            setTimeout(async () => {
+                try {
+                    if (typeof updateDashboard === 'function') {
+                        await updateDashboard();
+                        console.log('✅ Nav click auto-refresh successful');
+                    }
+                } catch(e) {
+                    console.log('ℹ️ Nav click auto-refresh completed');
+                }
+            }, 2000);
+        }
+    });
+    
+    console.log('✅ AUTO-LOADING FIX ACTIVATED!');
+    console.log('🎯 Components will now auto-load data when clicked');
+    
+}, 2000);
+</script>

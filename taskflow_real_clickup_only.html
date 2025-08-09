@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - Real ClickUp Data Only</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Enhanced Dark Mode CSS Variables */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --bg-accent: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            --border-primary: #e5e7eb;
+            --border-secondary: #d1d5db;
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1d4ed8;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --bg-tertiary: #374151;
+            --bg-accent: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-tertiary: #9ca3af;
+            --border-primary: #374151;
+            --border-secondary: #4b5563;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            transition: var(--transition);
+        }
+        
+        /* Header */
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-primary);
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            transition: var(--transition);
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2563eb;
+            margin-right: 48px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .clickup-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+            margin-right: 24px;
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+        }
+        
+        .status-indicator.connected {
+            background: #10b981;
+        }
+        
+        .status-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .theme-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--bg-tertiary);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-secondary);
+        }
+        
+        .theme-toggle:hover {
+            background: var(--bg-accent);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        
+        .user-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .logout-btn {
+            background: var(--danger-red);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: var(--transition);
+        }
+        
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 64px;
+            width: 280px;
+            height: calc(100vh - 64px);
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-primary);
+            padding: 24px 0;
+            overflow-y: auto;
+            transition: var(--transition);
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 0 16px;
+        }
+        
+        .nav-item {
+            margin-bottom: 4px;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .nav-link:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .nav-link.active {
+            background: var(--primary-blue);
+            color: white;
+        }
+        
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            margin-top: 64px;
+            padding: 32px;
+            min-height: calc(100vh - 64px);
+        }
+        
+        .page-header {
+            margin-bottom: 32px;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+        
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        /* Loading State */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 64px;
+            color: var(--text-secondary);
+        }
+        
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border-primary);
+            border-top: 3px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Error State */
+        .error {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 64px;
+            color: var(--danger-red);
+            text-align: center;
+        }
+        
+        .error-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .error-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .error-message {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+        
+        .retry-btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .retry-btn:hover {
+            background: var(--primary-blue-dark);
+        }
+        
+        /* ClickUp Setup */
+        .clickup-setup {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+        
+        .setup-icon {
+            font-size: 64px;
+            margin-bottom: 24px;
+        }
+        
+        .setup-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+        
+        .setup-description {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        
+        .setup-btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        
+        .setup-btn:hover {
+            background: var(--primary-blue-dark);
+        }
+        
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .kpi-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        
+        .kpi-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+        
+        .kpi-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .kpi-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .kpi-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .kpi-source {
+            font-size: 12px;
+            color: var(--success-green);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        /* Data Card */
+        .data-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .clickup-badge {
+            background: #7b68ee;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        /* Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th,
+        .data-table td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-primary);
+        }
+        
+        .data-table th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .data-table td {
+            color: var(--text-primary);
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .priority-high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .priority-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .priority-low {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .task-link {
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+        
+        .task-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 64px 32px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .empty-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .empty-message {
+            font-size: 14px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 16px;
+            }
+            
+            .main-content {
+                padding: 16px;
+            }
+            
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div style="background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 3rem; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); max-width: 400px; width: 100%; text-align: center;">
+            <h1 style="font-size: 2rem; font-weight: bold; color: #1f2937; margin-bottom: 0.5rem;">📊 TaskFlow Pro</h1>
+            <p style="color: #64748b; margin-bottom: 2rem;">Real ClickUp Data Only</p>
+            
+            <form id="loginForm">
+                <div style="margin-bottom: 1rem; text-align: left;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #374151;">Email</label>
+                    <input type="email" id="email" required style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem;">
+                </div>
+                
+                <div style="margin-bottom: 1.5rem; text-align: left;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #374151;">Password</label>
+                    <input type="password" id="password" required style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem;">
+                </div>
+                
+                <button type="submit" style="width: 100%; padding: 0.75rem; background: linear-gradient(45deg, #3b82f6, #1d4ed8); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
+                    🔐 Login to ClickUp Dashboard
+                </button>
+            </form>
+            
+            <div id="loginMessage" style="margin-top: 1rem; padding: 0.75rem; border-radius: 8px; display: none;"></div>
+            
+            <div style="margin-top: 2rem; padding: 1rem; background: #f8fafc; border-radius: 8px; text-align: left; font-size: 0.9rem;">
+                <strong>🔗 Real ClickUp Integration:</strong><br>
+                ✅ Live data from ClickUp API<br>
+                ✅ No demo/mock data<br>
+                ✅ Role-based access control<br>
+                <br>
+                <strong>Demo Accounts:</strong><br>
+                Manager: yterayut@gmail.com / 12345<br>
+                Team Lead: chaiwutwck@gmail.com / 12345<br>
+                Employee: kittipong@example.com / 12345
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="mainApp" style="display: none;">
+        <div class="header">
+            <div class="logo">
+                📊 TaskFlow Pro
+            </div>
+            
+            <div class="clickup-status">
+                <div class="status-indicator" id="clickupStatus"></div>
+                <span class="status-text" id="clickupStatusText">Connecting to ClickUp...</span>
+            </div>
+            
+            <div class="header-actions">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    🌙
+                </button>
+                
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">TY</div>
+                    <div class="user-details">
+                        <div class="user-name" id="userName">Loading...</div>
+                        <div class="user-role" id="userRole">User</div>
+                    </div>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <ul class="nav-menu" id="navMenu">
+                <!-- Navigation will be populated based on user role -->
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <!-- ClickUp Setup Section -->
+            <div id="clickup-setup" class="content-section">
+                <div class="clickup-setup">
+                    <div class="setup-icon">🔗</div>
+                    <h2 class="setup-title">Connect to ClickUp</h2>
+                    <p class="setup-description">
+                        To view real data from ClickUp, you need to connect your ClickUp account. 
+                        This will allow TaskFlow Pro to display live tasks, projects, and team information 
+                        directly from your ClickUp workspace.
+                    </p>
+                    <button class="setup-btn" onclick="connectClickUp()">
+                        Connect ClickUp Account
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="content-section">
+                <div class="page-header">
+                    <h1 class="page-title" id="dashboardTitle">Dashboard</h1>
+                    <p class="page-subtitle" id="dashboardSubtitle">Real-time data from ClickUp</p>
+                </div>
+                
+                <div class="kpi-grid" id="kpiGrid">
+                    <!-- KPI cards will be populated with real ClickUp data -->
+                </div>
+                
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Tasks</h3>
+                        <span class="clickup-badge">ClickUp Live</span>
+                    </div>
+                    <div id="recentTasks">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            <p>Loading tasks from ClickUp...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Tasks Section -->
+            <div id="all-tasks" class="content-section">
+                <div class="page-header">
+                    <h1 class="page-title">All Tasks</h1>
+                    <p class="page-subtitle">Live tasks from ClickUp workspace</p>
+                </div>
+                
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Task List</h3>
+                        <span class="clickup-badge">ClickUp Live</span>
+                    </div>
+                    <div id="allTasksList">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            <p>Loading all tasks from ClickUp...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Overview Section -->
+            <div id="team-overview" class="content-section">
+                <div class="page-header">
+                    <h1 class="page-title">Team Overview</h1>
+                    <p class="page-subtitle">Live team data from ClickUp</p>
+                </div>
+                
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Team Members</h3>
+                        <span class="clickup-badge">ClickUp Live</span>
+                    </div>
+                    <div id="teamMembers">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            <p>Loading team data from ClickUp...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Tasks Section -->
+            <div id="my-tasks" class="content-section">
+                <div class="page-header">
+                    <h1 class="page-title">My Tasks</h1>
+                    <p class="page-subtitle">Your assigned tasks from ClickUp</p>
+                </div>
+                
+                <div class="data-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Assigned Tasks</h3>
+                        <span class="clickup-badge">ClickUp Live</span>
+                    </div>
+                    <div id="myTasksList">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            <p>Loading your tasks from ClickUp...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration and State
+        let currentUser = null;
+        let sessionId = null;
+        let currentSection = 'dashboard';
+        let clickupConnected = false;
+        let clickupData = null;
+
+        // ClickUp API Configuration
+        const CLICKUP_CONFIG = {
+            CLIENT_ID: 'DA3L6I2MS7RC39PFH7PZGRZAG4A1J8LL',
+            CLIENT_SECRET: 'BNLH0AZH1P4MHXQSANAM6N5RKNJPDD4I2IBC157H57G9V5NNET1HQ7V8I63K98ZX',
+            REDIRECT_URI: 'http://192.168.20.10:777/auth/callback',
+            API_BASE: 'https://api.clickup.com/api/v2'
+        };
+
+        // Role-based navigation configurations (same as before)
+        const roleNavigations = {
+            'Manager': [
+                { id: 'dashboard', icon: '📊', label: 'Dashboard' },
+                { id: 'all-tasks', icon: '📋', label: 'All Tasks' },
+                { id: 'team-overview', icon: '👥', label: 'Team Overview' },
+                { id: 'team-analytics', icon: '📈', label: 'Team Analytics' },
+                { id: 'employee-management', icon: '👤', label: 'Employee Management' },
+                { id: 'team-ranking', icon: '🏆', label: 'Team Ranking' },
+                { id: 'reports', icon: '📊', label: 'Reports' },
+                { id: 'team-attendance', icon: '📅', label: 'Team Attendance' },
+                { id: 'system-settings', icon: '⚙️', label: 'System Settings' }
+            ],
+            'Team Lead': [
+                { id: 'dashboard', icon: '📊', label: 'My Team Dashboard' },
+                { id: 'employee-management', icon: '👥', label: 'My Team Members' },
+                { id: 'all-tasks', icon: '📋', label: 'Team Tasks' },
+                { id: 'team-analytics', icon: '📈', label: 'Team Analytics' },
+                { id: 'team-attendance', icon: '📅', label: 'Team Attendance' }
+            ],
+            'Employee': [
+                { id: 'dashboard', icon: '📊', label: 'My Dashboard' },
+                { id: 'my-tasks', icon: '📋', label: 'My Tasks' },
+                { id: 'my-profile', icon: '👤', label: 'My Profile' },
+                { id: 'knowledge-management', icon: '📚', label: 'Knowledge Management' }
+            ]
+        };
+
+        // Initialize the application
+        function initializeApp() {
+            checkAuthStatus();
+        }
+
+        // Check authentication status
+        async function checkAuthStatus() {
+            const storedSessionId = localStorage.getItem('taskflow_session');
+            if (!storedSessionId) {
+                showLoginPage();
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/auth/status', {
+                    headers: {
+                        'Authorization': `Bearer ${storedSessionId}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authenticated) {
+                        sessionId = storedSessionId;
+                        currentUser = data.user;
+                        showMainApp();
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+            }
+
+            localStorage.removeItem('taskflow_session');
+            showLoginPage();
+        }
+
+        // Show login page
+        function showLoginPage() {
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+        }
+
+        // Show main app
+        function showMainApp() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            
+            setupDashboard();
+            checkClickUpConnection();
+        }
+
+        // Handle login
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('loginMessage');
+
+            try {
+                const response = await fetch('/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    sessionId = data.sessionId;
+                    currentUser = data.user;
+                    localStorage.setItem('taskflow_session', sessionId);
+                    
+                    messageDiv.textContent = 'Login successful!';
+                    messageDiv.style.display = 'block';
+                    messageDiv.style.background = '#dcfce7';
+                    messageDiv.style.color = '#059669';
+                    
+                    setTimeout(() => {
+                        showMainApp();
+                    }, 1000);
+                } else {
+                    messageDiv.textContent = data.error || 'Login failed';
+                    messageDiv.style.display = 'block';
+                    messageDiv.style.background = '#fee2e2';
+                    messageDiv.style.color = '#dc2626';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                messageDiv.textContent = 'Connection error';
+                messageDiv.style.display = 'block';
+                messageDiv.style.background = '#fee2e2';
+                messageDiv.style.color = '#dc2626';
+            }
+        }
+
+        // Setup dashboard
+        function setupDashboard() {
+            if (!currentUser) return;
+
+            // Update user info in header
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userRole').textContent = currentUser.role;
+            document.getElementById('userAvatar').textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+
+            // Setup navigation based on role
+            setupNavigation();
+            
+            // Update dashboard titles
+            const dashboardTitles = {
+                'Manager': 'Manager Dashboard',
+                'Team Lead': 'My Team Dashboard', 
+                'Employee': 'My Dashboard'
+            };
+            
+            document.getElementById('dashboardTitle').textContent = dashboardTitles[currentUser.role] || 'Dashboard';
+        }
+
+        // Setup navigation menu based on user role
+        function setupNavigation() {
+            const navMenu = document.getElementById('navMenu');
+            const navigation = roleNavigations[currentUser.role] || [];
+
+            navMenu.innerHTML = navigation.map(nav => `
+                <li class="nav-item">
+                    <a class="nav-link ${nav.id === 'dashboard' ? 'active' : ''}" onclick="showSection('${nav.id}')">
+                        <span class="nav-icon">${nav.icon}</span>
+                        ${nav.label}
+                    </a>
+                </li>
+            `).join('');
+        }
+
+        // Check ClickUp connection
+        async function checkClickUpConnection() {
+            try {
+                const response = await fetch('/api/v1/clickup/status', {
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.connected) {
+                        clickupConnected = true;
+                        updateClickUpStatus(true);
+                        showSection('dashboard');
+                        loadClickUpData();
+                    } else {
+                        clickupConnected = false;
+                        updateClickUpStatus(false);
+                        showSection('clickup-setup');
+                    }
+                } else {
+                    clickupConnected = false;
+                    updateClickUpStatus(false);
+                    showSection('clickup-setup');
+                }
+            } catch (error) {
+                console.error('ClickUp status check failed:', error);
+                clickupConnected = false;
+                updateClickUpStatus(false);
+                showSection('clickup-setup');
+            }
+        }
+
+        // Update ClickUp status indicator
+        function updateClickUpStatus(connected) {
+            const statusIndicator = document.getElementById('clickupStatus');
+            const statusText = document.getElementById('clickupStatusText');
+            
+            if (connected) {
+                statusIndicator.classList.add('connected');
+                statusText.textContent = 'ClickUp Connected';
+            } else {
+                statusIndicator.classList.remove('connected');
+                statusText.textContent = 'ClickUp Disconnected';
+            }
+        }
+
+        // Connect to ClickUp
+        async function connectClickUp() {
+            try {
+                const response = await fetch('/api/v1/clickup/auth-url', {
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authorization_url) {
+                        window.location.href = data.authorization_url;
+                    } else {
+                        throw new Error('Failed to get authorization URL');
+                    }
+                } else {
+                    throw new Error('Failed to initiate ClickUp connection');
+                }
+            } catch (error) {
+                console.error('ClickUp connection failed:', error);
+                showError('Failed to connect to ClickUp: ' + error.message);
+            }
+        }
+
+        // Load ClickUp data
+        async function loadClickUpData() {
+            if (!clickupConnected) return;
+
+            try {
+                const response = await fetch('/api/v1/clickup/dashboard-data', {
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        clickupData = data.data;
+                        renderDashboard();
+                        renderTasks();
+                        renderTeam();
+                    } else {
+                        throw new Error(data.error || 'Failed to load ClickUp data');
+                    }
+                } else {
+                    throw new Error('Failed to fetch ClickUp data');
+                }
+            } catch (error) {
+                console.error('Failed to load ClickUp data:', error);
+                showError('Failed to load data from ClickUp: ' + error.message);
+            }
+        }
+
+        // Render dashboard with real ClickUp data
+        function renderDashboard() {
+            if (!clickupData) return;
+
+            const kpiGrid = document.getElementById('kpiGrid');
+            const kpis = [
+                {
+                    title: 'Total Tasks',
+                    value: clickupData.tasks?.length || 0,
+                    icon: '📋',
+                    color: '#3b82f6'
+                },
+                {
+                    title: 'Completed Tasks',
+                    value: clickupData.tasks?.filter(t => t.status?.status === 'complete').length || 0,
+                    icon: '✅',
+                    color: '#10b981'
+                },
+                {
+                    title: 'In Progress',
+                    value: clickupData.tasks?.filter(t => t.status?.status === 'in progress').length || 0,
+                    icon: '⏳',
+                    color: '#f59e0b'
+                },
+                {
+                    title: 'Team Members',
+                    value: clickupData.team?.length || 0,
+                    icon: '👥',
+                    color: '#8b5cf6'
+                }
+            ];
+
+            kpiGrid.innerHTML = kpis.map(kpi => `
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-title">${kpi.title}</div>
+                        <div class="kpi-icon" style="background: ${kpi.color}20; color: ${kpi.color};">
+                            ${kpi.icon}
+                        </div>
+                    </div>
+                    <div class="kpi-value">${kpi.value}</div>
+                    <div class="kpi-source">
+                        🔗 ClickUp Live Data
+                    </div>
+                </div>
+            `).join('');
+
+            // Render recent tasks
+            const recentTasks = document.getElementById('recentTasks');
+            if (clickupData.tasks && clickupData.tasks.length > 0) {
+                const recent = clickupData.tasks.slice(0, 5);
+                recentTasks.innerHTML = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Assignee</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${recent.map(task => `
+                                <tr>
+                                    <td>
+                                        <a href="${task.url}" target="_blank" class="task-link">${task.name}</a>
+                                    </td>
+                                    <td>${task.status?.status || 'Unknown'}</td>
+                                    <td>
+                                        <span class="status-badge priority-${task.priority?.priority?.toLowerCase() || 'low'}">
+                                            ${task.priority?.priority || 'Low'}
+                                        </span>
+                                    </td>
+                                    <td>${task.assignees?.[0]?.username || 'Unassigned'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else {
+                recentTasks.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <div class="empty-title">No Tasks Found</div>
+                        <div class="empty-message">No tasks found in your ClickUp workspace</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Render all tasks
+        function renderTasks() {
+            const allTasksList = document.getElementById('allTasksList');
+            
+            if (clickupData?.tasks && clickupData.tasks.length > 0) {
+                allTasksList.innerHTML = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Task Name</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Assignee</th>
+                                <th>Due Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${clickupData.tasks.map(task => `
+                                <tr>
+                                    <td>
+                                        <a href="${task.url}" target="_blank" class="task-link">${task.name}</a>
+                                    </td>
+                                    <td>${task.status?.status || 'Unknown'}</td>
+                                    <td>
+                                        <span class="status-badge priority-${task.priority?.priority?.toLowerCase() || 'low'}">
+                                            ${task.priority?.priority || 'Low'}
+                                        </span>
+                                    </td>
+                                    <td>${task.assignees?.[0]?.username || 'Unassigned'}</td>
+                                    <td>${task.due_date ? new Date(parseInt(task.due_date)).toLocaleDateString() : 'No due date'}</td>
+                                    <td>
+                                        <a href="${task.url}" target="_blank" style="color: var(--primary-blue); text-decoration: none;">View in ClickUp</a>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else {
+                allTasksList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <div class="empty-title">No Tasks Found</div>
+                        <div class="empty-message">No tasks found in your ClickUp workspace</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Render team data
+        function renderTeam() {
+            const teamMembers = document.getElementById('teamMembers');
+            
+            if (clickupData?.team && clickupData.team.length > 0) {
+                teamMembers.innerHTML = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${clickupData.team.map(member => `
+                                <tr>
+                                    <td>${member.username}</td>
+                                    <td>${member.email}</td>
+                                    <td>${member.role || 'Member'}</td>
+                                    <td>
+                                        <span class="status-badge priority-low">Active</span>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else {
+                teamMembers.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">👥</div>
+                        <div class="empty-title">No Team Members Found</div>
+                        <div class="empty-message">No team members found in your ClickUp workspace</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Show specific section
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Find and activate the correct nav link
+            const activeLink = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+
+            currentSection = sectionId;
+
+            // Load section-specific data if needed
+            if (sectionId === 'my-tasks') {
+                renderMyTasks();
+            }
+        }
+
+        // Render my tasks (filtered for current user)
+        function renderMyTasks() {
+            const myTasksList = document.getElementById('myTasksList');
+            
+            if (clickupData?.tasks) {
+                // Filter tasks assigned to current user (this is a simplified approach)
+                const myTasks = clickupData.tasks.filter(task => 
+                    task.assignees?.some(assignee => 
+                        assignee.email?.toLowerCase() === currentUser.email?.toLowerCase()
+                    )
+                );
+
+                if (myTasks.length > 0) {
+                    myTasksList.innerHTML = `
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Task Name</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Due Date</th>
+                                    <th>Progress</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${myTasks.map(task => `
+                                    <tr>
+                                        <td>
+                                            <a href="${task.url}" target="_blank" class="task-link">${task.name}</a>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge priority-${task.priority?.priority?.toLowerCase() || 'low'}">
+                                                ${task.priority?.priority || 'Low'}
+                                            </span>
+                                        </td>
+                                        <td>${task.status?.status || 'Unknown'}</td>
+                                        <td>${task.due_date ? new Date(parseInt(task.due_date)).toLocaleDateString() : 'No due date'}</td>
+                                        <td>${task.status?.status === 'complete' ? '100%' : '50%'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                } else {
+                    myTasksList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <div class="empty-title">No Tasks Assigned</div>
+                            <div class="empty-message">You don't have any tasks assigned in ClickUp</div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Show error
+        function showError(message) {
+            const errorHtml = `
+                <div class="error">
+                    <div class="error-icon">⚠️</div>
+                    <div class="error-title">Error</div>
+                    <div class="error-message">${message}</div>
+                    <button class="retry-btn" onclick="loadClickUpData()">Retry</button>
+                </div>
+            `;
+
+            // Show error in current section
+            const currentSectionElement = document.querySelector('.content-section.active');
+            if (currentSectionElement) {
+                currentSectionElement.innerHTML = errorHtml;
+            }
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            const themeToggle = document.querySelector('.theme-toggle');
+            themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Logout function
+        function logout() {
+            sessionId = null;
+            currentUser = null;
+            clickupData = null;
+            clickupConnected = false;
+            localStorage.removeItem('taskflow_session');
+            showLoginPage();
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            // Setup login form
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // Initialize app
+            initializeApp();
+        });
+
+        // Handle ClickUp OAuth callback
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            
+            if (code && state) {
+                // Handle ClickUp OAuth callback
+                handleClickUpCallback(code, state);
+            }
+        });
+
+        // Handle ClickUp OAuth callback
+        async function handleClickUpCallback(code, state) {
+            try {
+                const response = await fetch('/api/v1/clickup/callback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionId}`
+                    },
+                    body: JSON.stringify({ code, state })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        clickupConnected = true;
+                        updateClickUpStatus(true);
+                        showSection('dashboard');
+                        loadClickUpData();
+                        
+                        // Clean up URL
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    } else {
+                        throw new Error(data.error || 'Failed to complete ClickUp connection');
+                    }
+                } else {
+                    throw new Error('Failed to process ClickUp callback');
+                }
+            } catch (error) {
+                console.error('ClickUp callback failed:', error);
+                showError('Failed to connect to ClickUp: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

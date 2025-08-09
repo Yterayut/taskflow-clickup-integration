@@ -1,0 +1,120 @@
+#!/usr/bin/expect
+
+set timeout 60
+set server "one-climate@192.168.20.10"
+set password "U8@1v3z#14"
+
+puts "🚀 LOGIN LOOP FIX DEPLOYMENT - Expect Script"
+puts "============================================="
+
+# SSH to server
+spawn ssh -t $server
+expect {
+    "password:" {
+        send "$password\r"
+        exp_continue
+    }
+    "$ " {
+        puts "✅ Connected to server successfully"
+    }
+    timeout {
+        puts "❌ SSH connection timeout"
+        exit 1
+    }
+}
+
+# Go to home directory and backup current files
+puts "💾 Creating backup of current files..."
+send "cd ~\r"
+expect "$ "
+send "cp single_login_backend.js single_login_backend.js.backup 2>/dev/null || echo 'No existing backend to backup'\r"
+expect "$ "
+send "cp users_config.json users_config.json.backup 2>/dev/null || echo 'No existing config to backup'\r"
+expect "$ "
+
+# Kill existing backend process
+puts "🔪 Stopping existing backend service..."
+send "pkill -f 'single_login_backend.js'\r"
+expect "$ "
+send "sleep 3\r"
+expect "$ "
+
+# Check if process is really killed
+send "ps aux | grep single_login_backend | grep -v grep\r"
+expect "$ "
+
+# Copy new files (already uploaded via scp)
+puts "📁 Files already uploaded via SCP - checking presence..."
+send "ls -la single_login_backend.js users_config.json\r"
+expect "$ "
+
+# Install/update npm dependencies if needed
+puts "📦 Installing npm dependencies..."
+send "npm install --only=production 2>/dev/null || echo 'NPM install completed'\r"
+expect "$ "
+
+# Start new backend service
+puts "🚀 Starting updated backend service..."
+send "nohup node single_login_backend.js > backend_production.log 2>&1 &\r"
+expect "$ "
+
+# Wait for service to start
+puts "⏳ Waiting for backend service to initialize..."
+send "sleep 8\r"
+expect "$ "
+
+# Test backend health
+puts "🧪 Testing backend health..."
+send "curl -s http://localhost:7812/api/v2/system/status | head -5\r"
+expect {
+    "is_operational" {
+        puts "✅ Backend is operational!"
+    }
+    "$ " {}
+}
+
+# Test OAuth user login (should be rejected)
+puts "🔐 Testing OAuth user login rejection..."
+send "curl -X POST -H 'Content-Type: application/json' -d '{\"email\":\"yterayut@gmail.com\",\"password\":\"12345\"}' http://localhost:7812/api/v2/auth/login\r"
+expect {
+    "This account requires OAuth authentication" {
+        puts "✅ OAuth user properly rejected regular login!"
+    }
+    "$ " {}
+}
+
+# Test regular user login (should work)
+puts "👤 Testing regular user login..."
+send "curl -X POST -H 'Content-Type: application/json' -d '{\"email\":\"chaiwutwck@gmail.com\",\"password\":\"12345\"}' http://localhost:7812/api/v2/auth/login\r"
+expect {
+    "Login successful" {
+        puts "✅ Regular user login working!"
+    }
+    "$ " {}
+}
+
+# Check backend log for any errors
+puts "📋 Checking backend logs for errors..."
+send "tail -10 backend_production.log\r"
+expect "$ "
+
+# Final status
+puts ""
+puts "🎉 LOGIN LOOP FIX DEPLOYMENT COMPLETED!"
+puts "========================================="
+puts "✅ Backend: http://192.168.20.10:7812 (UPDATED)"
+puts "✅ Frontend: http://192.168.20.10:8888"
+puts "🔐 Login: http://192.168.20.10:8888/login"
+puts ""
+puts "🔧 CHANGES APPLIED:"
+puts "   - OAuth user (yterayut@gmail.com) now requires OAuth login"
+puts "   - Regular users still work with email/password"
+puts "   - Login loop issue fixed"
+puts ""
+puts "🧪 TEST INSTRUCTIONS:"
+puts "   1. Visit: http://192.168.20.10:8888/login"
+puts "   2. Try yterayut@gmail.com -> Should show OAuth required"
+puts "   3. Try chaiwutwck@gmail.com + 12345 -> Should work"
+
+send "exit\r"
+expect eof

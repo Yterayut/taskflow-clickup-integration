@@ -1,0 +1,170 @@
+ICard icon="🔄" value={myTasks.filter(t => t.status === 'progress').length} label="กำลังทำ" trend="" 
+                                     onClick={() => showToast('งานที่กำลังทำ 1 งาน', 'info')} />
+                            <KPICard icon="⚡" value={`${realKPIs.employee.efficiency}%`} label="ประสิทธิภาพ" trend="up" 
+                                     onClick={() => showToast('ประสิทธิภาพการทำงานของคุณอยู่ในระดับดีเยี่ยม', 'success')} />
+                        </div>
+
+                        <div style={{display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px'}}>
+                            <div className="section">
+                                <div className="section-header">
+                                    <div className="section-title">งานของฉัน</div>
+                                </div>
+
+                                <div className="task-list">
+                                    {myTasks.map(task => (
+                                        <TaskItem 
+                                            key={task.id} 
+                                            task={task} 
+                                            onClick={(t) => showToast(`รายละเอียดงาน: ${t.title} - ${t.progress}% เสร็จแล้ว`, 'info')} 
+                                        />
+                                    ))}
+                                </div>
+
+                                <div style={{
+                                    background: 'linear-gradient(135deg, #f0f9ff, #e0f2fe)',
+                                    border: '1px solid #0ea5e9',
+                                    padding: '16px',
+                                    marginTop: '16px',
+                                    textAlign: 'center',
+                                    color: '#0369a1',
+                                    fontWeight: '500',
+                                    borderRadius: '8px',
+                                    fontSize: '14px'
+                                }}>
+                                    ℹ️ Employee เข้าถึงเฉพาะงานที่ได้รับมอบหมาย - งานของตัวเอง 2 งาน
+                                </div>
+                            </div>
+
+                            <div className="section">
+                                <div className="section-title">สถิติงานของฉัน</div>
+                                <div style={{marginTop: '16px'}}>
+                                    <div style={{marginBottom: '16px', padding: '12px', background: '#f8fafc', borderRadius: '8px'}}>
+                                        <div style={{fontSize: '14px', fontWeight: '500', marginBottom: '8px'}}>🎯 เป้าหมายสัปดาห์นี้</div>
+                                        <div style={{fontSize: '12px', color: '#64748b'}}>• เสร็จงาน Production Deployment ✅</div>
+                                        <div style={{fontSize: '12px', color: '#64748b'}}>• อัพเดทข้อมูลทีมจริง 90% 🔄</div>
+                                    </div>
+                                    
+                                    <div style={{marginBottom: '16px', padding: '12px', background: '#f8fafc', borderRadius: '8px'}}>
+                                        <div style={{fontSize: '14px', fontWeight: '500', marginBottom: '8px'}}>📊 สถิติการทำงาน</div>
+                                        <div style={{fontSize: '12px', color: '#64748b'}}>• งานเสร็จตรงเวลา: 100%</div>
+                                        <div style={{fontSize: '12px', color: '#64748b'}}>• คุณภาพงาน: ดีเยี่ยม</div>
+                                        <div style={{fontSize: '12px', color: '#64748b'}}>• เวลาทำงานเฉลี่ย: 6/8 ชม./งาน</div>
+                                    </div>
+
+                                    <div style={{marginBottom: '16px', padding: '12px', background: '#f8fafc', borderRadius: '8px'}}>
+                                        <div style={{fontSize: '14px', fontWeight: '500', marginBottom: '8px'}}>🏆 ความสำเร็จ</div>
+                                        <div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px'}}>
+                                            <span>🥇</span>
+                                            <span style={{fontSize: '12px'}}>Deploy Master</span>
+                                        </div>
+                                        <div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px'}}>
+                                            <span>⭐</span>
+                                            <span style={{fontSize: '12px'}}>Code Quality Expert</span>
+                                        </div>
+                                        <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                            <span>🚀</span>
+                                            <span style={{fontSize: '12px'}}>Production Hero</span>
+                                        </div>
+                                    </div>
+
+                                    <div style={{padding: '12px', background: '#f8fafc', borderRadius: '8px'}}>
+                                        <div style={{fontSize: '14px', fontWeight: '500', marginBottom: '8px'}}>📅 ตารางวันนี้</div>
+                                        <div style={{fontSize: '12px', color: '#64748b', marginBottom: '4px'}}>09:00 - Daily Standup Meeting</div>
+                                        <div style={{fontSize: '12px', color: '#64748b', marginBottom: '4px'}}>10:00 - Work on Real Data Update</div>
+                                        <div style={{fontSize: '12px', color: '#64748b', marginBottom: '4px'}}>14:00 - Code Review Session</div>
+                                        <div style={{fontSize: '12px', color: '#64748b'}}>16:00 - Sprint Planning</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+
+            // Main render function
+            const renderCurrentContent = () => {
+                switch (currentRole) {
+                    case 'manager':
+                        return <ManagerDashboard />;
+                    case 'teamlead':
+                        return <TeamLeadDashboard />;
+                    case 'employee':
+                        return <EmployeeDashboard />;
+                    default:
+                        return null;
+                }
+            };
+
+            // Progress bar animation
+            useEffect(() => {
+                if (currentRole) {
+                    setTimeout(() => {
+                        const progressBars = document.querySelectorAll('.progress-fill');
+                        progressBars.forEach(bar => {
+                            const width = bar.style.width;
+                            bar.style.width = '0%';
+                            setTimeout(() => {
+                                bar.style.width = width;
+                            }, 100);
+                        });
+                    }, 500);
+                }
+            }, [currentRole]);
+
+            // Main component return
+            if (!currentRole) {
+                return <LoginScreen />;
+            }
+
+            return (
+                <div className="dashboard active">
+                    <div style={{
+                        position: 'fixed',
+                        top: '20px',
+                        right: '20px',
+                        padding: '8px 16px',
+                        borderRadius: '20px',
+                        fontWeight: 'bold',
+                        zIndex: 1000,
+                        color: 'white',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                        background: currentRole === 'manager' ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 
+                                   currentRole === 'teamlead' ? 'linear-gradient(135deg, #3b82f6, #60a5fa)' : 
+                                   'linear-gradient(135deg, #16a34a, #4ade80)'
+                    }}>
+                        {currentRole === 'manager' ? '🏢 Manager View' : 
+                         currentRole === 'teamlead' ? '👨‍💼 Team Lead View' : 
+                         '👨‍💻 Employee View'}
+                    </div>
+                    
+                    <Header />
+                    
+                    <div className="container">
+                        <div className="main-layout">
+                            <Sidebar />
+                            {renderCurrentContent()}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === '/') {
+                event.preventDefault();
+                const searchBox = document.querySelector('.search-box');
+                if (searchBox) searchBox.focus();
+            }
+        });
+
+        // Render the application
+        const root = ReactDOM.createRoot ? ReactDOM.createRoot(document.getElementById('root')) : null;
+        if (root) {
+            root.render(<TaskFlowRealData />);
+        } else {
+            ReactDOM.render(<TaskFlowRealData />, document.getElementById('root'));
+        }
+    </script>
+</body>
+</html>

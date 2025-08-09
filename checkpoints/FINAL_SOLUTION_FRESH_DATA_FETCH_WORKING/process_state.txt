@@ -1,0 +1,2 @@
+one-cli+ 1561704  0.0  0.0   7372  3552 ?        Ss   09:19   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/FINAL_SOLUTION_FRESH_DATA_FETCH_WORKING/process_state.txt
+one-cli+ 1561706  0.0  0.0   6480  2332 ?        S    09:19   0:00 grep backend

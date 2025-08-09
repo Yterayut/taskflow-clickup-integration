@@ -1,0 +1,352 @@
+                    role: 'manager',
+                    email: 'demo@taskflow.com'
+                };
+
+                this.socket.emit('user_authenticate', userData);
+            }
+
+            subscribeToUpdates() {
+                console.log('📡 Subscribing to real-time updates...');
+                
+                // Subscribe to dashboard updates
+                this.socket.emit('subscribe_dashboard', 'manager');
+                
+                // Subscribe to task updates
+                this.socket.emit('subscribe_tasks', { status: 'all' });
+                
+                // Subscribe to team activity
+                this.socket.emit('subscribe_team_activity');
+                
+                // Subscribe to sync status
+                this.socket.emit('subscribe_sync_status');
+                
+                this.showNotification('Subscribed to real-time updates', 'success');
+            }
+
+            updateConnectionStatus(status, text) {
+                const indicator = document.getElementById('connectionStatus');
+                const textElement = document.getElementById('connectionText');
+                const footerDetails = document.getElementById('connectionDetails');
+                
+                indicator.className = `status-indicator status-${status}`;
+                textElement.textContent = text;
+                
+                const timestamp = new Date().toLocaleTimeString();
+                footerDetails.textContent = `🔌 ${text} at ${timestamp}`;
+            }
+
+            updateSyncStatus(data) {
+                const indicator = document.getElementById('syncStatus');
+                const textElement = document.getElementById('syncText');
+                
+                if (data.isRunning) {
+                    indicator.className = 'status-indicator status-connected';
+                    textElement.textContent = 'Sync Active';
+                } else {
+                    indicator.className = 'status-indicator status-disconnected';
+                    textElement.textContent = 'Sync Inactive';
+                }
+                
+                if (data.lastSyncTime) {
+                    this.lastUpdate = new Date(data.lastSyncTime);
+                    this.updateLastUpdateTime();
+                }
+            }
+
+            updateDashboardData(data) {
+                if (!data.overview) return;
+                
+                // Update overview metrics with animation
+                this.animateValueUpdate('totalTasks', data.overview.total_tasks);
+                this.animateValueUpdate('completedTasks', data.overview.completed_tasks);
+                this.animateValueUpdate('inProgressTasks', data.overview.in_progress_tasks);
+                this.animateValueUpdate('pendingTasks', data.overview.pending_tasks);
+                
+                // Update team performance
+                if (data.team_performance) {
+                    this.animateValueUpdate('totalMembers', data.team_performance.total_members);
+                    this.animateValueUpdate('activeMembers', data.team_performance.active_members);
+                    this.animateValueUpdate('completionRate', Math.round(data.team_performance.completion_rate) + '%');
+                    this.animateValueUpdate('efficiencyScore', Math.round(data.team_performance.efficiency_score));
+                }
+                
+                // Update progress bar
+                const completionPercentage = data.overview.total_tasks > 0 ? 
+                    (data.overview.completed_tasks / data.overview.total_tasks) * 100 : 0;
+                document.getElementById('completionProgress').style.width = completionPercentage + '%';
+                
+                // Update velocity chart
+                this.updateVelocityChart(data.overview.completed_tasks);
+                
+                this.lastUpdate = new Date();
+                this.updateLastUpdateTime();
+            }
+
+            updatePerformanceMetrics(metrics) {
+                if (metrics.response_times) {
+                    this.animateValueUpdate('responseTime', Math.round(metrics.response_times.api_average) + 'ms');
+                    this.animateValueUpdate('cacheHitRate', Math.round(metrics.response_times.cache_hit_rate) + '%');
+                }
+                
+                if (metrics.sync_metrics) {
+                    this.animateValueUpdate('syncHealth', metrics.sync_metrics.background_sync_health);
+                }
+                
+                if (metrics.system_health) {
+                    // Calculate uptime display
+                    const uptimeHours = Math.floor(Math.random() * 720 + 24); // Mock uptime
+                    this.animateValueUpdate('uptime', uptimeHours + 'h');
+                }
+                
+                // Update cache chart
+                if (metrics.response_times && metrics.response_times.cache_hit_rate) {
+                    this.updateCacheChart(parseFloat(metrics.response_times.cache_hit_rate));
+                }
+            }
+
+            updateActivityFeed(activities) {
+                const feed = document.getElementById('activityFeed');
+                feed.innerHTML = '';
+                
+                activities.forEach((activity, index) => {
+                    const item = this.createActivityItem(activity);
+                    feed.appendChild(item);
+                    
+                    // Animate new items
+                    setTimeout(() => {
+                        item.style.opacity = '0';
+                        item.style.transform = 'translateX(-20px)';
+                        item.offsetHeight; // Force reflow
+                        item.style.transition = 'all 0.3s ease';
+                        item.style.opacity = '1';
+                        item.style.transform = 'translateX(0)';
+                    }, index * 100);
+                });
+            }
+
+            createActivityItem(activity) {
+                const item = document.createElement('div');
+                item.className = 'activity-item';
+                
+                const icon = this.getActivityIcon(activity.type);
+                const time = this.formatTimeAgo(new Date(activity.timestamp));
+                
+                item.innerHTML = `
+                    <div class="activity-icon" style="background: ${icon.color};">${icon.symbol}</div>
+                    <div class="activity-content">
+                        <div class="activity-message">${activity.message}</div>
+                        <div class="activity-time">${time}</div>
+                    </div>
+                `;
+                
+                return item;
+            }
+
+            getActivityIcon(type) {
+                const icons = {
+                    'task_completed': { symbol: '✅', color: '#27ae60' },
+                    'user_login': { symbol: '👤', color: '#3498db' },
+                    'sync_completed': { symbol: '🔄', color: '#9b59b6' },
+                    'task_started': { symbol: '🚀', color: '#e67e22' },
+                    'meeting': { symbol: '📅', color: '#f39c12' },
+                    'default': { symbol: '📋', color: '#95a5a6' }
+                };
+                
+                return icons[type] || icons.default;
+            }
+
+            updateVelocityChart(completedTasks) {
+                const chart = document.getElementById('velocityChart');
+                this.velocityData.push({
+                    time: Date.now(),
+                    value: completedTasks
+                });
+                
+                // Keep only last 20 data points
+                if (this.velocityData.length > 20) {
+                    this.velocityData.shift();
+                }
+                
+                this.renderChart(chart, this.velocityData, '#27ae60');
+            }
+
+            updateCacheChart(hitRate) {
+                const chart = document.getElementById('cacheChart');
+                this.cacheData.push({
+                    time: Date.now(),
+                    value: hitRate
+                });
+                
+                // Keep only last 20 data points
+                if (this.cacheData.length > 20) {
+                    this.cacheData.shift();
+                }
+                
+                this.renderChart(chart, this.cacheData, '#3498db');
+            }
+
+            renderChart(container, data, color) {
+                container.innerHTML = '';
+                
+                if (data.length < 2) return;
+                
+                const width = container.offsetWidth;
+                const height = container.offsetHeight;
+                const maxValue = Math.max(...data.map(d => d.value));
+                const minValue = Math.min(...data.map(d => d.value));
+                const range = maxValue - minValue || 1;
+                
+                data.forEach((point, index) => {
+                    const x = (index / (data.length - 1)) * width;
+                    const y = height - ((point.value - minValue) / range) * height;
+                    
+                    const dot = document.createElement('div');
+                    dot.className = 'data-point';
+                    dot.style.left = x + 'px';
+                    dot.style.bottom = (height - y) + 'px';
+                    dot.style.height = '4px';
+                    dot.style.background = color;
+                    
+                    container.appendChild(dot);
+                    
+                    // Add connecting lines
+                    if (index > 0) {
+                        const prevX = ((index - 1) / (data.length - 1)) * width;
+                        const prevY = height - ((data[index - 1].value - minValue) / range) * height;
+                        
+                        const line = document.createElement('div');
+                        line.style.position = 'absolute';
+                        line.style.height = '2px';
+                        line.style.background = color;
+                        line.style.left = Math.min(prevX, x) + 'px';
+                        line.style.bottom = Math.min(height - prevY, height - y) + 'px';
+                        line.style.width = Math.abs(x - prevX) + 'px';
+                        line.style.transformOrigin = '0 0';
+                        
+                        const angle = Math.atan2(y - prevY, x - prevX);
+                        line.style.transform = `rotate(${angle}rad)`;
+                        
+                        container.appendChild(line);
+                    }
+                });
+            }
+
+            animateValueUpdate(elementId, newValue) {
+                const element = document.getElementById(elementId);
+                if (!element) return;
+                
+                const oldValue = element.textContent;
+                if (oldValue === newValue.toString()) return;
+                
+                element.classList.add('animate-update');
+                element.textContent = newValue;
+                
+                setTimeout(() => {
+                    element.classList.remove('animate-update');
+                }, 500);
+            }
+
+            showRefreshIndicator(indicatorId) {
+                const indicator = document.getElementById(indicatorId);
+                if (!indicator) return;
+                
+                indicator.classList.add('active');
+                setTimeout(() => {
+                    indicator.classList.remove('active');
+                }, 1000);
+            }
+
+            showNotification(message, type = 'info') {
+                const notification = document.getElementById('notification');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 4000);
+            }
+
+            updateActiveUsers() {
+                document.getElementById('activeUsers').textContent = `Active Users: ${this.activeUsers}`;
+            }
+
+            updateLastUpdateTime() {
+                if (!this.lastUpdate) return;
+                
+                const timeAgo = this.formatTimeAgo(this.lastUpdate);
+                document.getElementById('lastUpdate').textContent = `Last Update: ${timeAgo}`;
+            }
+
+            updateLatency(latency) {
+                const details = document.getElementById('connectionDetails');
+                details.textContent = `🔌 Connected (${latency}ms latency)`;
+            }
+
+            formatTimeAgo(date) {
+                const now = new Date();
+                const diffMs = now - date;
+                const diffSecs = Math.floor(diffMs / 1000);
+                const diffMins = Math.floor(diffSecs / 60);
+                const diffHours = Math.floor(diffMins / 60);
+                
+                if (diffSecs < 60) return `${diffSecs}s ago`;
+                if (diffMins < 60) return `${diffMins}m ago`;
+                if (diffHours < 24) return `${diffHours}h ago`;
+                return date.toLocaleDateString();
+            }
+
+            setupEventListeners() {
+                // Manual refresh buttons could be added here
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+                        e.preventDefault();
+                        this.requestManualRefresh();
+                    }
+                });
+                
+                // Visibility change detection for reconnection
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden && !this.connected) {
+                        console.log('🔄 Page visible, attempting reconnection...');
+                        this.initializeConnection();
+                    }
+                });
+            }
+
+            requestManualRefresh() {
+                if (this.connected) {
+                    this.socket.emit('request_refresh', 'dashboard');
+                    this.showNotification('Manual refresh requested', 'info');
+                }
+            }
+
+            startHeartbeat() {
+                setInterval(() => {
+                    if (this.connected) {
+                        this.socket.emit('ping');
+                    }
+                }, 30000); // Every 30 seconds
+                
+                // Update time displays
+                setInterval(() => {
+                    this.updateLastUpdateTime();
+                }, 1000);
+            }
+        }
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Initializing Real-time Dashboard...');
+            window.dashboard = new RealTimeDashboard();
+        });
+
+        // Handle page unload
+        window.addEventListener('beforeunload', () => {
+            if (window.dashboard && window.dashboard.socket) {
+                window.dashboard.socket.disconnect();
+            }
+        });
+    </script>
+</body>
+</html>

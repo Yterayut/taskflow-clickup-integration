@@ -1,0 +1,5 @@
+drwxrwxr-x  3 one-climate one-climate  4096 Jul 12 19:43 role_navigation_fix_complete_production_ready
+drwxrwxr-x  3 one-climate one-climate  4096 Jul 12 19:46 stable_role_navigation_system_v2_0
+drwxrwxr-x  3 one-climate one-climate  4096 Jul  5 17:17 system_health_check_july_5_2025
+drwxrwxr-x  3 one-climate one-climate  4096 Jul  2 02:03 system_ready_july_2_2025
+drwxrwxr-x  3 one-climate one-climate  4096 Jul  5 17:40 user_display_logout_complete_july_5_2025

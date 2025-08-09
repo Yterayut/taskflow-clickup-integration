@@ -1,0 +1,9 @@
+one-cli+ 2627170  0.0  0.0   7372  3560 ?        Ss   Jul06   0:00 bash -c cd /home/one-climate/team-workload && tail -f auth_backend.log | grep -E '(OAuth|ClickUp|token|error)'
+one-cli+ 2627171  0.0  0.0   5804  1016 ?        S    Jul06   0:00 tail -f auth_backend.log
+one-cli+ 2639989  0.0  0.0   7372  3636 ?        Ss   Jul06   0:00 bash -c cd /home/one-climate/team-workload && tail -f auth_backend.log | grep -E '(OAuth|ClickUp|token|exchange|State validated|Client secret|ECODE)'
+one-cli+ 2639990  0.0  0.0   5804  1056 ?        S    Jul06   0:00 tail -f auth_backend.log
+one-cli+ 2661239  0.1  0.9 1305716 78504 ?       Ssl  Jul06   2:06 node /home/one-climate/km-base/backend/src/app.js
+one-cli+ 2789237  0.0  0.0   7372   244 ?        S    12:11   0:00 bash -c cd /home/one-climate/team-workload && nohup node single_login_backend_with_sync.js > backend_token_migration_121109.log 2>&1 &
+one-cli+ 2789238  0.1  0.9 11790112 74484 ?      Sl   12:11   0:01 node single_login_backend_with_sync.js
+one-cli+ 2790550  0.0  0.0   7372  3620 ?        Ss   12:21   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/multi_persona_ultra_think_complete_enterprise_ready_v8_0/process_state.txt
+one-cli+ 2790552  0.0  0.0   6480  2320 ?        R    12:21   0:00 grep backend

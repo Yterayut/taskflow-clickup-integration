@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - หน้าแรก</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1.2rem;
+            margin: 0.5rem 0;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .link-btn {
+            background: none;
+            border: none;
+            color: #3b82f6;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+
+        .link-btn:hover {
+            color: #1d4ed8;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-weight: 500;
+            display: none;
+        }
+
+        .message.success {
+            background: #dcfce7;
+            color: #059669;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .message.info {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .message.warning {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .demo-users {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            text-align: left;
+        }
+
+        .demo-users-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-user {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .demo-user:hover {
+            background: #e5e7eb;
+        }
+
+        .demo-user-info {
+            flex: 1;
+        }
+
+        .demo-user-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .demo-user-role {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .demo-user-email {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .master-badge {
+            background: #fef3c7;
+            color: #d97706;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .setup-notice {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .kpi-card {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .kpi-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-label {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .data-indicator {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .data-real {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .data-setup-required {
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .activity-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-message {
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .activity-time {
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- หน้าแรก - Login -->
+        <div id="login-page">
+            <h1 class="title">📊 TaskFlow Pro</h1>
+            <p class="subtitle">ระบบจัดการทีมงานขั้นสูง</p>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">อีเมล</label>
+                    <input type="email" id="email" name="email" placeholder="กรอกอีเมลของคุณ" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">รหัสผ่าน</label>
+                    <input type="password" id="password" name="password" placeholder="กรอกรหัสผ่าน" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="login-btn">
+                    🔐 เข้าสู่ระบบ
+                </button>
+            </form>
+
+            <div class="message" id="login-message"></div>
+
+            <!-- ClickUp Setup Button (เฉพาะ Master User) -->
+            <button class="btn btn-secondary hidden" id="setup-clickup-btn">
+                🔗 ตั้งค่า ClickUp Integration (Master User)
+            </button>
+
+            <!-- Demo Users -->
+            <div class="demo-users">
+                <div class="demo-users-title">👥 ผู้ใช้ตัวอย่าง (คลิกเพื่อกรอกอัตโนมัติ)</div>
+                
+                <div class="demo-user" onclick="fillLogin('yterayut@gmail.com', '12345')">
+                    <div class="demo-user-info">
+                        <div class="demo-user-name">Teerayut Yeerahem</div>
+                        <div class="demo-user-role">ผู้จัดการ (Manager)</div>
+                        <div class="demo-user-email">yterayut@gmail.com</div>
+                    </div>
+                    <div class="master-badge">Master User</div>
+                </div>
+                
+                <div class="demo-user" onclick="fillLogin('chaiwutwck@gmail.com', '12345')">
+                    <div class="demo-user-info">
+                        <div class="demo-user-name">ชัยวุฒิ ไวเชิงค้า</div>
+                        <div class="demo-user-role">หัวหน้าทีม (Team Lead)</div>
+                        <div class="demo-user-email">chaiwutwck@gmail.com</div>
+                    </div>
+                </div>
+                
+                <div class="demo-user" onclick="fillLogin('kittipong@example.com', '12345')">
+                    <div class="demo-user-info">
+                        <div class="demo-user-name">กิตติพงษ์ สมศรี</div>
+                        <div class="demo-user-role">พนักงาน (Employee)</div>
+                        <div class="demo-user-email">kittipong@example.com</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; padding: 1.2rem; background: #f8fafc; border-radius: 12px; font-size: 0.9rem; color: #64748b; text-align: left;">
+                <strong>🚀 ฟีเจอร์ขั้นสูง:</strong><br />
+                ✅ ระบบควบคุมการเข้าถึงตามบทบาท<br />
+                ✅ เชื่อมต่อกับ ClickUp พร้อมใช้งาน<br />
+                ✅ วิเคราะห์ทีมแบบ Real-time<br />
+                ✅ จัดการภาระงานขั้นสูง<br />
+                ✅ ข้อมูลจริงจาก ClickUp เท่านั้น (ไม่มี Demo Data)
+            </div>
+        </div>
+
+        <!-- ClickUp Setup Form -->
+        <div id="setup-page" class="hidden">
+            <h1 class="title">🔗 ตั้งค่า ClickUp Integration</h1>
+            <p class="subtitle">เฉพาะ Master User เท่านั้น</p>
+            
+            <div class="form-group">
+                <label for="setup-email">Master User Email</label>
+                <input type="email" id="setup-email" value="yterayut@gmail.com" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label for="setup-password">รหัสผ่าน</label>
+                <input type="password" id="setup-password" placeholder="กรอกรหัสผ่านเพื่อยืนยัน" required>
+            </div>
+            
+            <button type="button" id="complete-setup-btn" class="btn btn-secondary">
+                ✅ ยืนยันการตั้งค่า ClickUp
+            </button>
+            
+            <button type="button" onclick="showLoginPage()" class="link-btn">
+                ← กลับหน้า Login
+            </button>
+
+            <div class="message" id="setup-message"></div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboard-page" class="hidden">
+            <!-- Dashboard content will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = '/api/v1';
+        let currentUser = null;
+        let sessionId = null;
+
+        // DOM Elements
+        const loginPage = document.getElementById('login-page');
+        const setupPage = document.getElementById('setup-page');
+        const dashboardPage = document.getElementById('dashboard-page');
+        const loginForm = document.getElementById('login-form');
+        const loginBtn = document.getElementById('login-btn');
+        const setupClickUpBtn = document.getElementById('setup-clickup-btn');
+        const completeSetupBtn = document.getElementById('complete-setup-btn');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const setupPasswordInput = document.getElementById('setup-password');
+
+        // Utility Functions
+        function showPage(pageId) {
+            loginPage.classList.add('hidden');
+            setupPage.classList.add('hidden');
+            dashboardPage.classList.add('hidden');
+            
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        function showLoginPage() {
+            showPage('login-page');
+        }
+
+        function showSetupPage() {
+            showPage('setup-page');
+        }
+
+        function showDashboardPage() {
+            showPage('dashboard-page');
+        }
+
+        function showMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `message ${type}`;
+            element.style.display = 'block';
+            
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        function fillLogin(email, password) {
+            emailInput.value = email;
+            passwordInput.value = password;
+        }
+
+        // Check for ClickUp callback
+        function checkForClickUpCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const setup = urlParams.get('setup');
+            
+            if (code && setup === 'master') {
+                showMessage('setup-message', 'ได้รับ Authorization จาก ClickUp แล้ว กรุณากรอกรหัสผ่านเพื่อยืนยัน', 'info');
+                showSetupPage();
+                sessionStorage.setItem('clickup_code', code);
+                window.history.replaceState({}, document.title, window.location.pathname);
+                return true;
+            }
+            return false;
+        }
+
+        // Authentication Functions
+        async function checkAuthStatus() {
+            const storedSessionId = localStorage.getItem('taskflow_session');
+            if (!storedSessionId) return false;
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/status`, {
+                    headers: {
+                        'Authorization': `Bearer ${storedSessionId}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authenticated) {
+                        sessionId = storedSessionId;
+                        currentUser = data.user;
+                        showDashboardPage();
+                        loadDashboardData();
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+            }
+
+            localStorage.removeItem('taskflow_session');
+            return false;
+        }
+
+        async function login(email, password) {
+            try {
+                loginBtn.disabled = true;
+                loginBtn.textContent = 'กำลังเข้าสู่ระบบ...';
+
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    sessionId = data.sessionId;
+                    currentUser = data.user;
+                    localStorage.setItem('taskflow_session', sessionId);
+                    
+                    showMessage('login-message', data.message, 'success');
+                    
+                    setTimeout(() => {
+                        showDashboardPage();
+                        loadDashboardData();
+                    }, 1000);
+                } else {
+                    showMessage('login-message', data.error || 'เข้าสู่ระบบไม่สำเร็จ', 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showMessage('login-message', 'เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = '🔐 เข้าสู่ระบบ';
+            }
+        }
+
+        async function startClickUpSetup() {
+            try {
+                setupClickUpBtn.disabled = true;
+                setupClickUpBtn.textContent = 'กำลังเชื่อมต่อ ClickUp...';
+
+                const response = await fetch(`${API_BASE}/auth/clickup/auth-url`);
+                const data = await response.json();
+
+                if (data.authorization_url) {
+                    window.location.href = data.authorization_url;
+                } else {
+                    throw new Error(data.error || 'ไม่สามารถเริ่มการตั้งค่า ClickUp ได้');
+                }
+            } catch (error) {
+                console.error('ClickUp setup error:', error);
+                showMessage('login-message', error.message, 'error');
+            } finally {
+                setupClickUpBtn.disabled = false;
+                setupClickUpBtn.textContent = '🔗 ตั้งค่า ClickUp Integration (Master User)';
+            }
+        }
+
+        async function completeClickUpSetup() {
+            const email = document.getElementById('setup-email').value;
+            const password = setupPasswordInput.value;
+            const code = sessionStorage.getItem('clickup_code');
+
+            if (!password) {
+                showMessage('setup-message', 'กรุณากรอกรหัสผ่าน', 'error');
+                return;
+            }
+
+            if (!code) {
+                showMessage('setup-message', 'ไม่พบ Authorization Code จาก ClickUp', 'error');
+                return;
+            }
+
+            try {
+                completeSetupBtn.disabled = true;
+                completeSetupBtn.textContent = 'กำลังตั้งค่า...';
+
+                const response = await fetch(`${API_BASE}/auth/clickup/setup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ code, email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('setup-message', 'ตั้งค่า ClickUp Integration สำเร็จ!', 'success');
+                    sessionStorage.removeItem('clickup_code');
+                    
+                    setTimeout(() => {
+                        showLoginPage();
+                        fillLogin(email, password);
+                    }, 2000);
+                } else {
+                    showMessage('setup-message', data.error || 'การตั้งค่าไม่สำเร็จ', 'error');
+                }
+            } catch (error) {
+                console.error('Setup error:', error);
+                showMessage('setup-message', 'เกิดข้อผิดพลาดในการตั้งค่า', 'error');
+            } finally {
+                completeSetupBtn.disabled = false;
+                completeSetupBtn.textContent = '✅ ยืนยันการตั้งค่า ClickUp';
+            }
+        }
+
+        async function loadDashboardData() {
+            try {
+                const response = await fetch(`${API_BASE}/dashboard`, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    renderDashboard(result.data);
+                } else if (result.requiresSetup) {
+                    showSetupRequired(result.master_user);
+                } else {
+                    showError(result.error || 'ไม่สามารถโหลดข้อมูล Dashboard ได้');
+                }
+            } catch (error) {
+                console.error('Dashboard load error:', error);
+                showError('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+            }
+        }
+
+        function renderDashboard(data) {
+            const roleDisplayName = {
+                'Manager': 'ผู้จัดการ',
+                'Team Lead': 'หัวหน้าทีม',
+                'Employee': 'พนักงาน'
+            };
+
+            const dataSourceText = data.source === 'real-clickup-data' 
+                ? `🟢 ข้อมูลจริงจาก ClickUp (มุมมอง${data.filtered_by_role})`
+                : `🔴 ต้องการการตั้งค่า ClickUp`;
+
+            const dataSourceClass = data.source === 'real-clickup-data' ? 'data-real' : 'data-setup-required';
+
+            dashboardPage.innerHTML = `
+                <div class="dashboard-container">
+                    <div class="dashboard-header">
+                        <h1 style="color: #1f2937; margin-bottom: 0.5rem;">สวัสดี, ${data.user.name}! 👋</h1>
+                        <p style="color: #64748b; margin-bottom: 1rem;">บทบาท: ${roleDisplayName[data.user.role] || data.user.role}</p>
+                        <div class="data-indicator ${dataSourceClass}">${dataSourceText}</div>
+                        <button onclick="logout()" style="padding: 0.5rem 1rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer;">🚪 ออกจากระบบ</button>
+                        ${data.user.isMasterUser && !data.user.hasClickUpData ? `
+                            <button onclick="startClickUpSetupFromDashboard()" style="margin-left: 0.5rem; padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer;">🔗 ตั้งค่า ClickUp</button>
+                        ` : ''}
+                    </div>
+
+                    <div class="dashboard-content">
+                        <div class="dashboard-card">
+                            <h3 style="color: #1f2937; margin-bottom: 1rem;">📊 สถิติการทำงาน</h3>
+                            <div class="kpi-grid">
+                                <div class="kpi-card">
+                                    <div class="kpi-value">${data.kpis.totalTasks}</div>
+                                    <div class="kpi-label">งานทั้งหมด</div>
+                                </div>
+                                <div class="kpi-card">
+                                    <div class="kpi-value">${data.kpis.completedTasks}</div>
+                                    <div class="kpi-label">งานเสร็จแล้ว</div>
+                                </div>
+                                <div class="kpi-card">
+                                    <div class="kpi-value">${data.kpis.inProgressTasks}</div>
+                                    <div class="kpi-label">กำลังดำเนินการ</div>
+                                </div>
+                                <div class="kpi-card">
+                                    <div class="kpi-value">${data.kpis.overdueTasks}</div>
+                                    <div class="kpi-label">เกินกำหนด</div>
+                                </div>
+                                ${data.user.role === 'Manager' ? `
+                                <div class="kpi-card">
+                                    <div class="kpi-value">${data.kpis.teamMembers}</div>
+                                    <div class="kpi-label">สมาชิกทีม</div>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <h3 style="color: #1f2937; margin-bottom: 1rem;">📋 กิจกรรมล่าสุด</h3>
+                            <div class="activity-list">
+                                ${data.recentActivities && data.recentActivities.length > 0 ? 
+                                    data.recentActivities.map(activity => `
+                                        <div class="activity-item">
+                                            <div class="activity-message">${activity.message}</div>
+                                            <div class="activity-time">${activity.time}</div>
+                                        </div>
+                                    `).join('') :
+                                    '<div style="text-align: center; color: #64748b; padding: 2rem;">ไม่มีกิจกรรมล่าสุด</div>'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showSetupRequired(masterUser) {
+            dashboardPage.innerHTML = `
+                <div class="dashboard-container">
+                    <div class="dashboard-header">
+                        <h1 style="color: #1f2937; margin-bottom: 0.5rem;">สวัสดี, ${currentUser.name}! 👋</h1>
+                        <p style="color: #64748b; margin-bottom: 1rem;">บทบาท: ${currentUser.role}</p>
+                        <button onclick="logout()" style="padding: 0.5rem 1rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer;">🚪 ออกจากระบบ</button>
+                    </div>
+
+                    <div class="setup-notice">
+                        <h3 style="margin-bottom: 1rem;">⚠️ ต้องการการตั้งค่า ClickUp Integration</h3>
+                        <p>กรุณาให้ Master User (${masterUser}) ทำการตั้งค่า ClickUp Integration ก่อนเพื่อเข้าถึงข้อมูลจริง</p>
+                        ${currentUser.isMasterUser ? `
+                            <button onclick="startClickUpSetupFromDashboard()" style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer;">🔗 ตั้งค่า ClickUp Integration</button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            dashboardPage.innerHTML = `
+                <div class="dashboard-container">
+                    <div class="dashboard-header" style="text-align: center;">
+                        <h2 style="color: #ef4444; margin-bottom: 1rem;">⚠️ เกิดข้อผิดพลาด</h2>
+                        <p style="color: #64748b; margin-bottom: 1rem;">${message}</p>
+                        <button onclick="logout()" style="padding: 0.5rem 1rem; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer;">🔙 กลับหน้าแรก</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function startClickUpSetupFromDashboard() {
+            showLoginPage();
+            setupClickUpBtn.classList.remove('hidden');
+            startClickUpSetup();
+        }
+
+        function logout() {
+            sessionId = null;
+            currentUser = null;
+            localStorage.removeItem('taskflow_session');
+            showLoginPage();
+            loginForm.reset();
+            setupClickUpBtn.classList.add('hidden');
+        }
+
+        // Event Listeners
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            if (email && password) {
+                login(email, password);
+            }
+        });
+
+        setupClickUpBtn.addEventListener('click', startClickUpSetup);
+        completeSetupBtn.addEventListener('click', completeClickUpSetup);
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check for ClickUp callback first
+            if (checkForClickUpCallback()) {
+                return;
+            }
+
+            // Check if user is already logged in
+            const isAuthenticated = await checkAuthStatus();
+            if (!isAuthenticated) {
+                showLoginPage();
+            }
+        });
+
+        // Show setup button for master user after login
+        function updateLoginPageForUser(user) {
+            if (user && user.isMasterUser && !user.hasClickUpData) {
+                setupClickUpBtn.classList.remove('hidden');
+            } else {
+                setupClickUpBtn.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

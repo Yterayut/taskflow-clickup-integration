@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - API Debug</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f9fafb;
+            color: #111827;
+            line-height: 1.5;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            margin-right: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #059669;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #d97706;
+            color: white;
+        }
+        
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .status.success {
+            background: #dcfce7;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        .status.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #2563eb;
+        }
+        
+        pre {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .endpoint {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-family: monospace;
+            display: inline-block;
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>📊 TaskFlow Pro - API Debug Tool</h1>
+    
+    <div class="card">
+        <h2>🔧 Backend Status</h2>
+        <div id="backendStatus" class="status info">Checking...</div>
+        <button class="btn btn-primary" onclick="checkBackend()">🔄 Check Backend</button>
+    </div>
+    
+    <div class="card">
+        <h2>🔐 Authentication Status</h2>
+        <div id="authStatus" class="status info">Checking...</div>
+        <button class="btn btn-primary" onclick="checkAuth()">🔍 Check Auth</button>
+        <button class="btn btn-warning" onclick="connectClickUp()">🔗 Connect ClickUp</button>
+    </div>
+    
+    <div class="card">
+        <h2>📊 Data Endpoints</h2>
+        <div id="dataStatus" class="status info">Ready to test</div>
+        <button class="btn btn-success" onclick="testMockData()">🧪 Test Mock Data</button>
+        <button class="btn btn-primary" onclick="testRealData()">📡 Test Real Data</button>
+    </div>
+    
+    <div class="card">
+        <h2>📋 Available Endpoints</h2>
+        <p><strong>Backend Health:</strong> <span class="endpoint">GET /health</span></p>
+        <p><strong>Auth Status:</strong> <span class="endpoint">GET /auth/status</span></p>
+        <p><strong>ClickUp OAuth:</strong> <span class="endpoint">GET /auth/clickup</span></p>
+        <p><strong>Mock Data:</strong> <span class="endpoint">GET /api/v1/test/clickup-data</span></p>
+        <p><strong>Real Data:</strong> <span class="endpoint">GET /api/v1/clickup-data</span></p>
+    </div>
+    
+    <div class="card">
+        <h2>📄 Response Data</h2>
+        <pre id="responseData">Click a test button to see API responses here...</pre>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://192.168.20.10:777';
+        
+        function updateStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+        }
+        
+        function updateResponse(data) {
+            document.getElementById('responseData').textContent = JSON.stringify(data, null, 2);
+        }
+        
+        async function checkBackend() {
+            updateStatus('backendStatus', 'Checking backend...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('backendStatus', `✅ Backend Online - ${data.service} v${data.version}`, 'success');
+                    updateResponse(data);
+                } else {
+                    updateStatus('backendStatus', `❌ Backend Error: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                updateStatus('backendStatus', `❌ Connection Failed: ${error.message}`, 'error');
+                updateResponse({ error: error.message });
+            }
+        }
+        
+        async function checkAuth() {
+            updateStatus('authStatus', 'Checking authentication...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/status`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (data.authenticated) {
+                    updateStatus('authStatus', `✅ Authenticated as ${data.user.username}`, 'success');
+                } else {
+                    updateStatus('authStatus', '🔓 Not authenticated - Demo mode available', 'info');
+                }
+                updateResponse(data);
+            } catch (error) {
+                updateStatus('authStatus', `❌ Auth Check Failed: ${error.message}`, 'error');
+                updateResponse({ error: error.message });
+            }
+        }
+        
+        async function testMockData() {
+            updateStatus('dataStatus', 'Testing mock data...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/v1/test/clickup-data`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    updateStatus('dataStatus', `✅ Mock Data: ${data.data.tasks.length} tasks, ${data.data.teams.length} teams`, 'success');
+                    updateResponse(data);
+                } else {
+                    updateStatus('dataStatus', `❌ Mock Data Failed`, 'error');
+                }
+            } catch (error) {
+                updateStatus('dataStatus', `❌ Mock Data Error: ${error.message}`, 'error');
+                updateResponse({ error: error.message });
+            }
+        }
+        
+        async function testRealData() {
+            updateStatus('dataStatus', 'Testing real ClickUp data...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/v1/clickup-data`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    updateStatus('dataStatus', `✅ Real Data: ${data.data.tasks.length} tasks, ${data.data.teams.length} teams`, 'success');
+                    updateResponse(data);
+                } else if (response.status === 401) {
+                    updateStatus('dataStatus', '🔐 Need to authenticate with ClickUp first', 'info');
+                    updateResponse(data);
+                } else {
+                    updateStatus('dataStatus', `❌ Real Data Failed: ${data.error}`, 'error');
+                    updateResponse(data);
+                }
+            } catch (error) {
+                updateStatus('dataStatus', `❌ Real Data Error: ${error.message}`, 'error');
+                updateResponse({ error: error.message });
+            }
+        }
+        
+        function connectClickUp() {
+            window.location.href = `${API_BASE_URL}/auth/clickup`;
+        }
+        
+        // Auto-run checks on page load
+        window.addEventListener('load', function() {
+            checkBackend();
+            checkAuth();
+        });
+    </script>
+</body>
+</html>

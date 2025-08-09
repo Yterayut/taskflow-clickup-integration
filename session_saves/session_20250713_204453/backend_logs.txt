@@ -1,0 +1,50 @@
+Warning: connect.session() MemoryStore is not
+designed for a production environment, as it will leak
+memory, and will not scale past a single process.
+🚀 TaskFlow Backend (COMPREHENSIVE ENHANCED) running on port 7810
+🔗 Health check: http://localhost:7810/health
+🔐 ClickUp OAuth: http://localhost:7810/auth/clickup
+📊 COMPREHENSIVE ClickUp Data: http://localhost:7810/api/v1/clickup-data
+👥 Employee Management: http://localhost:7810/api/v1/employees
+📋 Task Management: http://localhost:7810/api/v1/tasks
+❌ Mock data: DISABLED - Real ClickUp only!
+📋 OAuth Config:
+   Client ID: F9M7XRHB7T6Q78ZVL5077IT2HM89KTK5
+   Redirect URI: http://192.168.20.10:7810/
+🎯 Enhanced Features:
+   - Comprehensive data fetching (Teams > Spaces > Folders > Lists > Tasks)
+   - Employee Management (CRUD operations)
+   - Task Management (Local + ClickUp integration)
+   - Auto/Manual updates (30-minute intervals)
+   - Dark Mode support for all roles
+   - Fully functional components with edit capabilities
+   - English-only interface
+   - Ranking & Scoring system for performance metrics
+   - Pagination support for large task lists
+   - Retry logic for API calls
+   - Complete workspace structure mapping
+Warning: connect.session() MemoryStore is not
+designed for a production environment, as it will leak
+memory, and will not scale past a single process.
+🚀 TaskFlow Backend (COMPREHENSIVE ENHANCED) running on port 7810
+🔗 Health check: http://localhost:7810/health
+🔐 ClickUp OAuth: http://localhost:7810/auth/clickup
+📊 COMPREHENSIVE ClickUp Data: http://localhost:7810/api/v1/clickup-data
+👥 Employee Management: http://localhost:7810/api/v1/employees
+📋 Task Management: http://localhost:7810/api/v1/tasks
+❌ Mock data: DISABLED - Real ClickUp only!
+📋 OAuth Config:
+   Client ID: F9M7XRHB7T6Q78ZVL5077IT2HM89KTK5
+   Redirect URI: http://192.168.20.10:7810/
+🎯 Enhanced Features:
+   - Comprehensive data fetching (Teams > Spaces > Folders > Lists > Tasks)
+   - Employee Management (CRUD operations)
+   - Task Management (Local + ClickUp integration)
+   - Auto/Manual updates (30-minute intervals)
+   - Dark Mode support for all roles
+   - Fully functional components with edit capabilities
+   - English-only interface
+   - Ranking & Scoring system for performance metrics
+   - Pagination support for large task lists
+   - Retry logic for API calls
+   - Complete workspace structure mapping

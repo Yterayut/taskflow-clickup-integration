@@ -1,0 +1,5 @@
+one-cli+ 2280457  0.1  0.9 1305460 78424 ?       Ssl  Jul05   2:08 node /home/one-climate/km-base/backend/src/app.js
+one-cli+ 2486264  0.0  0.0   7372  1896 ?        S    Jul05   0:00 bash -c cd /home/one-climate/team-workload && node single_login_backend.js > auth_backend_test.log 2>&1 & sleep 5 && curl -s http://localhost:7812/health | jq .status
+one-cli+ 2486266  0.0  0.9 11787724 73760 ?      Sl   Jul05   0:01 node single_login_backend.js
+one-cli+ 2488553  0.0  0.0   7372  3680 ?        Ss   00:17   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/hybrid_auth_production_complete_july_5_2025/process_state.txt
+one-cli+ 2488555  0.0  0.0   6480  2332 ?        R    00:17   0:00 grep backend

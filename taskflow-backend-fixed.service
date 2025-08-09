@@ -1,0 +1,19 @@
+[Unit]
+Description=TaskFlow Pro Backend Service - Redis Cache Enhanced
+After=network.target redis-server.service
+
+[Service]
+Type=simple
+User=one-climate
+WorkingDirectory=/var/www/taskflow
+ExecStart=/usr/bin/node single_login_backend.js
+Restart=always
+RestartSec=10
+Environment=NODE_ENV=production
+
+# Logging
+StandardOutput=append:/var/www/taskflow/backend.log
+StandardError=append:/var/www/taskflow/backend.log
+
+[Install]
+WantedBy=multi-user.target

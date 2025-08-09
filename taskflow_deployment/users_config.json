@@ -1,0 +1,109 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "yterayut@gmail.com",
+      "password": "12345",
+      "name": "Teerayut Yeerahem",
+      "role": "Manager",
+      "permissions": ["dashboard", "analytics", "team", "projects", "reports", "settings"]
+    },
+    {
+      "id": 2,
+      "email": "chaiwutwck@gmail.com",
+      "password": "12345",
+      "name": "ชัยวุฒิ ไวเชิงค้า",
+      "role": "Team Lead",
+      "permissions": ["dashboard", "analytics", "team", "projects", "reports"]
+    },
+    {
+      "id": 3,
+      "email": "somchai@example.com",
+      "password": "12345",
+      "name": "สมชาย วงษ์สวัสดิ์",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    },
+    {
+      "id": 4,
+      "email": "siriporn@example.com",
+      "password": "12345",
+      "name": "ศิริพร แสงทอง",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    },
+    {
+      "id": 5,
+      "email": "kittipong@example.com",
+      "password": "12345",
+      "name": "กิตติพงษ์ สมศรี",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    },
+    {
+      "id": 6,
+      "email": "nangnoi@example.com",
+      "password": "12345",
+      "name": "นางน้อย บุญมา",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    },
+    {
+      "id": 7,
+      "email": "preecha@example.com",
+      "password": "12345",
+      "name": "ปรีชา กิจเจริญ",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    },
+    {
+      "id": 8,
+      "email": "malee@example.com",
+      "password": "12345",
+      "name": "มาลี เรืองแสง",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    },
+    {
+      "id": 9,
+      "email": "wichai@example.com",
+      "password": "12345",
+      "name": "วิชัย ปัญญาดี",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    },
+    {
+      "id": 10,
+      "email": "somporn@example.com",
+      "password": "12345",
+      "name": "สมพร สุขใส",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    },
+    {
+      "id": 11,
+      "email": "thanakit@example.com",
+      "password": "12345",
+      "name": "ธนกิต วีรภาพ",
+      "role": "Employee",
+      "permissions": ["dashboard", "team", "projects"]
+    }
+  ],
+  "roles": {
+    "Manager": {
+      "description": "Full system access with administrative privileges",
+      "permissions": ["dashboard", "analytics", "team", "projects", "reports", "settings"],
+      "level": 3
+    },
+    "Team Lead": {
+      "description": "Team management with limited administrative access",
+      "permissions": ["dashboard", "analytics", "team", "projects", "reports"],
+      "level": 2
+    },
+    "Employee": {
+      "description": "Basic access to view tasks and team information",
+      "permissions": ["dashboard", "team", "projects"],
+      "level": 1
+    }
+  }
+}

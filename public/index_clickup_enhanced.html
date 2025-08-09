@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - ClickUp Integration Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Enhanced Dark Mode CSS Variables */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            --border-primary: #e5e7eb;
+            --border-secondary: #d1d5db;
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1d4ed8;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --bg-tertiary: #374151;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-tertiary: #9ca3af;
+            --border-primary: #374151;
+            --border-secondary: #4b5563;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-primary);
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2563eb;
+            margin-right: 48px;
+        }
+        
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .auth-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: var(--bg-tertiary);
+        }
+        
+        .auth-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .auth-indicator.connected {
+            background: var(--success-green);
+        }
+        
+        .auth-indicator.disconnected {
+            background: var(--danger-red);
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-primary);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-top: 64px;
+            padding: 32px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Authentication Modal */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .auth-modal-content {
+            background: var(--bg-primary);
+            padding: 40px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid var(--border-primary);
+        }
+        
+        .clickup-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, #7b68ee 0%, #ff6b6b 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+        }
+        
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .kpi-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-primary);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .kpi-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .kpi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 16px;
+        }
+        
+        .kpi-icon.tasks {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        
+        .kpi-icon.completed {
+            background: #dcfce7;
+            color: #059669;
+        }
+        
+        .kpi-icon.overdue {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .kpi-icon.utilization {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .kpi-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        
+        .kpi-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        /* Team Grid */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .employee-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-primary);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        
+        .employee-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .employee-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .employee-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            margin-right: 16px;
+        }
+        
+        .employee-info h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        
+        .employee-info p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .task-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        .task-stat {
+            text-align: center;
+        }
+        
+        .task-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        
+        .task-stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Loading States */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            text-align: center;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--border-primary);
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 24px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Status Messages */
+        .status-message {
+            padding: 16px 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .status-message.success {
+            background: #dcfce7;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .status-message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        .status-message.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #2563eb;
+        }
+        
+        /* Dark mode specific styles */
+        [data-theme="dark"] .kpi-card,
+        [data-theme="dark"] .employee-card,
+        [data-theme="dark"] .auth-modal-content {
+            background: var(--bg-primary);
+            border-color: var(--border-primary);
+        }
+        
+        [data-theme="dark"] .kpi-value,
+        [data-theme="dark"] .employee-info h3,
+        [data-theme="dark"] .task-stat-value {
+            color: var(--text-primary);
+        }
+        
+        [data-theme="dark"] .status-message.success {
+            background: #064e3b;
+            color: #a7f3d0;
+        }
+        
+        [data-theme="dark"] .status-message.error {
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+        
+        [data-theme="dark"] .status-message.info {
+            background: #1e3a8a;
+            color: #93c5fd;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">📊 TaskFlow Pro</div>
+        
+        <div class="header-actions">
+            <div class="auth-status" id="authStatus">
+                <div class="auth-indicator disconnected" id="authIndicator"></div>
+                <span id="authText">Not Connected</span>
+            </div>
+            
+            <button class="btn btn-secondary" onclick="toggleDarkMode()" id="themeToggle">
+                <span id="themeIcon">🌙</span> Dark Mode
+            </button>
+            
+            <button class="btn btn-primary" onclick="connectClickUp()" id="connectBtn">
+                🔗 Connect ClickUp
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Status Message -->
+        <div id="statusMessage" style="display: none;"></div>
+        
+        <!-- Authentication Modal -->
+        <div class="auth-modal" id="authModal">
+            <div class="auth-modal-content">
+                <div class="clickup-logo">📋</div>
+                <h2 style="margin-bottom: 16px; color: var(--text-primary);">Connect to ClickUp</h2>
+                <p style="margin-bottom: 24px; color: var(--text-secondary);">
+                    Connect your ClickUp account to sync real project data and team information.
+                </p>
+                <button class="btn btn-primary" onclick="initiateClickUpAuth()" style="margin-right: 12px;">
+                    🚀 Connect ClickUp Account
+                </button>
+                <button class="btn btn-secondary" onclick="closeAuthModal()">
+                    Cancel
+                </button>
+            </div>
+        </div>
+        
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-state" style="display: none;">
+            <div class="loading-spinner"></div>
+            <h3 style="color: var(--text-primary); margin-bottom: 8px;">Loading ClickUp Data</h3>
+            <p style="color: var(--text-secondary);">Syncing your projects and tasks...</p>
+        </div>
+        
+        <!-- Dashboard Content -->
+        <div id="dashboardContent" style="display: none;">
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon tasks">📋</div>
+                        <div>
+                            <div class="kpi-value" id="totalTasks">0</div>
+                            <div class="kpi-label">Total Tasks</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon completed">✅</div>
+                        <div>
+                            <div class="kpi-value" id="completedTasks">0</div>
+                            <div class="kpi-label">Completed</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon overdue">⚠️</div>
+                        <div>
+                            <div class="kpi-value" id="overdueTasks">0</div>
+                            <div class="kpi-label">Overdue</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-icon utilization">📊</div>
+                        <div>
+                            <div class="kpi-value" id="completionRate">0%</div>
+                            <div class="kpi-label">Completion Rate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team Grid -->
+            <div class="team-grid" id="teamGrid">
+                <!-- Team members will be populated here -->
+            </div>
+            
+            <!-- Data Source Info -->
+            <div id="dataSourceInfo" style="text-align: center; margin-top: 32px; color: var(--text-secondary); font-size: 14px;">
+                <!-- Data source information will appear here -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'http://192.168.20.10:777';
+        
+        // Global variables
+        let clickUpData = null;
+        let isAuthenticated = false;
+        let currentUser = null;
+        
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTheme();
+            checkAuthenticationStatus();
+        });
+        
+        // Theme Management
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (savedTheme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeToggle.innerHTML = '<span id="themeIcon">☀️</span> Light Mode';
+            }
+        }
+        
+        function toggleDarkMode() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (newTheme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeToggle.innerHTML = '<span id="themeIcon">☀️</span> Light Mode';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeToggle.innerHTML = '<span id="themeIcon">🌙</span> Dark Mode';
+            }
+        }
+        
+        // Authentication Management
+        async function checkAuthenticationStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/status`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (data.authenticated) {
+                    setAuthenticationStatus(true, data.user);
+                    await loadClickUpData();
+                } else {
+                    setAuthenticationStatus(false);
+                    showAuthModal();
+                }
+            } catch (error) {
+                console.error('Error checking auth status:', error);
+                setAuthenticationStatus(false);
+                showStatusMessage('Connection error. Please check your network.', 'error');
+            }
+        }
+        
+        function setAuthenticationStatus(authenticated, user = null) {
+            isAuthenticated = authenticated;
+            currentUser = user;
+            
+            const authIndicator = document.getElementById('authIndicator');
+            const authText = document.getElementById('authText');
+            const connectBtn = document.getElementById('connectBtn');
+            
+            if (authenticated && user) {
+                authIndicator.className = 'auth-indicator connected';
+                authText.textContent = `Connected as ${user.username}`;
+                connectBtn.innerHTML = '🔄 Refresh Data';
+                connectBtn.onclick = () => loadClickUpData();
+            } else {
+                authIndicator.className = 'auth-indicator disconnected';
+                authText.textContent = 'Not Connected';
+                connectBtn.innerHTML = '🔗 Connect ClickUp';
+                connectBtn.onclick = () => connectClickUp();
+            }
+        }
+        
+        function connectClickUp() {
+            if (isAuthenticated) {
+                loadClickUpData();
+            } else {
+                showAuthModal();
+            }
+        }
+        
+        function showAuthModal() {
+            document.getElementById('authModal').style.display = 'flex';
+        }
+        
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
+        
+        function initiateClickUpAuth() {
+            window.location.href = `${API_BASE_URL}/auth/clickup`;
+        }
+        
+        // Data Loading
+        async function loadClickUpData() {
+            try {
+                showLoadingState();
+                
+                const response = await fetch(`${API_BASE_URL}/api/v1/clickup-data`, {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        setAuthenticationStatus(false);
+                        showAuthModal();
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    clickUpData = result.data;
+                    console.log('ClickUp data loaded:', clickUpData);
+                    
+                    populateDashboard(clickUpData);
+                    showDashboard();
+                    showStatusMessage('✅ Real data loaded from ClickUp successfully!', 'success');
+                } else {
+                    throw new Error(result.error || 'Invalid response format');
+                }
+                
+            } catch (error) {
+                console.error('Error loading ClickUp data:', error);
+                hideLoadingState();
+                showStatusMessage(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // UI State Management
+        function showLoadingState() {
+            document.getElementById('loadingState').style.display = 'flex';
+            document.getElementById('dashboardContent').style.display = 'none';
+        }
+        
+        function hideLoadingState() {
+            document.getElementById('loadingState').style.display = 'none';
+        }
+        
+        function showDashboard() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('dashboardContent').style.display = 'block';
+        }
+        
+        function showStatusMessage(message, type) {
+            const statusMessage = document.getElementById('statusMessage');
+            statusMessage.className = `status-message ${type}`;
+            statusMessage.innerHTML = message;
+            statusMessage.style.display = 'flex';
+            
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Dashboard Population
+        function populateDashboard(data) {
+            // Update KPIs
+            const workload = data.workload || {};
+            document.getElementById('totalTasks').textContent = workload.totalTasks || 0;
+            document.getElementById('completedTasks').textContent = workload.completedTasks || 0;
+            document.getElementById('overdueTasks').textContent = workload.overdueTasks || 0;
+            
+            const completionRate = workload.totalTasks > 0 
+                ? Math.round((workload.completedTasks / workload.totalTasks) * 100)
+                : 0;
+            document.getElementById('completionRate').textContent = `${completionRate}%`;
+            
+            // Update team grid
+            populateTeamGrid(data);
+            
+            // Update data source info
+            const dataSourceInfo = document.getElementById('dataSourceInfo');
+            dataSourceInfo.innerHTML = `
+                📊 Data Source: ${data.source || 'ClickUp API'}<br>
+                🕐 Last Updated: ${new Date(data.fetched_at || Date.now()).toLocaleString('th-TH')}<br>
+                👥 Teams: ${data.teams ? data.teams.length : 0} | 📋 Tasks: ${data.tasks ? data.tasks.length : 0}
+            `;
+        }
+        
+        function populateTeamGrid(data) {
+            const teamGrid = document.getElementById('teamGrid');
+            const tasks = data.tasks || [];
+            
+            if (tasks.length === 0) {
+                teamGrid.innerHTML = `
+                    <div class="employee-card" style="grid-column: 1 / -1; text-align: center;">
+                        <h3 style="color: var(--text-secondary);">No tasks found</h3>
+                        <p style="color: var(--text-tertiary);">Connect your ClickUp account to see your team's tasks</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Group tasks by assignee
+            const assigneeMap = new Map();
+            
+            tasks.forEach(task => {
+                if (task.assignees && task.assignees.length > 0) {
+                    task.assignees.forEach(assignee => {
+                        if (!assigneeMap.has(assignee.id)) {
+                            assigneeMap.set(assignee.id, {
+                                id: assignee.id,
+                                username: assignee.username,
+                                email: assignee.email,
+                                tasks: [],
+                                completedTasks: 0,
+                                inProgressTasks: 0,
+                                overdueTasks: 0
+                            });
+                        }
+                        
+                        const assigneeData = assigneeMap.get(assignee.id);
+                        assigneeData.tasks.push(task);
+                        
+                        const status = task.status?.status?.toLowerCase() || '';
+                        if (status.includes('complete') || status.includes('done')) {
+                            assigneeData.completedTasks++;
+                        } else if (status.includes('progress')) {
+                            assigneeData.inProgressTasks++;
+                        }
+                        
+                        if (task.due_date && parseInt(task.due_date) < Date.now()) {
+                            assigneeData.overdueTasks++;
+                        }
+                    });
+                }
+            });
+            
+            if (assigneeMap.size === 0) {
+                teamGrid.innerHTML = `
+                    <div class="employee-card" style="grid-column: 1 / -1; text-align: center;">
+                        <h3 style="color: var(--text-secondary);">No assigned tasks found</h3>
+                        <p style="color: var(--text-tertiary);">Tasks may not have assignees or may be unassigned</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const assigneeCards = Array.from(assigneeMap.values()).map(assignee => {
+                const avatar = assignee.username ? assignee.username.charAt(0).toUpperCase() : '👤';
+                const totalTasks = assignee.tasks.length;
+                
+                return `
+                    <div class="employee-card">
+                        <div class="employee-header">
+                            <div class="employee-avatar">${avatar}</div>
+                            <div class="employee-info">
+                                <h3>${assignee.username || 'Unknown User'}</h3>
+                                <p>${assignee.email || 'No email'}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="task-stats">
+                            <div class="task-stat">
+                                <div class="task-stat-value">${totalTasks}</div>
+                                <div class="task-stat-label">Total</div>
+                            </div>
+                            <div class="task-stat">
+                                <div class="task-stat-value" style="color: var(--success-green)">${assignee.completedTasks}</div>
+                                <div class="task-stat-label">Done</div>
+                            </div>
+                            <div class="task-stat">
+                                <div class="task-stat-value" style="color: var(--warning-orange)">${assignee.inProgressTasks}</div>
+                                <div class="task-stat-label">In Progress</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            teamGrid.innerHTML = assigneeCards.join('');
+        }
+        
+        // Handle authentication callback
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('auth') === 'success') {
+                showStatusMessage('✅ Successfully connected to ClickUp!', 'success');
+                // Clean up URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+                // Refresh auth status
+                setTimeout(() => checkAuthenticationStatus(), 1000);
+            }
+        });
+    </script>
+</body>
+</html>

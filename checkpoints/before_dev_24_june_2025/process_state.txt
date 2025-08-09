@@ -1,0 +1,4 @@
+one-cli+  311760  0.0  0.0   7372   248 ?        S    00:45   0:00 bash -c cd /home/one-climate/team-workload && nohup node backend_comprehensive_enhanced.js > backend_enhanced.log 2>&1 &
+one-cli+  311761  0.0  0.9 11787340 74652 ?      Sl   00:45   0:02 node backend_comprehensive_enhanced.js
+one-cli+  374137  0.0  0.0   7372  3696 ?        Ss   10:28   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/before_dev_24_june_2025/process_state.txt
+one-cli+  374139  0.0  0.0   6612  2324 ?        S    10:28   0:00 grep backend

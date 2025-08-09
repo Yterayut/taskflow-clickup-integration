@@ -1,0 +1,93 @@
+{
+  "name": "taskflow-pro-spa",
+  "version": "2.2.0",
+  "description": "TaskFlow Pro - Modern React SPA Frontend",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.1",
+    "@reduxjs/toolkit": "^1.9.3",
+    "react-redux": "^8.0.5",
+    "@tanstack/react-query": "^4.24.6",
+    "antd": "^5.2.1",
+    "@ant-design/icons": "^5.0.1",
+    "styled-components": "^5.3.6",
+    "axios": "^1.3.4",
+    "dayjs": "^1.11.7",
+    "lodash": "^4.17.21",
+    "recharts": "^2.5.0",
+    "react-hook-form": "^7.43.1",
+    "@hookform/resolvers": "^2.9.11",
+    "yup": "^1.0.0",
+    "socket.io-client": "^4.6.1",
+    "react-hotkeys-hook": "^4.3.8",
+    "react-virtualized-auto-sizer": "^1.0.20",
+    "react-window": "^1.8.8",
+    "react-intersection-observer": "^9.4.3",
+    "framer-motion": "^10.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@types/lodash": "^4.14.191",
+    "@types/react-window": "^1.8.5",
+    "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "@typescript-eslint/parser": "^5.54.0",
+    "@vitejs/plugin-react": "^3.1.0",
+    "typescript": "^4.9.5",
+    "vite": "^4.1.4",
+    "vitest": "^0.28.5",
+    "@vitest/ui": "^0.28.5",
+    "c8": "^7.13.0",
+    "eslint": "^8.35.0",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.3.4",
+    "@storybook/react": "^7.0.0-beta.38",
+    "@storybook/react-vite": "^7.0.0-beta.38",
+    "@storybook/addon-essentials": "^7.0.0-beta.38",
+    "@storybook/addon-interactions": "^7.0.0-beta.38",
+    "@storybook/addon-links": "^7.0.0-beta.38",
+    "@storybook/testing-library": "^0.1.0",
+    "msw": "^1.1.0",
+    "prettier": "^2.8.4",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.1.2"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

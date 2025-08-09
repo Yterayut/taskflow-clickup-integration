@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - Team Management Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Dark Mode CSS Variables */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            --border-primary: #e5e7eb;
+            --border-secondary: #d1d5db;
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1d4ed8;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --bg-tertiary: #374151;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-tertiary: #9ca3af;
+            --border-primary: #374151;
+            --border-secondary: #4b5563;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Login Page Styles */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-logo {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 12px 24px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-bottom: 16px;
+        }
+
+        .login-button:hover {
+            background: var(--primary-blue-dark);
+        }
+
+        .login-button:disabled {
+            background: var(--text-tertiary);
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .success-message {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .demo-users {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-primary);
+        }
+
+        .demo-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .demo-user {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .demo-user:hover {
+            background: var(--border-primary);
+        }
+
+        .demo-user-info {
+            text-align: left;
+        }
+
+        .demo-user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .demo-user-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .demo-user-email {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        /* Main Dashboard Styles (hidden by default) */
+        .main-app {
+            display: none;
+        }
+
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-primary);
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-right: 48px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-role {
+            font-size: 14px;
+            color: var(--text-secondary);
+            background: var(--bg-tertiary);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .logout-button {
+            padding: 8px 16px;
+            background: var(--danger-red);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .logout-button:hover {
+            background: #dc2626;
+        }
+
+        .main-content {
+            margin-top: 64px;
+            padding: 32px;
+            min-height: calc(100vh - 64px);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-primary);
+        }
+
+        .kpi-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .kpi-change {
+            font-size: 14px;
+            color: var(--success-green);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .activities-list {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            border: 1px solid var(--border-primary);
+            overflow: hidden;
+        }
+
+        .activity-item {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-message {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .activity-time {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-card {
+                padding: 24px;
+                margin: 16px;
+            }
+            
+            .header {
+                padding: 0 16px;
+            }
+            
+            .main-content {
+                padding: 16px;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="login-logo">TaskFlow Pro</div>
+            <div class="login-subtitle">Team Management Dashboard</div>
+            
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            <div id="successMessage" class="success-message" style="display: none;"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <input type="email" id="email" class="form-input" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" id="loginButton" class="login-button">
+                    Sign In
+                </button>
+            </form>
+            
+            <div class="demo-users">
+                <div class="demo-title">Demo Users (Click to Auto-fill)</div>
+                
+                <div class="demo-user" onclick="fillLogin('yterayut@gmail.com', '12345')">
+                    <div class="demo-user-info">
+                        <div class="demo-user-name">Teerayut Yeerahem</div>
+                        <div class="demo-user-role">Manager</div>
+                        <div class="demo-user-email">yterayut@gmail.com</div>
+                    </div>
+                </div>
+                
+                <div class="demo-user" onclick="fillLogin('chaiwutwck@gmail.com', '12345')">
+                    <div class="demo-user-info">
+                        <div class="demo-user-name">ชัยวุฒิ ไวเชิงค้า</div>
+                        <div class="demo-user-role">Team Lead</div>
+                        <div class="demo-user-email">chaiwutwck@gmail.com</div>
+                    </div>
+                </div>
+                
+                <div class="demo-user" onclick="fillLogin('kittipong@example.com', '12345')">
+                    <div class="demo-user-info">
+                        <div class="demo-user-name">กิตติพงษ์ สมศรี</div>
+                        <div class="demo-user-role">Employee</div>
+                        <div class="demo-user-email">kittipong@example.com</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard (hidden initially) -->
+    <div id="mainApp" class="main-app">
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">TaskFlow Pro</div>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <div>
+                        <div id="userName" class="user-name">User Name</div>
+                        <div id="userRole" class="user-role">Role</div>
+                    </div>
+                </div>
+                <button id="logoutButton" class="logout-button">Logout</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="dashboard-grid" id="dashboardGrid">
+                <!-- KPI cards will be populated here -->
+            </div>
+            
+            <div class="section-title">Recent Activities</div>
+            <div class="activities-list" id="activitiesList">
+                <!-- Activities will be populated here -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Authentication state
+        let currentUser = null;
+        let sessionId = null;
+
+        // API base URL
+        const API_BASE = 'http://192.168.20.10:779/api/v1';
+
+        // DOM elements
+        const loginPage = document.getElementById('loginPage');
+        const mainApp = document.getElementById('mainApp');
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginButton = document.getElementById('loginButton');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const userName = document.getElementById('userName');
+        const userRole = document.getElementById('userRole');
+        const logoutButton = document.getElementById('logoutButton');
+        const dashboardGrid = document.getElementById('dashboardGrid');
+        const activitiesList = document.getElementById('activitiesList');
+
+        // Check if user is already logged in
+        async function checkAuthStatus() {
+            const storedSessionId = localStorage.getItem('taskflow_session');
+            if (!storedSessionId) return false;
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/status`, {
+                    headers: {
+                        'Authorization': `Bearer ${storedSessionId}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authenticated) {
+                        sessionId = storedSessionId;
+                        currentUser = data.user;
+                        showDashboard();
+                        loadDashboardData();
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+            }
+
+            localStorage.removeItem('taskflow_session');
+            return false;
+        }
+
+        // Fill login form with demo credentials
+        function fillLogin(email, password) {
+            emailInput.value = email;
+            passwordInput.value = password;
+        }
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+        }
+
+        // Hide messages
+        function hideMessages() {
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+
+        // Login function
+        async function login(email, password) {
+            try {
+                loginButton.disabled = true;
+                loginButton.textContent = 'Signing In...';
+                hideMessages();
+
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    sessionId = data.sessionId;
+                    currentUser = data.user;
+                    localStorage.setItem('taskflow_session', sessionId);
+                    
+                    showSuccess('Login successful! Loading dashboard...');
+                    
+                    setTimeout(() => {
+                        showDashboard();
+                        loadDashboardData();
+                    }, 1000);
+                } else {
+                    showError(data.error || 'Login failed');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('Connection error. Please try again.');
+            } finally {
+                loginButton.disabled = false;
+                loginButton.textContent = 'Sign In';
+            }
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            loginPage.style.display = 'none';
+            mainApp.style.display = 'block';
+            
+            userName.textContent = currentUser.name;
+            userRole.textContent = currentUser.role;
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                const response = await fetch(`${API_BASE}/dashboard`, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionId}`
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        renderDashboard(result.data);
+                    }
+                } else {
+                    console.error('Failed to load dashboard data');
+                }
+            } catch (error) {
+                console.error('Dashboard load error:', error);
+            }
+        }
+
+        // Render dashboard
+        function renderDashboard(data) {
+            // Render KPI cards
+            const kpis = [
+                { title: 'Total Tasks', value: data.kpis.totalTasks, change: '+12%' },
+                { title: 'Completed', value: data.kpis.completedTasks, change: '+8%' },
+                { title: 'In Progress', value: data.kpis.inProgressTasks, change: '+5%' },
+                { title: 'Overdue', value: data.kpis.overdueTasks, change: '-2%' }
+            ];
+
+            if (currentUser.role === 'Manager') {
+                kpis.push({ title: 'Team Members', value: data.kpis.teamMembers, change: '+1' });
+            }
+
+            dashboardGrid.innerHTML = kpis.map(kpi => `
+                <div class="kpi-card">
+                    <div class="kpi-title">${kpi.title}</div>
+                    <div class="kpi-value">${kpi.value}</div>
+                    <div class="kpi-change">${kpi.change}</div>
+                </div>
+            `).join('');
+
+            // Render activities
+            activitiesList.innerHTML = data.recentActivities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-message">${activity.message}</div>
+                    <div class="activity-time">${activity.time}</div>
+                </div>
+            `).join('');
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                if (sessionId) {
+                    await fetch(`${API_BASE}/auth/logout`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${sessionId}`
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            } finally {
+                sessionId = null;
+                currentUser = null;
+                localStorage.removeItem('taskflow_session');
+                mainApp.style.display = 'none';
+                loginPage.style.display = 'flex';
+                hideMessages();
+                loginForm.reset();
+            }
+        }
+
+        // Event listeners
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            if (email && password) {
+                login(email, password);
+            }
+        });
+
+        logoutButton.addEventListener('click', logout);
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAuthenticated = await checkAuthStatus();
+            if (!isAuthenticated) {
+                loginPage.style.display = 'flex';
+            }
+        });
+    </script>
+</body>
+</html>

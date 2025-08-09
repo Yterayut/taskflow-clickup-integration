@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - Enhanced Login with Token Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1d4ed8;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-tertiary: #94a3b8;
+            --border-primary: #e2e8f0;
+            --border-secondary: #cbd5e1;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: var(--bg-primary);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            width: 100%;
+            max-width: 480px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-dark));
+            color: white;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .content {
+            padding: 32px;
+        }
+
+        /* Token Status Display */
+        .token-status {
+            margin-bottom: 24px;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-primary);
+            transition: all 0.3s ease;
+        }
+
+        .token-status.loading {
+            background: var(--bg-tertiary);
+            border-color: var(--border-secondary);
+        }
+
+        .token-status.valid {
+            background: #f0fdf4;
+            border-color: var(--success-green);
+        }
+
+        .token-status.warning {
+            background: #fffbeb;
+            border-color: var(--warning-orange);
+        }
+
+        .token-status.error {
+            background: #fef2f2;
+            border-color: var(--danger-red);
+        }
+
+        .token-status-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 12px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.green { background: var(--success-green); }
+        .status-indicator.yellow { background: var(--warning-orange); }
+        .status-indicator.red { background: var(--danger-red); }
+        .status-indicator.gray { background: var(--text-tertiary); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .token-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .btn-token {
+            padding: 8px 16px;
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            background: white;
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-token:hover {
+            background: var(--bg-secondary);
+        }
+
+        .btn-token.primary {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        .btn-token.primary:hover {
+            background: var(--primary-blue-dark);
+        }
+
+        .btn-token:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Login Form */
+        .login-form {
+            display: none;
+        }
+
+        .login-form.show {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .flow-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-login:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-login:disabled {
+            background: var(--text-tertiary);
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message, .success-message {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            color: var(--danger-red);
+            border: 1px solid #fecaca;
+        }
+
+        .success-message {
+            background: #f0fdf4;
+            color: var(--success-green);
+            border: 1px solid #bbf7d0;
+        }
+
+        .token-details {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .content {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="header">
+            <h1>TaskFlow Pro</h1>
+            <p>Enhanced Authentication with Token Management</p>
+        </div>
+        
+        <div class="content">
+            <!-- System Status Display -->
+            <div id="systemStatus" class="token-status loading">
+                <div class="token-status-header">
+                    <div class="status-indicator gray"></div>
+                    <strong>System Status</strong>
+                </div>
+                <div id="statusMessage">Checking system status...</div>
+                <div class="token-actions" id="statusActions" style="display: none;">
+                    <button class="btn-token primary" onclick="refreshToken()">Refresh Token</button>
+                    <button class="btn-token" onclick="initiateOAuth()">Re-authenticate</button>
+                    <button class="btn-token" onclick="checkStatus()">Check Status</button>
+                </div>
+                <div class="token-details" id="tokenDetails"></div>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm" class="login-form">
+                <div id="flowIndicator" class="flow-indicator" style="display: none;">
+                    <span>🔍</span>
+                    <span id="flowText">Detecting authentication flow...</span>
+                </div>
+
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email Address</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            class="form-input" 
+                            placeholder="Enter your email address"
+                            required
+                            onchange="detectFlow()"
+                        >
+                    </div>
+
+                    <div class="form-group" id="passwordGroup" style="display: none;">
+                        <label class="form-label" for="password">Password</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            class="form-input" 
+                            placeholder="Enter your password"
+                        >
+                    </div>
+
+                    <button type="submit" id="loginBtn" class="btn-login" disabled>
+                        <span id="loginBtnText">Enter Email to Continue</span>
+                    </button>
+                </form>
+
+                <div id="errorMessage" class="error-message" style="display: none;"></div>
+                <div id="successMessage" class="success-message" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            API_BASE: 'http://192.168.20.10:7812',
+            FRONTEND_BASE: 'http://192.168.20.10:8888',
+            MASTER_EMAIL: 'yterayut@gmail.com',
+            TOKEN_CHECK_INTERVAL: 30000, // 30 seconds
+            STATUS_CHECK_INTERVAL: 5000   // 5 seconds
+        };
+
+        // State management
+        let systemState = {
+            tokenStatus: null,
+            lastCheck: null,
+            autoCheckEnabled: true
+        };
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkSystemStatus();
+            setupAutoRefresh();
+        });
+
+        /**
+         * Check overall system status including token health
+         */
+        async function checkSystemStatus() {
+            try {
+                updateStatusDisplay('loading', 'Checking system status...', 'gray');
+
+                // Check system operational status
+                const systemResponse = await fetch(`${CONFIG.API_BASE}/api/v2/system/status`);
+                const systemData = await systemResponse.json();
+
+                // Check master token status
+                const tokenResponse = await fetch(`${CONFIG.API_BASE}/api/v2/master-token/status`);
+                const tokenData = await tokenResponse.json();
+
+                if (tokenData.success && tokenData.token_status) {
+                    handleTokenStatus(tokenData.token_status);
+                } else {
+                    updateStatusDisplay('error', 'Failed to get token status', 'red');
+                }
+
+                // Update system state
+                systemState.tokenStatus = tokenData.token_status;
+                systemState.lastCheck = new Date();
+
+            } catch (error) {
+                console.error('System status check failed:', error);
+                updateStatusDisplay('error', 'System status check failed', 'red');
+            }
+        }
+
+        /**
+         * Handle token status response and update UI accordingly
+         */
+        function handleTokenStatus(tokenStatus) {
+            const { status, message, action, color, expiresAt, timeUntilExpiry } = tokenStatus;
+
+            let displayMessage = message;
+            let showActions = false;
+            let showLoginForm = false;
+
+            switch (status) {
+                case 'missing':
+                case 'migration_required':
+                case 'expired_failed':
+                    displayMessage = message + ' - Master user authentication required';
+                    showActions = true;
+                    showLoginForm = false;
+                    break;
+
+                case 'expired_refreshable':
+                    displayMessage = message + ' - Attempting automatic refresh...';
+                    showActions = true;
+                    showLoginForm = false;
+                    // Auto-attempt refresh
+                    setTimeout(refreshToken, 1000);
+                    break;
+
+                case 'needs_refresh':
+                    displayMessage = `${message} (${timeUntilExpiry})`;
+                    showActions = true;
+                    showLoginForm = true;
+                    break;
+
+                case 'valid':
+                    displayMessage = `✅ ${message} (${timeUntilExpiry})`;
+                    showActions = false;
+                    showLoginForm = true;
+                    break;
+
+                default:
+                    displayMessage = message;
+                    showActions = true;
+                    showLoginForm = false;
+            }
+
+            updateStatusDisplay(status === 'valid' ? 'valid' : 'warning', displayMessage, color);
+            
+            // Show/hide action buttons
+            const actionsEl = document.getElementById('statusActions');
+            actionsEl.style.display = showActions ? 'flex' : 'none';
+
+            // Show/hide login form
+            const loginFormEl = document.getElementById('loginForm');
+            loginFormEl.className = showLoginForm ? 'login-form show' : 'login-form';
+
+            // Update token details
+            updateTokenDetails(tokenStatus);
+        }
+
+        /**
+         * Update status display
+         */
+        function updateStatusDisplay(type, message, indicatorColor) {
+            const statusEl = document.getElementById('systemStatus');
+            const messageEl = document.getElementById('statusMessage');
+            const indicatorEl = statusEl.querySelector('.status-indicator');
+
+            statusEl.className = `token-status ${type}`;
+            messageEl.textContent = message;
+            indicatorEl.className = `status-indicator ${indicatorColor}`;
+        }
+
+        /**
+         * Update token details display
+         */
+        function updateTokenDetails(tokenStatus) {
+            const detailsEl = document.getElementById('tokenDetails');
+            
+            if (tokenStatus.expiresAt) {
+                const expiryDate = new Date(tokenStatus.expiresAt);
+                detailsEl.innerHTML = `
+                    Last checked: ${new Date().toLocaleTimeString()}<br>
+                    Token expires: ${expiryDate.toLocaleString()}<br>
+                    Status: ${tokenStatus.status}
+                `;
+            } else {
+                detailsEl.innerHTML = `Last checked: ${new Date().toLocaleTimeString()}`;
+            }
+        }
+
+        /**
+         * Refresh ClickUp token
+         */
+        async function refreshToken() {
+            try {
+                updateStatusDisplay('loading', 'Refreshing token...', 'gray');
+
+                const response = await fetch(`${CONFIG.API_BASE}/api/v2/master-token/refresh`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    updateStatusDisplay('valid', 'Token refreshed successfully', 'green');
+                    setTimeout(checkSystemStatus, 2000);
+                } else {
+                    updateStatusDisplay('error', data.error || 'Token refresh failed', 'red');
+                }
+
+            } catch (error) {
+                console.error('Token refresh failed:', error);
+                updateStatusDisplay('error', 'Token refresh failed', 'red');
+            }
+        }
+
+        /**
+         * Initiate OAuth re-authentication
+         */
+        async function initiateOAuth() {
+            try {
+                const response = await fetch(`${CONFIG.API_BASE}/api/v2/master-token/oauth/initiate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.oauth_url) {
+                    updateStatusDisplay('loading', 'Redirecting to ClickUp OAuth...', 'yellow');
+                    setTimeout(() => {
+                        window.location.href = data.oauth_url;
+                    }, 1000);
+                } else {
+                    updateStatusDisplay('error', 'Failed to initiate OAuth', 'red');
+                }
+
+            } catch (error) {
+                console.error('OAuth initiation failed:', error);
+                updateStatusDisplay('error', 'Failed to initiate OAuth', 'red');
+            }
+        }
+
+        /**
+         * Manual status check
+         */
+        async function checkStatus() {
+            await checkSystemStatus();
+        }
+
+        /**
+         * Setup automatic status refresh
+         */
+        function setupAutoRefresh() {
+            setInterval(() => {
+                if (systemState.autoCheckEnabled) {
+                    checkSystemStatus();
+                }
+            }, CONFIG.STATUS_CHECK_INTERVAL);
+        }
+
+        /**
+         * Detect authentication flow based on email
+         */
+        function detectFlow() {
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const flowIndicator = document.getElementById('flowIndicator');
+            const flowText = document.getElementById('flowText');
+            const passwordGroup = document.getElementById('passwordGroup');
+            const loginBtn = document.getElementById('loginBtn');
+            const loginBtnText = document.getElementById('loginBtnText');
+
+            if (!email) {
+                flowIndicator.style.display = 'none';
+                passwordGroup.style.display = 'none';
+                loginBtn.disabled = true;
+                loginBtnText.textContent = 'Enter Email to Continue';
+                return;
+            }
+
+            flowIndicator.style.display = 'flex';
+
+            if (email === CONFIG.MASTER_EMAIL) {
+                flowText.innerHTML = '👑 <strong>Master User</strong> - ClickUp OAuth Authentication';
+                passwordGroup.style.display = 'none';
+                loginBtn.disabled = false;
+                loginBtnText.textContent = 'Continue with ClickUp OAuth';
+            } else {
+                flowText.innerHTML = '🔐 <strong>Regular User</strong> - Database Authentication';
+                passwordGroup.style.display = 'block';
+                loginBtn.disabled = false;
+                loginBtnText.textContent = 'Sign In';
+                document.getElementById('password').required = true;
+            }
+        }
+
+        /**
+         * Handle login form submission
+         */
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const loginBtnText = document.getElementById('loginBtnText');
+
+            // Clear previous messages
+            hideMessages();
+
+            // Disable button and show loading
+            loginBtn.disabled = true;
+            loginBtnText.innerHTML = '<span class="loading-spinner"></span>Authenticating...';
+
+            try {
+                if (email.toLowerCase() === CONFIG.MASTER_EMAIL) {
+                    // Master user OAuth flow
+                    window.location.href = `${CONFIG.API_BASE}/auth/clickup`;
+                } else {
+                    // Regular user authentication
+                    const response = await fetch(`${CONFIG.API_BASE}/api/v2/auth/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showMessage('success', 'Login successful! Redirecting...');
+                        setTimeout(() => {
+                            window.location.href = `${CONFIG.FRONTEND_BASE}/?login=success`;
+                        }, 1000);
+                    } else {
+                        showMessage('error', data.error || 'Login failed');
+                    }
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showMessage('error', 'Login failed. Please try again.');
+            } finally {
+                // Reset button
+                loginBtn.disabled = false;
+                detectFlow(); // This will reset the button text
+            }
+        }
+
+        /**
+         * Show error or success message
+         */
+        function showMessage(type, message) {
+            const errorEl = document.getElementById('errorMessage');
+            const successEl = document.getElementById('successMessage');
+
+            if (type === 'error') {
+                errorEl.textContent = message;
+                errorEl.style.display = 'block';
+                successEl.style.display = 'none';
+            } else {
+                successEl.textContent = message;
+                successEl.style.display = 'block';
+                errorEl.style.display = 'none';
+            }
+        }
+
+        /**
+         * Hide all messages
+         */
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        // URL parameter handling for OAuth returns
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            const error = urlParams.get('error');
+
+            if (error) {
+                showMessage('error', `OAuth error: ${error}`);
+            } else if (code && state) {
+                showMessage('success', 'OAuth successful! Processing authentication...');
+                // The backend will handle the OAuth callback
+            }
+        });
+    </script>
+</body>
+</html>

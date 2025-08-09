@@ -1,0 +1,14 @@
+Checkpoint Name: clickup_only_url_routing_fixed_29_june_2025
+Created: Mon 30 Jun 2025 00:20:08 +07
+Server: 192.168.20.10
+Path: /home/one-climate/team-workload
+Created By: Automated Checkpoint Script
+Purpose: Production state backup for rollback capability
+Files Backed Up:
+- backend_comprehensive_enhanced.js
+- index.html
+- package.json
+- node_modules/ (if exists)
+- *.log files
+- process_state.txt
+- health_check.json

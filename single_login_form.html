@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - Single Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1d4ed8;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-tertiary: #94a3b8;
+            --border-primary: #e2e8f0;
+            --border-secondary: #cbd5e1;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-width: 420px;
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--success-green));
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .auth-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .auth-header p {
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .system-status {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .system-status.loading {
+            background-color: #fef3c7;
+            color: #92400e;
+            border: 1px solid var(--warning-orange);
+        }
+
+        .system-status.ready {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid var(--success-green);
+        }
+
+        .system-status.not-ready {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid var(--danger-red);
+        }
+
+        .system-status.partial {
+            background-color: #fef3c7;
+            color: #92400e;
+            border: 1px solid var(--warning-orange);
+        }
+
+        .system-status small {
+            display: block;
+            margin-top: 4px;
+            font-weight: 400;
+            opacity: 0.8;
+        }
+
+        .auth-form {
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .auth-form.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .master-auth-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+
+        .master-auth-button:hover {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .master-auth-button:active {
+            transform: translateY(0);
+        }
+
+        .master-auth-button.show {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-primary);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+        }
+
+        .form-input.error {
+            border-color: var(--danger-red);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-input {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border-secondary);
+            border-radius: 4px;
+            background-color: var(--bg-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-input:checked {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-dark));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-button:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .auth-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .auth-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auth-button .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        .auth-button.loading .loading-spinner {
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 14px;
+            border: 1px solid var(--danger-red);
+            display: none;
+        }
+
+        .success-message {
+            background-color: #d1fae5;
+            color: #065f46;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 14px;
+            border: 1px solid var(--success-green);
+            display: none;
+        }
+
+        .demo-info {
+            background-color: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 24px;
+            border: 1px solid var(--border-primary);
+        }
+
+        .demo-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .demo-account {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .demo-account:last-child {
+            border-bottom: none;
+        }
+
+        .demo-account strong {
+            color: var(--text-primary);
+        }
+
+        .demo-account span {
+            color: var(--text-secondary);
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .flow-indicator {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            text-align: center;
+            display: none;
+        }
+
+        .flow-indicator.master {
+            background-color: #ede9fe;
+            color: #5b21b6;
+            border: 1px solid #a855f7;
+        }
+
+        .flow-indicator.user {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+
+        @media (max-width: 480px) {
+            .auth-container {
+                padding: 24px 20px;
+                margin: 10px;
+            }
+
+            .auth-header h1 {
+                font-size: 24px;
+            }
+
+            .form-input {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+        }
+
+        /* Loading animation for system status */
+        .loading-dots::after {
+            content: '';
+            animation: loading-dots 1.5s infinite;
+        }
+
+        @keyframes loading-dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>TaskFlow Pro</h1>
+            <p>Single Authentication Portal</p>
+        </div>
+
+        <!-- System Status Display -->
+        <div id="systemStatus" class="system-status loading">
+            <div class="loading-text">Checking system status<span class="loading-dots"></span></div>
+        </div>
+
+        <!-- Master Authentication Button (shown when system not ready) -->
+        <button id="masterAuthButton" class="master-auth-button">
+            🔗 Master User: Connect ClickUp
+        </button>
+
+        <!-- Single Login Form -->
+        <form id="loginForm" class="auth-form hidden">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input"
+                    required 
+                    autocomplete="email"
+                    placeholder="Enter your email address"
+                    autofocus
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-input"
+                    required 
+                    autocomplete="current-password"
+                    placeholder="Enter your password"
+                >
+            </div>
+
+            <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="rememberMe" name="rememberMe" class="checkbox-input">
+                    <span>Remember me for 30 days</span>
+                </label>
+            </div>
+
+            <button type="submit" class="auth-button" id="submitButton">
+                <span class="loading-spinner"></span>
+                <span class="button-text">Sign In</span>
+            </button>
+
+            <!-- Flow Indicator -->
+            <div id="flowIndicator" class="flow-indicator"></div>
+
+            <!-- Error/Success Messages -->
+            <div id="errorMessage" class="error-message"></div>
+            <div id="successMessage" class="success-message"></div>
+        </form>
+
+        <!-- Demo Account Information -->
+        <div class="demo-info">
+            <h3>Demo Accounts</h3>
+            <div class="demo-account">
+                <strong>Master User:</strong>
+                <span>yterayut@gmail.com</span>
+            </div>
+            <div class="demo-account">
+                <strong>Regular User:</strong>
+                <span>chaiwutwck@gmail.com / 12345</span>
+            </div>
+            <div class="demo-account">
+                <strong>Another User:</strong>
+                <span>atthakorn.na@ku.th / 12345</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Single Login Form Handler
+         * Implements auto flow detection and system status checking
+         */
+        class SingleLoginPortal {
+            constructor() {
+                this.systemStatus = null;
+                this.apiBaseUrl = 'http://192.168.20.10:7812';
+                this.init();
+            }
+
+            async init() {
+                await this.checkSystemStatus();
+                this.setupEventListeners();
+                this.setupKeyboardShortcuts();
+            }
+
+            /**
+             * Check system operational status
+             */
+            async checkSystemStatus() {
+                const statusElement = document.getElementById('systemStatus');
+                
+                try {
+                    const response = await fetch('/api/v2/system/status', {
+                        credentials: 'include',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Status check failed: ${response.status}`);
+                    }
+
+                    this.systemStatus = await response.json();
+                    this.updateSystemStatusDisplay();
+
+                } catch (error) {
+                    console.error('System status check failed:', error);
+                    this.showSystemError('Unable to connect to authentication service');
+                }
+            }
+
+            /**
+             * Update system status display with user-type differentiation
+             */
+            updateSystemStatusDisplay() {
+                const statusElement = document.getElementById('systemStatus');
+                const formElement = document.getElementById('loginForm');
+                const masterAuthButton = document.getElementById('masterAuthButton');
+                const emailInput = document.getElementById('email');
+                const currentEmail = emailInput ? emailInput.value.trim().toLowerCase() : '';
+                const masterEmail = 'yterayut@gmail.com';
+                const isMasterUser = currentEmail === masterEmail.toLowerCase();
+
+                if (this.systemStatus.is_operational) {
+                    // System is fully operational
+                    statusElement.className = 'system-status ready';
+                    statusElement.innerHTML = '✅ System Ready - Authentication Available';
+                    formElement.classList.remove('hidden');
+                    masterAuthButton.classList.remove('show');
+                } else {
+                    // System not operational - differentiate by user type
+                    if (isMasterUser) {
+                        // Block master user when system not operational
+                        statusElement.className = 'system-status not-ready';
+                        const message = this.systemStatus.message || 'Master user must complete ClickUp authentication first';
+                        statusElement.innerHTML = `
+                            ⚠️ System Not Ready<br>
+                            <small>${message}</small>
+                        `;
+                        formElement.classList.add('hidden');
+                        masterAuthButton.classList.add('show');
+                    } else {
+                        // Allow regular users even when system not operational
+                        statusElement.className = 'system-status partial';
+                        statusElement.innerHTML = `
+                            🟡 System Available for Regular Users<br>
+                            <small>ClickUp features temporarily disabled. Login with email/password.</small>
+                        `;
+                        formElement.classList.remove('hidden');
+                        masterAuthButton.classList.remove('show');
+                    }
+                }
+            }
+
+            /**
+             * Show system error
+             */
+            showSystemError(message) {
+                const statusElement = document.getElementById('systemStatus');
+                const masterAuthButton = document.getElementById('masterAuthButton');
+                
+                statusElement.className = 'system-status not-ready';
+                statusElement.innerHTML = `❌ ${message}`;
+                
+                // Show master auth button even on system errors
+                masterAuthButton.classList.add('show');
+            }
+
+            /**
+             * Handle master user authentication
+             */
+            handleMasterAuth() {
+                const button = document.getElementById('masterAuthButton');
+                
+                // Show loading state
+                button.innerHTML = '🔄 Connecting to ClickUp...';
+                button.disabled = true;
+
+                // Redirect to ClickUp OAuth
+                window.location.href = '/auth/clickup';
+            }
+
+            /**
+             * Setup event listeners
+             */
+            setupEventListeners() {
+                const form = document.getElementById('loginForm');
+                const emailInput = document.getElementById('email');
+                const masterAuthButton = document.getElementById('masterAuthButton');
+
+                form.addEventListener('submit', this.handleLogin.bind(this));
+                emailInput.addEventListener('input', this.handleEmailInput.bind(this));
+                emailInput.addEventListener('blur', this.handleEmailInput.bind(this));
+                masterAuthButton.addEventListener('click', this.handleMasterAuth.bind(this));
+            }
+
+            /**
+             * Setup keyboard shortcuts
+             */
+            setupKeyboardShortcuts() {
+                document.addEventListener('keydown', (event) => {
+                    // Alt + R to refresh system status
+                    if (event.altKey && event.key === 'r') {
+                        event.preventDefault();
+                        this.checkSystemStatus();
+                    }
+                });
+            }
+
+            /**
+             * Handle email input to show flow detection
+             */
+            handleEmailInput(event) {
+                const email = event.target.value.trim();
+                const flowIndicator = document.getElementById('flowIndicator');
+                
+                if (!email) {
+                    flowIndicator.style.display = 'none';
+                    // Update system status display when email is cleared
+                    if (this.systemStatus) {
+                        this.updateSystemStatusDisplay();
+                    }
+                    return;
+                }
+
+                const masterEmail = 'yterayut@gmail.com';
+                
+                if (email.toLowerCase() === masterEmail.toLowerCase()) {
+                    flowIndicator.className = 'flow-indicator master';
+                    flowIndicator.textContent = '🔐 Master User - Password login (OAuth setup if needed)';
+                    flowIndicator.style.display = 'block';
+                } else if (this.isValidEmail(email)) {
+                    flowIndicator.className = 'flow-indicator user';
+                    flowIndicator.textContent = '👤 Regular User - Password authentication';
+                    flowIndicator.style.display = 'block';
+                } else {
+                    flowIndicator.style.display = 'none';
+                }
+                
+                // Update system status display based on current email
+                if (this.systemStatus) {
+                    this.updateSystemStatusDisplay();
+                }
+            }
+
+            /**
+             * Validate email format
+             */
+            isValidEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+
+            /**
+             * Handle form submission
+             */
+            async handleLogin(event) {
+                event.preventDefault();
+
+                const formData = new FormData(event.target);
+                const email = formData.get('email')?.trim();
+                const password = formData.get('password');
+                const rememberMe = formData.get('rememberMe') === 'on';
+
+                // Validate inputs
+                if (!email || !password) {
+                    this.showError('Email and password are required');
+                    return;
+                }
+
+                if (!this.isValidEmail(email)) {
+                    this.showError('Please enter a valid email address');
+                    return;
+                }
+
+                this.showLoading();
+                this.clearMessages();
+
+                try {
+                    const response = await fetch('/api/v2/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            email,
+                            password,
+                            rememberMe
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.status === 'oauth_setup_required') {
+                        // Master user - first time, needs ClickUp OAuth setup
+                        this.showSuccess('First time login detected. Redirecting to ClickUp authentication...');
+                        setTimeout(() => {
+                            window.location.href = result.redirectUrl || '/auth/clickup';
+                        }, 1000);
+                    } else if (result.redirect) {
+                        // Legacy redirect handling
+                        this.showSuccess('Redirecting to ClickUp authentication...');
+                        setTimeout(() => {
+                            window.location.href = result.location;
+                        }, 1000);
+                    } else if (result.success || result.status === 'authenticated') {
+                        // Successful authentication (both master and regular users)
+                        const userType = email.toLowerCase() === 'yterayut@gmail.com' ? 'Master' : 'Regular';
+                        const hasTokens = result.hasStoredTokens ? ' (ClickUp integrated)' : '';
+                        this.showSuccess(`${userType} user login successful!${hasTokens} Redirecting...`);
+                        setTimeout(() => {
+                            window.location.href = '/?login=success';
+                        }, 1000);
+                    } else {
+                        this.showError(result.error || result.message || 'Login failed');
+                    }
+
+                } catch (error) {
+                    console.error('Login error:', error);
+                    this.showError('Network error. Please check your connection and try again.');
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            /**
+             * Show loading state
+             */
+            showLoading() {
+                const button = document.getElementById('submitButton');
+                button.classList.add('loading');
+                button.disabled = true;
+            }
+
+            /**
+             * Hide loading state
+             */
+            hideLoading() {
+                const button = document.getElementById('submitButton');
+                button.classList.remove('loading');
+                button.disabled = false;
+            }
+
+            /**
+             * Show error message
+             */
+            showError(message) {
+                const errorElement = document.getElementById('errorMessage');
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+                
+                // Scroll to error if needed
+                errorElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            /**
+             * Show success message
+             */
+            showSuccess(message) {
+                const successElement = document.getElementById('successMessage');
+                successElement.textContent = message;
+                successElement.style.display = 'block';
+            }
+
+            /**
+             * Clear all messages
+             */
+            clearMessages() {
+                document.getElementById('errorMessage').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'none';
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new SingleLoginPortal();
+        });
+
+        // Handle URL parameters for error messages
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            
+            if (error) {
+                const errorMessages = {
+                    'oauth_denied': 'ClickUp authentication was cancelled',
+                    'oauth_invalid': 'Invalid OAuth response from ClickUp',
+                    'oauth_invalid_state': 'Invalid OAuth state parameter',
+                    'oauth_expired': 'OAuth session expired, please try again',
+                    'oauth_unauthorized': 'Only the master user can use ClickUp authentication',
+                    'oauth_error': 'ClickUp authentication error',
+                    'oauth_callback_failed': 'OAuth callback processing failed',
+                    'oauth_init_failed': 'Failed to initiate ClickUp authentication'
+                };
+                
+                const message = errorMessages[error] || 'Authentication error occurred';
+                
+                setTimeout(() => {
+                    const errorElement = document.getElementById('errorMessage');
+                    if (errorElement) {
+                        errorElement.textContent = message;
+                        errorElement.style.display = 'block';
+                    }
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>

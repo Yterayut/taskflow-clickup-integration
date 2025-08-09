@@ -1,0 +1,51 @@
+{
+  "name": "taskflow-clickup-tests",
+  "version": "1.0.0",
+  "description": "Unit tests for TaskFlow ClickUp integration",
+  "main": "real_clickup_service.js",
+  "scripts": {
+    "test": "jest --verbose --coverage",
+    "test:watch": "jest --watch",
+    "test:ci": "jest --ci --coverage --watchAll=false",
+    "start": "node real_clickup_service.js",
+    "dev": "nodemon real_clickup_service.js"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "*.js",
+      "!node_modules/**",
+      "!coverage/**"
+    ],
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
+  },
+  "dependencies": {
+    "axios": "^1.10.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1",
+    "supertest": "^6.3.3"
+  },
+  "keywords": [
+    "clickup",
+    "api",
+    "testing",
+    "unit-tests",
+    "taskflow"
+  ],
+  "author": "TaskFlow Team",
+  "license": "MIT"
+}

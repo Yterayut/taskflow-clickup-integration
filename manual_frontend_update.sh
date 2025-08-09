@@ -1,0 +1,35 @@
+#!/bin/bash
+
+echo "📁 Manual Frontend Update Instructions"
+echo "======================================"
+
+echo ""
+echo "🔧 Run these commands on remote server:"
+echo ""
+echo "1. Update frontend file:"
+echo "   sudo cp /home/one-climate/team-workload/taskflow_enhanced_dashboard.html /var/www/taskflow/index.html"
+echo ""
+echo "2. Fix permissions:"
+echo "   sudo chown www-data:www-data /var/www/taskflow/index.html"
+echo ""
+echo "3. Test updated frontend:"
+echo "   curl http://192.168.20.10:8888/ | head -20"
+echo ""
+
+echo "📊 Current System Status:"
+echo "========================"
+echo "✅ Enhanced Backend: Running on port 777"
+echo "✅ Master Auth Service: Running on port 7810"
+echo "⚠️  Frontend: Needs manual update"
+echo ""
+
+echo "🎯 After frontend update, you'll have:"
+echo "- Enhanced Dashboard (like checkpoint enhanced_v5_0_0_stable)"
+echo "- Dark/Light Mode Toggle"
+echo "- Employee Management Cards"
+echo "- Real ClickUp Data Integration"
+echo "- Professional Analytics Dashboard"
+echo ""
+
+echo "🌐 Access URL: http://192.168.20.10:8888/"
+echo "👤 Login: yterayut@gmail.com / 12345"

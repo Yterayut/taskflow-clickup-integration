@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - ClickUp Integration Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Enhanced Dark Mode CSS Variables */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --bg-accent: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            --border-primary: #e5e7eb;
+            --border-secondary: #d1d5db;
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1d4ed8;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --bg-tertiary: #374151;
+            --bg-accent: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-tertiary: #9ca3af;
+            --border-primary: #374151;
+            --border-secondary: #4b5563;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-primary);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-blue-dark);
+        }
+
+        .btn-secondary {
+            background: var(--bg-accent);
+            color: var(--text-primary);
+            border: 1px solid var(--border-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-secondary);
+        }
+
+        .theme-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-accent);
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-primary);
+            padding: 24px 0;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin: 4px 16px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        /* Content Area */
+        .content {
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-primary);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Auth Status */
+        .auth-status {
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-primary);
+        }
+
+        .auth-authenticated {
+            background: #dcfce7;
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        .auth-unauthenticated {
+            background: #fef2f2;
+            border-color: #ef4444;
+            color: #dc2626;
+        }
+
+        [data-theme="dark"] .auth-authenticated {
+            background: #052e16;
+            color: #bbf7d0;
+        }
+
+        [data-theme="dark"] .auth-unauthenticated {
+            background: #450a0a;
+            color: #fecaca;
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-primary);
+            border-top: 2px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Employee Grid */
+        .employee-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .employee-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            padding: 16px;
+            transition: var(--transition);
+        }
+
+        .employee-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .employee-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .employee-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .employee-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .employee-info p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Task Grid */
+        .task-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .task-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .priority-high { border-left: 4px solid var(--danger-red); }
+        .priority-normal { border-left: 4px solid var(--warning-orange); }
+        .priority-low { border-left: 4px solid var(--success-green); }
+
+        /* Status Badge */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-open {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-in-progress {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-complete {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        [data-theme="dark"] .status-open {
+            background: #1e3a8a;
+            color: #bfdbfe;
+        }
+
+        [data-theme="dark"] .status-in-progress {
+            background: #92400e;
+            color: #fcd34d;
+        }
+
+        [data-theme="dark"] .status-complete {
+            background: #166534;
+            color: #bbf7d0;
+        }
+
+        /* Performance Rankings */
+        .ranking-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-primary);
+        }
+
+        .rank-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .rank-1 { background: #ffd700; color: #92400e; }
+        .rank-2 { background: #c0c0c0; color: #374151; }
+        .rank-3 { background: #cd7f32; color: white; }
+        .rank-other { background: var(--bg-accent); color: var(--text-primary); }
+
+        .ranking-info {
+            flex: 1;
+        }
+
+        .ranking-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .ranking-stats {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .score {
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .header {
+                padding: 0 16px;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            📊 TaskFlow Pro
+        </div>
+        <div class="header-controls">
+            <div id="update-timer" class="text-sm text-gray-500"></div>
+            <button id="manual-update" class="btn btn-secondary">🔄 Update Now</button>
+            <button id="theme-toggle" class="theme-toggle">🌙</button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <li class="nav-item">
+                    <a href="#dashboard" class="nav-link active" data-view="dashboard">
+                        📈 Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#employees" class="nav-link" data-view="employees">
+                        👥 Team Members
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#tasks" class="nav-link" data-view="tasks">
+                        ✅ Tasks
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#performance" class="nav-link" data-view="performance">
+                        🏆 Performance
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#calendar" class="nav-link" data-view="calendar">
+                        📅 Calendar
+                    </a>
+                </li>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <!-- Authentication Status -->
+            <div id="auth-status" class="auth-status">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Checking authentication status...
+                </div>
+            </div>
+
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view-content fade-in">
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">System Overview</h3>
+                        </div>
+                        <div id="system-stats">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                                Loading system data...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Quick Actions</h3>
+                        </div>
+                        <div style="display: grid; gap: 12px;">
+                            <button class="btn btn-primary" onclick="authenticateClickUp()">
+                                🔗 Connect to ClickUp
+                            </button>
+                            <button class="btn btn-secondary" onclick="refreshData()">
+                                🔄 Refresh Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Members View -->
+            <div id="employees-view" class="view-content" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Team Members</h3>
+                        <button class="btn btn-primary" onclick="refreshEmployees()">🔄 Refresh</button>
+                    </div>
+                    <div id="employees-content">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading team members from ClickUp...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks View -->
+            <div id="tasks-view" class="view-content" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Tasks</h3>
+                        <button class="btn btn-primary" onclick="refreshTasks()">🔄 Refresh</button>
+                    </div>
+                    <div id="tasks-content">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading tasks from ClickUp...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance View -->
+            <div id="performance-view" class="view-content" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Performance Rankings</h3>
+                        <button class="btn btn-primary" onclick="refreshPerformance()">🔄 Refresh</button>
+                    </div>
+                    <div id="performance-content">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading performance data from ClickUp...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar View -->
+            <div id="calendar-view" class="view-content" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Calendar</h3>
+                    </div>
+                    <p>Calendar integration coming soon...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = 'http://192.168.20.10:777';
+        
+        // State
+        let currentView = 'dashboard';
+        let authStatus = null;
+        let updateTimer = null;
+        let autoUpdateInterval = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        async function initializeApp() {
+            console.log('🚀 Initializing TaskFlow Pro - ClickUp Integration');
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Check authentication
+            await checkAuthStatus();
+            
+            // Setup theme
+            setupTheme();
+            
+            // Start auto-update timer
+            startAutoUpdate();
+            
+            // Load initial view
+            await loadCurrentView();
+        }
+
+        function setupEventListeners() {
+            // Navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const view = this.dataset.view;
+                    switchView(view);
+                });
+            });
+
+            // Theme toggle
+            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+            
+            // Manual update
+            document.getElementById('manual-update').addEventListener('click', manualUpdate);
+        }
+
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/status`);
+                const data = await response.json();
+                authStatus = data;
+                updateAuthUI();
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                updateAuthUI(false);
+            }
+        }
+
+        function updateAuthUI(authenticated = null) {
+            const authElement = document.getElementById('auth-status');
+            
+            if (authenticated === null) {
+                authenticated = authStatus?.authenticated || false;
+            }
+
+            if (authenticated) {
+                authElement.className = 'auth-status auth-authenticated';
+                authElement.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <strong>✅ Connected to ClickUp</strong>
+                            <p>User: ${authStatus?.user?.username || authStatus?.user?.email || 'Unknown'}</p>
+                        </div>
+                        <button class="btn btn-secondary" onclick="logout()">Logout</button>
+                    </div>
+                `;
+            } else {
+                authElement.className = 'auth-status auth-unauthenticated';
+                authElement.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <strong>❌ Not Connected to ClickUp</strong>
+                            <p>Please authenticate to access ClickUp data</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="authenticateClickUp()">Connect ClickUp</button>
+                    </div>
+                `;
+            }
+        }
+
+        function authenticateClickUp() {
+            window.location.href = `${API_BASE}/auth/clickup`;
+        }
+
+        async function logout() {
+            try {
+                await fetch(`${API_BASE}/auth/logout`, { method: 'POST' });
+                authStatus = { authenticated: false };
+                updateAuthUI();
+                await loadCurrentView();
+            } catch (error) {
+                console.error('Logout failed:', error);
+            }
+        }
+
+        function switchView(view) {
+            // Update active nav
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-view="${view}"]`).classList.add('active');
+
+            // Hide all views
+            document.querySelectorAll('.view-content').forEach(content => {
+                content.style.display = 'none';
+            });
+
+            // Show current view
+            document.getElementById(`${view}-view`).style.display = 'block';
+            currentView = view;
+
+            // Load view data
+            loadCurrentView();
+        }
+
+        async function loadCurrentView() {
+            if (!authStatus?.authenticated) {
+                return;
+            }
+
+            switch (currentView) {
+                case 'dashboard':
+                    await loadDashboard();
+                    break;
+                case 'employees':
+                    await loadEmployees();
+                    break;
+                case 'tasks':
+                    await loadTasks();
+                    break;
+                case 'performance':
+                    await loadPerformance();
+                    break;
+            }
+        }
+
+        async function loadDashboard() {
+            const statsElement = document.getElementById('system-stats');
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                statsElement.innerHTML = `
+                    <div style="display: grid; gap: 16px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Status:</span>
+                            <span style="color: var(--success-green); font-weight: 600;">${data.status}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Version:</span>
+                            <span>${data.version}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Teams:</span>
+                            <span>${data.clickupCache?.teams || 0}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Users:</span>
+                            <span>${data.clickupCache?.users || 0}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Tasks:</span>
+                            <span>${data.clickupCache?.tasks || 0}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Last Update:</span>
+                            <span>${data.clickupCache?.lastUpdate ? new Date(data.clickupCache.lastUpdate).toLocaleString() : 'Never'}</span>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                statsElement.innerHTML = '<p style="color: var(--danger-red);">Failed to load system stats</p>';
+            }
+        }
+
+        async function loadEmployees() {
+            const content = document.getElementById('employees-content');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/employees`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const employees = data.data;
+                    content.innerHTML = `
+                        <div class="employee-grid">
+                            ${employees.map(emp => `
+                                <div class="employee-card">
+                                    <div class="employee-header">
+                                        <div class="employee-avatar">
+                                            ${emp.avatar ? `<img src="${emp.avatar}" alt="${emp.name}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">` : emp.name.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div class="employee-info">
+                                            <h3>${emp.name}</h3>
+                                            <p>${emp.email}</p>
+                                        </div>
+                                    </div>
+                                    <div class="employee-details">
+                                        <p><strong>Role:</strong> ${emp.role}</p>
+                                        <p><strong>Department:</strong> ${emp.department}</p>
+                                        <p><strong>Status:</strong> 
+                                            <span class="status-badge status-${emp.status}">${emp.status}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    content.innerHTML = `<p style="color: var(--danger-red);">Error: ${data.error}</p>`;
+                }
+            } catch (error) {
+                content.innerHTML = '<p style="color: var(--danger-red);">Failed to load employees</p>';
+            }
+        }
+
+        async function loadTasks() {
+            const content = document.getElementById('tasks-content');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/tasks`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const tasks = data.data;
+                    content.innerHTML = `
+                        <div class="task-grid">
+                            ${tasks.map(task => `
+                                <div class="task-card priority-${task.priority.toLowerCase()}">
+                                    <div class="task-info">
+                                        <div class="task-title">${task.name}</div>
+                                        <div class="task-meta">
+                                            <span>📋 ${task.project?.list || 'No List'}</span>
+                                            <span>👤 ${task.assignee?.name || 'Unassigned'}</span>
+                                            <span>📅 ${task.dueDate || 'No Due Date'}</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="status-badge status-${task.status.toLowerCase().replace(' ', '-')}">${task.status}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    content.innerHTML = `<p style="color: var(--danger-red);">Error: ${data.error}</p>`;
+                }
+            } catch (error) {
+                content.innerHTML = '<p style="color: var(--danger-red);">Failed to load tasks</p>';
+            }
+        }
+
+        async function loadPerformance() {
+            const content = document.getElementById('performance-content');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/performance`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const performance = data.data;
+                    content.innerHTML = `
+                        <div class="ranking-list">
+                            ${performance.map(user => `
+                                <div class="ranking-item">
+                                    <div class="rank-badge rank-${user.rank <= 3 ? user.rank : 'other'}">
+                                        ${user.rank <= 3 ? ['🥇', '🥈', '🥉'][user.rank - 1] : user.rank}
+                                    </div>
+                                    <div class="ranking-info">
+                                        <div class="ranking-name">${user.name}</div>
+                                        <div class="ranking-stats">
+                                            ${user.totalTasks} tasks • ${user.completedTasks} completed • ${user.completionRate}% rate
+                                        </div>
+                                    </div>
+                                    <div class="score">${user.score} pts</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    content.innerHTML = `<p style="color: var(--danger-red);">Error: ${data.error}</p>`;
+                }
+            } catch (error) {
+                content.innerHTML = '<p style="color: var(--danger-red);">Failed to load performance data</p>';
+            }
+        }
+
+        // Refresh functions
+        async function refreshData() {
+            if (!authStatus?.authenticated) {
+                alert('Please authenticate with ClickUp first');
+                return;
+            }
+
+            try {
+                await fetch(`${API_BASE}/api/v1/refresh`, { method: 'POST' });
+                await loadCurrentView();
+                alert('Data refreshed successfully!');
+            } catch (error) {
+                alert('Failed to refresh data');
+            }
+        }
+
+        async function refreshEmployees() {
+            await loadEmployees();
+        }
+
+        async function refreshTasks() {
+            await loadTasks();
+        }
+
+        async function refreshPerformance() {
+            await loadPerformance();
+        }
+
+        async function manualUpdate() {
+            await refreshData();
+        }
+
+        // Theme functionality
+        function setupTheme() {
+            const savedTheme = localStorage.getItem('taskflow-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeToggle(savedTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('taskflow-theme', newTheme);
+            updateThemeToggle(newTheme);
+        }
+
+        function updateThemeToggle(theme) {
+            const toggle = document.getElementById('theme-toggle');
+            toggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Auto-update functionality
+        function startAutoUpdate() {
+            updateTimer = 30 * 60; // 30 minutes in seconds
+            
+            autoUpdateInterval = setInterval(() => {
+                updateTimer--;
+                updateTimerDisplay();
+                
+                if (updateTimer <= 0) {
+                    refreshData();
+                    updateTimer = 30 * 60; // Reset timer
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(updateTimer / 60);
+            const seconds = updateTimer % 60;
+            const display = `Next update: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('update-timer').textContent = display;
+        }
+
+        // Initialize timer display
+        updateTimerDisplay();
+    </script>
+</body>
+</html>

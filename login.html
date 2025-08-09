@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* CSS Variables matching TaskFlow Pro design system */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --bg-accent: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            --border-primary: #e5e7eb;
+            --border-secondary: #d1d5db;
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1d4ed8;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --bg-tertiary: #374151;
+            --bg-accent: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-tertiary: #9ca3af;
+            --border-primary: #374151;
+            --border-secondary: #4b5563;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 24px;
+        }
+
+        .login-card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            padding: 48px 40px;
+            border: 1px solid var(--border-primary);
+            transition: var(--transition);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .logo::before {
+            content: "⚡";
+            font-size: 32px;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-secondary);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+        }
+
+        .form-input.error {
+            border-color: var(--danger-red);
+            box-shadow: 0 0 0 3px rgb(239 68 68 / 0.1);
+        }
+
+        .password-toggle {
+            position: relative;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .password-toggle-btn:hover {
+            color: var(--text-secondary);
+            background: var(--bg-tertiary);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 12px 24px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 16px;
+        }
+
+        .login-button:hover:not(:disabled) {
+            background: var(--primary-blue-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .login-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-button.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .login-button.loading::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .error-message {
+            color: var(--danger-red);
+            font-size: 14px;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: rgb(239 68 68 / 0.1);
+            border: 1px solid rgb(239 68 68 / 0.2);
+            border-radius: 6px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid var(--border-secondary);
+            background: var(--bg-primary);
+        }
+
+        .forgot-password {
+            color: var(--primary-blue);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .forgot-password:hover {
+            color: var(--primary-blue-dark);
+        }
+
+        .demo-accounts {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-primary);
+        }
+
+        .demo-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .demo-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .demo-button {
+            padding: 8px 16px;
+            border: 1px solid var(--border-secondary);
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: left;
+        }
+
+        .demo-button:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--primary-blue);
+            color: var(--text-primary);
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-primary);
+            color: var(--text-primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-secondary);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 16px;
+            }
+
+            .login-card {
+                padding: 32px 24px;
+            }
+
+            .logo {
+                font-size: 24px;
+            }
+
+            .theme-toggle {
+                top: 16px;
+                right: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo">TaskFlow Pro</div>
+                <div class="login-subtitle">Sign in to your account</div>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="email" class="form-label">Email address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        class="form-input" 
+                        placeholder="Enter your email"
+                        required
+                        autocomplete="email"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="password-toggle">
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            class="form-input" 
+                            placeholder="Enter your password"
+                            required
+                            autocomplete="current-password"
+                        >
+                        <button type="button" class="password-toggle-btn" onclick="togglePassword()">
+                            👁️
+                        </button>
+                    </div>
+                </div>
+
+                <div class="remember-forgot">
+                    <label class="remember-me">
+                        <input type="checkbox" id="rememberMe" name="rememberMe">
+                        Remember me
+                    </label>
+                    <a href="#" class="forgot-password" onclick="showForgotPassword()">
+                        Forgot password?
+                    </a>
+                </div>
+
+                <button type="submit" class="login-button" id="loginButton">
+                    Sign in
+                </button>
+
+                <div class="error-message" id="errorMessage"></div>
+            </form>
+
+            <div class="demo-accounts">
+                <div class="demo-title">Demo Accounts</div>
+                <div class="demo-buttons">
+                    <button class="demo-button" onclick="fillDemo('manager')">
+                        👨‍💼 Manager: yterayut@gmail.com / 12345
+                    </button>
+                    <button class="demo-button" onclick="fillDemo('teamlead')">
+                        👨‍💻 Team Lead: chaiwutwck@gmail.com / 12345
+                    </button>
+                    <button class="demo-button" onclick="fillDemo('employee')">
+                        👤 Employee: kittipong@example.com / 12345
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeToggle.textContent = '🌙';
+                localStorage.setItem('taskflow-theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeToggle.textContent = '☀️';
+                localStorage.setItem('taskflow-theme', 'dark');
+            }
+        }
+
+        // Load saved theme
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('taskflow-theme');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeToggle.textContent = '☀️';
+            }
+        }
+
+        // Password visibility toggle
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = passwordInput.nextElementSibling;
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        }
+
+        // Demo account filling
+        function fillDemo(role) {
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            
+            const demoAccounts = {
+                'manager': { email: 'yterayut@gmail.com', password: '12345' },
+                'teamlead': { email: 'chaiwutwck@gmail.com', password: '12345' },
+                'employee': { email: 'kittipong@example.com', password: '12345' }
+            };
+            
+            const account = demoAccounts[role];
+            if (account) {
+                emailInput.value = account.email;
+                passwordInput.value = account.password;
+                
+                // Focus effect
+                emailInput.focus();
+                setTimeout(() => passwordInput.focus(), 100);
+            }
+        }
+
+        // Error handling
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+            errorElement.style.backgroundColor = 'rgb(239 68 68 / 0.1)';
+            errorElement.style.borderColor = 'rgb(239 68 68 / 0.2)';
+            errorElement.style.color = 'var(--danger-red)';
+            
+            // Clear error after 5 seconds
+            setTimeout(() => {
+                errorElement.classList.remove('show');
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+            errorElement.style.backgroundColor = 'rgb(16 185 129 / 0.1)';
+            errorElement.style.borderColor = 'rgb(16 185 129 / 0.2)';
+            errorElement.style.color = 'var(--success-green)';
+            
+            // Clear success after 3 seconds
+            setTimeout(() => {
+                errorElement.classList.remove('show');
+            }, 3000);
+        }
+
+        function clearError() {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.classList.remove('show');
+        }
+
+        // Form validation
+        function validateForm() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!email) {
+                showError('Please enter your email address');
+                return false;
+            }
+            
+            if (!email.includes('@')) {
+                showError('Please enter a valid email address');
+                return false;
+            }
+            
+            if (!password) {
+                showError('Please enter your password');
+                return false;
+            }
+            
+            if (password.length < 3) {
+                showError('Password must be at least 3 characters');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Login handling
+        async function handleLogin(event) {
+            event.preventDefault();
+            clearError();
+            
+            if (!validateForm()) {
+                return;
+            }
+            
+            const loginButton = document.getElementById('loginButton');
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            // Show loading state
+            loginButton.classList.add('loading');
+            loginButton.disabled = true;
+            
+            try {
+                // API call to authentication endpoint
+                const response = await fetch('http://192.168.20.10:7812/api/v2/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        rememberMe: rememberMe
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    console.log('Login successful:', data);
+                    
+                    // Store authentication token
+                    if (data.token) {
+                        localStorage.setItem('taskflow-token', data.token);
+                        localStorage.setItem('taskflow-token-expires', data.expiresIn);
+                        
+                        // Store user info
+                        if (data.user) {
+                            localStorage.setItem('taskflow-user', JSON.stringify(data.user));
+                            localStorage.setItem('taskflow-user-role', data.user.role);
+                        }
+                        
+                        // Store ClickUp connection status
+                        localStorage.setItem('taskflow-clickup-connected', data.clickupConnected || 'false');
+                    }
+                    
+                    // Show success message briefly
+                    showSuccess('Login successful! Redirecting...');
+                    
+                    // Redirect to dashboard after short delay
+                    setTimeout(() => {
+                        window.location.href = 'http://192.168.20.10:8888/?login=success';
+                    }, 1000);
+                    
+                } else {
+                    // Show error message
+                    showError(data.message || 'Invalid email or password');
+                }
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('Connection error. Please check your network and try again.');
+            } finally {
+                // Reset loading state
+                loginButton.classList.remove('loading');
+                loginButton.disabled = false;
+            }
+        }
+
+        // Forgot password
+        function showForgotPassword() {
+            alert('Password reset functionality will be implemented in the next update.\n\nFor now, please use the demo accounts or contact your administrator.');
+        }
+
+        // Auto-focus email field
+        function initializeForm() {
+            document.getElementById('email').focus();
+        }
+
+        // Check authentication status
+        async function checkAuthStatus() {
+            const token = localStorage.getItem('taskflow-token');
+            if (!token) {
+                return false;
+            }
+            
+            try {
+                const response = await fetch('http://192.168.20.10:7812/api/v2/auth/verify', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        // Update stored user data
+                        localStorage.setItem('taskflow-user', JSON.stringify(data.user));
+                        localStorage.setItem('taskflow-user-role', data.user.role);
+                        localStorage.setItem('taskflow-clickup-connected', data.clickupConnected || 'false');
+                        return true;
+                    }
+                }
+                
+                // Token is invalid, clear it
+                localStorage.removeItem('taskflow-token');
+                localStorage.removeItem('taskflow-user');
+                localStorage.removeItem('taskflow-user-role');
+                localStorage.removeItem('taskflow-clickup-connected');
+                return false;
+                
+            } catch (error) {
+                console.error('Auth check error:', error);
+                // Clear potentially invalid tokens
+                localStorage.removeItem('taskflow-token');
+                localStorage.removeItem('taskflow-user');
+                localStorage.removeItem('taskflow-user-role');
+                localStorage.removeItem('taskflow-clickup-connected');
+                return false;
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            loadTheme();
+            initializeForm();
+            
+            // Check if already logged in
+            const isAuthenticated = await checkAuthStatus();
+            if (isAuthenticated) {
+                showSuccess('Already logged in. Redirecting to dashboard...');
+                setTimeout(() => {
+                    window.location.href = 'http://192.168.20.10:8888/';
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

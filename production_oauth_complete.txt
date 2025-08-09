@@ -1,0 +1,40 @@
+# Production OAuth Deployment Instructions
+# Copy ไฟล์เหล่านี้ไป remote server manually
+
+## 1. Backend File: /opt/taskflow/app/backend/backend.js
+## Content: backend_production_oauth.js
+
+## 2. Frontend File: /opt/taskflow/app/frontend/index.html  
+## Content: frontend_dual_auth.html
+
+## 3. Commands to run on server:
+```bash
+# Stop services
+systemctl stop taskflow-backend
+systemctl stop taskflow-frontend
+
+# Start services
+systemctl start taskflow-backend
+systemctl start taskflow-frontend
+
+# Check status
+systemctl status taskflow-backend
+curl http://localhost:777/health
+```
+
+## 4. Expected Output:
+Backend Health should show:
+- service: "TaskFlow Backend - Production OAuth"
+- version: "8.0.0-production-oauth"
+- redirectUri: "http://192.168.20.10:777/api/v1/auth/clickup/callback"
+
+## 5. Test OAuth Flow:
+1. Go to: http://192.168.20.10:555
+2. Should see dual auth options
+3. Click OAuth button
+4. Authorize in ClickUp
+5. Should redirect properly through /api/v1/auth/clickup/callback
+
+## 6. OAuth URLs for Testing:
+- Auth URL: http://192.168.20.10:777/api/v1/auth/clickup/auth-url
+- Direct OAuth: http://192.168.20.10:777/api/v1/auth/clickup/authorize

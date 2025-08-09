@@ -1,0 +1,2 @@
+one-cli+ 1768540  0.0  0.0   7372  3664 ?        Ss   13:52   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/oauth_fix_july_1_2025/process_state.txt
+one-cli+ 1768542  0.0  0.0   6480  2504 ?        S    13:52   0:00 grep backend

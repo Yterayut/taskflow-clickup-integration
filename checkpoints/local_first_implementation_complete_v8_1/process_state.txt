@@ -1,0 +1,9 @@
+one-cli+ 2627170  0.0  0.0   7372  3560 ?        Ss   Jul06   0:00 bash -c cd /home/one-climate/team-workload && tail -f auth_backend.log | grep -E '(OAuth|ClickUp|token|error)'
+one-cli+ 2627171  0.0  0.0   5804  1016 ?        S    Jul06   0:00 tail -f auth_backend.log
+one-cli+ 2639989  0.0  0.0   7372  3636 ?        Ss   Jul06   0:00 bash -c cd /home/one-climate/team-workload && tail -f auth_backend.log | grep -E '(OAuth|ClickUp|token|exchange|State validated|Client secret|ECODE)'
+one-cli+ 2639990  0.0  0.0   5804  1056 ?        S    Jul06   0:00 tail -f auth_backend.log
+one-cli+ 2795052  0.1  0.9 1304956 78936 ?       Ssl  Jul07   1:10 node /home/one-climate/km-base/backend/src/app.js
+one-cli+ 2862902  0.0  0.0   7372  1760 ?        S    01:03   0:00 bash -c cd /home/one-climate/team-workload && nohup node single_login_backend_with_sync.js > sync_backend.log 2>&1 & sleep 3 && tail -10 sync_backend.log
+one-cli+ 2862904  0.0  0.8 11784324 69556 ?      Sl   01:03   0:00 node single_login_backend_with_sync.js
+one-cli+ 2865674  0.0  0.0   7372  3660 ?        Ss   01:28   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/local_first_implementation_complete_v8_1/process_state.txt
+one-cli+ 2865676  0.0  0.0   6480  2324 ?        R    01:28   0:00 grep backend

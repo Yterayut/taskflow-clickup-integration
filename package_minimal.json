@@ -1,0 +1,16 @@
+{
+  "name": "taskflow-pro",
+  "version": "2.0.0",
+  "description": "TaskFlow Pro - Simple Backend",
+  "main": "backend.js",
+  "scripts": {
+    "start": "node backend.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "project": {
+    "name": "TaskFlow Pro",
+    "version": "2.0.0",
+    "status": "production_ready",
+    "last_updated": "2025-06-24T05:30:00Z",
+    "description": "Team Task Management Dashboard with ClickUp Integration"
+  },
+  "environment": {
+    "production": {
+      "frontend_url": "http://192.168.20.10:8888/",
+      "backend_url": "http://192.168.20.10:7810/",
+      "server": "one-climate@192.168.20.10",
+      "status": "online"
+    },
+    "local": {
+      "working_directory": "/Users/teerayutyeerahem/team-workload/",
+      "main_files": [
+        "current_frontend.html",
+        "master_auth_service.js",
+        "users_config.json"
+      ]
+    }
+  },
+  "features": {
+    "team_attendance": {
+      "status": "completed",
+      "completed_date": "2025-06-24",
+      "components": {
+        "employee_attendance": {
+          "leave_reference_field": true,
+          "clock_in_out": true,
+          "personal_history": true
+        },
+        "team_lead_dashboard": {
+          "team_attendance_forms": true,
+          "all_employee_history": true,
+          "summary_tables": true,
+          "export_pdf_csv": true
+        },
+        "manager_reports": {
+          "full_attendance_access": true,
+          "export_capabilities": true,
+          "leave_management": true
+        }
+      }
+    },
+    "role_based_navigation": {
+      "status": "completed",
+      "roles": ["Manager", "Team Lead", "Employee"],
+      "navigation_working": true
+    },
+    "clickup_integration": {
+      "status": "active",
+      "master_user": "yterayut@gmail.com",
+      "oauth_configured": true,
+      "real_data_access": true
+    }
+  },
+  "technical_details": {
+    "frontend": {
+      "file": "current_frontend.html",
+      "size_kb": 175,
+      "framework": "vanilla_js",
+      "features": ["role_based_ui", "attendance_management", "export_functionality"]
+    },
+    "backend": {
+      "file": "master_auth_service.js",
+      "framework": "node_express",
+      "port": 7810,
+      "database": "clickup_api_localStorage",
+      "authentication": "session_based"
+    },
+    "deployment": {
+      "web_server": "nginx",
+      "web_port": 8888,
+      "web_path": "/var/www/taskflow/index.html",
+      "deploy_script": "deploy_real_clickup.sh"
+    }
+  },
+  "checkpoints": {
+    "latest": "after_feature_Team_Attendance_tested",
+    "available": [
+      "after_feature_Team_Attendance_tested",
+      "re_restructure_dashboard_23_june_2025",
+      "enhanced_v5_0_0_stable",
+      "before_dev_24_june_2025"
+    ]
+  },
+  "issues": {
+    "resolved": [
+      {
+        "date": "2025-06-24",
+        "issue": "Syntax errors in template literals",
+        "lines": [4100, 3696],
+        "status": "fixed"
+      },
+      {
+        "date": "2025-06-24",
+        "issue": "Role selection not working",
+        "cause": "Missing updateUserProfile function",
+        "status": "fixed"
+      },
+      {
+        "date": "2025-06-24",
+        "issue": "Navigation components not visible",
+        "cause": "Role selection functionality broken",
+        "status": "fixed"
+      }
+    ],
+    "known": [],
+    "pending": []
+  },
+  "next_development": {
+    "immediate": [
+      "mobile_responsiveness",
+      "enhanced_export_formatting",
+      "performance_optimization",
+      "additional_attendance_metrics"
+    ],
+    "future": [
+      "real_time_notifications",
+      "advanced_analytics",
+      "external_hr_integration",
+      "multi_language_support"
+    ]
+  },
+  "authentication": {
+    "demo_accounts": {
+      "manager": "yterayut@gmail.com / 12345",
+      "team_lead": "chaiwutwck@gmail.com / 12345",
+      "employee": "kittipong@example.com / 12345"
+    },
+    "clickup_master": {
+      "user": "yterayut@gmail.com",
+      "client_id": "DA3L6I2MS7RC39PFH7PZGRZAG4A1J8LL",
+      "status": "token_available"
+    }
+  },
+  "maintenance": {
+    "backup_system": "checkpoint_based",
+    "health_check": "curl -s http://192.168.20.10:7810/health",
+    "rollback_available": true,
+    "auto_deploy": false
+  }
+}

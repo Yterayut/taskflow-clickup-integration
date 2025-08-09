@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - Role-Based Management Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #334155;
+        }
+        
+        .wireframe {
+            border: 2px solid #64748b;
+            background: white;
+            margin: 8px;
+            position: relative;
+        }
+        
+        .wireframe::before {
+            content: attr(data-label);
+            position: absolute;
+            top: -12px;
+            left: 8px;
+            background: #64748b;
+            color: white;
+            padding: 2px 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .login-container {
+            background: white;
+            border: 3px solid #64748b;
+            padding: 40px;
+            width: 500px;
+            text-align: center;
+        }
+        
+        .logo-big {
+            width: 80px;
+            height: 80px;
+            background: repeating-linear-gradient(45deg, #3b82f6, #3b82f6 8px, #1d4ed8 8px, #1d4ed8 16px);
+            margin: 0 auto 20px;
+            border: 3px solid #64748b;
+        }
+        
+        .role-buttons {
+            display: grid;
+            gap: 16px;
+            margin-top: 30px;
+        }
+        
+        .role-btn {
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .role-btn:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+            transform: translateY(-2px);
+        }
+        
+        .role-avatar {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #64748b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            color: white;
+        }
+        
+        .manager-avatar { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+        .teamlead-avatar { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+        .employee-avatar { background: linear-gradient(135deg, #16a34a, #4ade80); }
+        
+        .role-info h3 {
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        
+        .role-info p {
+            color: #64748b;
+            font-size: 14px;
+        }
+        
+        .role-badge {
+            margin-left: auto;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .manager-badge { background: #f3e8ff; color: #7c3aed; }
+        .teamlead-badge { background: #dbeafe; color: #3b82f6; }
+        .employee-badge { background: #dcfce7; color: #16a34a; }
+        
+        .dashboard {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .dashboard.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .header {
+            height: 80px;
+            background: white;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            margin-bottom: 20px;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: repeating-linear-gradient(45deg, #e2e8f0, #e2e8f0 4px, transparent 4px, transparent 8px);
+            border: 2px solid #64748b;
+        }
+        
+        .search-box {
+            width: 300px;
+            height: 40px;
+            border: 2px solid #e2e8f0;
+            background: repeating-linear-gradient(0deg, #f8fafc, #f8fafc 2px, transparent 2px, transparent 4px);
+        }
+        
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .current-user {
+            text-align: right;
+            margin-right: 16px;
+        }
+        
+        .current-user-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .current-user-role {
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .notification {
+            width: 32px;
+            height: 32px;
+            border: 2px solid #64748b;
+            background: repeating-linear-gradient(45deg, #fef3c7, #fef3c7 2px, transparent 2px, transparent 4px);
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .notification::after {
+            content: attr(data-count);
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 16px;
+            height: 16px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logout-btn {
+            padding: 8px 16px;
+            border: 2px solid #64748b;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .logout-btn:hover {
+            background: #f1f5f9;
+        }
+        
+        .main-layout {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 24px;
+            height: fit-content;
+        }
+        
+        .nav-item {
+            height: 48px;
+            margin-bottom: 8px;
+            border: 1px solid #e2e8f0;
+            background: repeating-linear-gradient(90deg, #f1f5f9, #f1f5f9 20px, transparent 20px, transparent 40px);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .nav-item:hover {
+            background: #e2e8f0;
+            transform: translateX(4px);
+        }
+        
+        .nav-item.active {
+            background: #dbeafe;
+            border-color: #3b82f6;
+        }
+        
+        .content {
+            flex: 1;
+        }
+        
+        .welcome-banner {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 2px solid #0ea5e9;
+            padding: 24px;
+            margin-bottom: 24px;
+            border-radius: 8px;
+        }
+        
+        .welcome-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .welcome-subtitle {
+            color: #64748b;
+            font-size: 14px;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .manager-kpis {
+            grid-template-columns: repeat(6, 1fr);
+        }
+        
+        .teamlead-kpis {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        .employee-kpis {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        .kpi-card {
+            height: 120px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 16px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .kpi-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        
+        .kpi-icon {
+            width: 32px;
+            height: 32px;
+            border: 2px solid #64748b;
+            background: repeating-linear-gradient(45deg, #e0e7ff, #e0e7ff 3px, transparent 3px, transparent 6px);
+            margin-bottom: 12px;
+        }
+        
+        .kpi-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .kpi-label {
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .trend {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 10px;
+            padding: 2px 6px;
+            background: #dcfce7;
+            color: #16a34a;
+            border: 1px solid #16a34a;
+        }
+        
+        .content-grid {
+            display: grid;
+            gap: 24px;
+        }
+        
+        .manager-grid {
+            grid-template-columns: 2fr 1fr;
+        }
+        
+        .teamlead-grid {
+            grid-template-columns: 3fr 1fr;
+        }
+        
+        .employee-grid {
+            grid-template-columns: 2fr 1fr;
+        }
+        
+        .section {
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 24px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: 2px solid #64748b;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            background: #f1f5f9;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        
+        .employee-card {
+            border: 2px solid #e2e8f0;
+            padding: 16px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .employee-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .employee-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        
+        .employee-info {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .employee-avatar {
+            width: 48px;
+            height: 48px;
+            border: 2px solid #64748b;
+            background: repeating-linear-gradient(45deg, #bfdbfe, #bfdbfe 4px, transparent 4px, transparent 8px);
+            border-radius: 50%;
+            position: relative;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            background: #10b981;
+            border: 2px solid white;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+        }
+        
+        .employee-details h4 {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .employee-details p {
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .workload-stats {
+            text-align: right;
+        }
+        
+        .workload-number {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: repeating-linear-gradient(90deg, #10b981, #10b981 8px, #059669 8px, #059669 16px);
+            transition: width 0.3s;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            background: repeating-linear-gradient(45deg, #f0fdf4, #f0fdf4 2px, transparent 2px, transparent 4px);
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: #16a34a;
+        }
+        
+        .chart-area {
+            height: 200px;
+            border: 2px solid #e2e8f0;
+            background: repeating-linear-gradient(45deg, #f8fafc, #f8fafc 8px, transparent 8px, transparent 16px);
+            margin: 16px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-weight: bold;
+        }
+        
+        .quick-actions {
+            margin-top: 24px;
+        }
+        
+        .action-item {
+            height: 40px;
+            border: 1px solid #e2e8f0;
+            background: repeating-linear-gradient(90deg, #fafafa, #fafafa 30px, transparent 30px, transparent 60px);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-item:hover {
+            background: #f1f5f9;
+            transform: translateX(4px);
+        }
+        
+        .role-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 1000;
+            color: white;
+        }
+        
+        .manager-indicator { background: #7c3aed; }
+        .teamlead-indicator { background: #3b82f6; }
+        .employee-indicator { background: #16a34a; }
+        
+        .personal-banner {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 2px solid #16a34a;
+            padding: 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .personal-avatar {
+            width: 60px;
+            height: 60px;
+            border: 3px solid #16a34a;
+            border-radius: 50%;
+            background: repeating-linear-gradient(45deg, #4ade80, #4ade80 6px, transparent 6px, transparent 12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            color: white;
+        }
+        
+        .personal-info h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .personal-info p {
+            color: #64748b;
+        }
+        
+        .task-list {
+            space: 16px;
+        }
+        
+        .task-item {
+            border: 2px solid #e2e8f0;
+            padding: 16px;
+            margin-bottom: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .task-item:hover {
+            border-color: #3b82f6;
+            transform: translateY(-1px);
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .task-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .task-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .priority-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .priority-high { background: #fecaca; color: #dc2626; }
+        .priority-medium { background: #fef3c7; color: #d97706; }
+        .priority-low { background: #dbeafe; color: #2563eb; }
+        
+        .status-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .status-todo { background: #f1f5f9; color: #64748b; }
+        .status-progress { background: #dbeafe; color: #2563eb; }
+        .status-completed { background: #dcfce7; color: #16a34a; }
+        .status-overdue { background: #fecaca; color: #dc2626; }
+        
+        .schedule-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 8px;
+            background: repeating-linear-gradient(90deg, #f0f9ff, #f0f9ff 20px, transparent 20px, transparent 40px);
+        }
+        
+        .time-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #3b82f6;
+        }
+        
+        .access-restriction {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            padding: 16px;
+            margin: 16px 0;
+            text-align: center;
+            color: #0369a1;
+            font-weight: 500;
+        }
+        
+        .loading-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e2e8f0;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="wireframe login-container" data-label="TASKFLOW PRO LOGIN">
+            <div class="logo-big"></div>
+            <h1 style="margin-bottom: 8px; font-size: 28px;">TaskFlow Pro</h1>
+            <p style="color: #64748b; margin-bottom: 30px;">เลือกบทบาทของคุณเพื่อเข้าสู่ระบบ</p>
+            
+            <div class="role-buttons">
+                <div class="role-btn" onclick="login('manager')">
+                    <div class="role-avatar manager-avatar">ป</div>
+                    <div class="role-info">
+                        <h3>ประยุทธ์ ผู้จัดการ</h3>
+                        <p>ผู้จัดการองค์กร - เข้าถึงข้อมูลทั้งหมด</p>
+                    </div>
+                    <div class="role-badge manager-badge">Manager</div>
+                </div>
+                
+                <div class="role-btn" onclick="login('teamlead')">
+                    <div class="role-avatar teamlead-avatar">ส</div>
+                    <div class="role-info">
+                        <h3>สมศักดิ์ หัวหน้าทีม</h3>
+                        <p>หัวหน้าทีม - จัดการทีมงานของตัวเอง</p>
+                    </div>
+                    <div class="role-badge teamlead-badge">Team Lead</div>
+                </div>
+                
+                <div class="role-btn" onclick="login('employee')">
+                    <div class="role-avatar employee-avatar">ก</div>
+                    <div class="role-info">
+                        <h3>กิตติพงษ์ พนักงาน</h3>
+                        <p>พนักงาน - ดูงานส่วนตัวเท่านั้น</p>
+                    </div>
+                    <div class="role-badge employee-badge">Employee</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manager Dashboard -->
+    <div class="dashboard" id="managerDashboard">
+        <div class="role-indicator manager-indicator">Manager View</div>
+        
+        <div class="wireframe header" data-label="MANAGER HEADER">
+            <div class="logo-section">
+                <div class="logo"></div>
+                <div style="font-weight: bold; font-size: 18px;">TaskFlow Pro</div>
+                <div class="search-box"></div>
+            </div>
+            <div class="user-section">
+                <div class="current-user">
+                    <div class="current-user-name">ประยุทธ์ ผู้จัดการ</div>
+                    <div class="current-user-role">Manager</div>
+                </div>
+                <div class="notification" data-count="5" onclick="showNotification('manager')"></div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="welcome-banner">
+                <div class="welcome-title">Manager Dashboard</div>
+                <div class="welcome-subtitle">ภาพรวมการจัดการองค์กรและทีมงานทั้งหมด</div>
+            </div>
+
+            <div class="main-layout">
+                <div class="wireframe sidebar" data-label="MANAGER SIDEBAR">
+                    <div class="nav-item active">📊 Dashboard</div>
+                    <div class="nav-item">👥 Team Management</div>
+                    <div class="nav-item">📋 All Tasks</div>
+                    <div class="nav-item">📈 Analytics</div>
+                    <div class="nav-item">📅 Calendar</div>
+                    <div class="nav-item">📊 Reports</div>
+                    <div class="nav-item">💰 Budget & Finance</div>
+                    <div class="nav-item">👤 User Management</div>
+                    <div class="nav-item">⚙️ System Settings</div>
+                </div>
+
+                <div class="content">
+                    <div class="wireframe kpi-grid manager-kpis" data-label="MANAGER KPIs">
+                        <div class="kpi-card">
+                            <div class="trend">+12%</div>
+                            <div class="kpi-icon"></div>
+                            <div class="kpi-value" id="totalTasks">48</div>
+                            <div class="kpi-label">งานทั้งหมด</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="trend">+8%</div>
+                            <div class="kpi-icon"></div>
+                            <div class="kpi-value" id="completedTasks">24</div>
+                            <div class="kpi-label">เสร็จวันนี้</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="trend" style="background: #fecaca; color: #dc2626;">-3%</div>
+                            <div class="kpi-icon"></div>
+                            <div class="kpi-value" id="overdueTasks">3</div>
+                            <div class="kpi-label">เกินกำหนด</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="trend">+5%</div>
+                            <div class="kpi-icon"></div>
+                            <div class="kpi-value">87%</div>
+                            <div class="kpi-label">ประสิทธิภาพ</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="trend">+2</div>
+                            <div class="kpi-icon"></div>
+                            <div class="kpi-value" id="totalEmployees">12</div>
+                            <div class="kpi-label">สมาชิกทีม</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="trend">+1</div>
+                            <div class="kpi-icon"></div>
+                            <div class="kpi-value" id="totalTeams">5</div>
+                            <div class="kpi-label">โครงการ</div>
+                        </div>
+                    </div>
+
+                    <div class="content-grid manager-grid">
+                        <div class="wireframe section" data-label="ALL TEAMS MANAGEMENT">
+                            <div class="section-header">
+                                <div class="section-title">Organization Teams</div>
+                                <div class="action-buttons">
+                                    <button class="btn">+ Add Employee</button>
+                                    <button class="btn btn-primary">+ Add Task</button>
+                                </div>
+                            </div>
+
+                            <div class="team-grid" id="teamGrid">
+                                <div class="employee-card">
+                                    <div class="employee-header">
+                                        <div class="employee-info">
+                                            <div class="employee-avatar">
+                                                <div class="status-indicator"></div>
+                                            </div>
+                                            <div class="employee-details">
+                                                <h4>Frontend Team</h4>
+                                                <p>4 สมาชิก - หัวหน้าทีม: สมศักดิ์</p>
+                                            </div>
+                                        </div>
+                                        <div class="workload-stats">
+                                            <div class="workload-number">18/32</div>
+                                            <div style="font-size: 12px; color: #64748b;">งาน</div>
+                                        </div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 56%;"></div>
+                                    </div>
+                                    <div class="stats-grid">
+                                        <div class="stat-box">
+                                            <div class="stat-value">12</div>
+                                            <div style="font-size: 10px;">เสร็จ</div>
+                                        </div>
+                                        <div class="stat-box">
+                                            <div class="stat-value">5</div>
+                                            <div style="font-size: 10px;">กำลังทำ</div>
+                                        </div>
+                                        <div class="stat-box">
+                                            <div class="stat-value">1</div>
+                                            <div style="font-size: 10px;">เกิน</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="employee-card">
+                                    <div class="employee-header">
+                                        <div class="employee-info">
+                                            <div class="employee-avatar">
+                                                <div class="status-indicator" style="background: #f59e0b;"></div>
+                                            </div>
+                                            <div class="employee-details">
+                                                <h4>Backend Team</h4>
+                                                <p>3 สมาชิก - หัวหน้าทีม: อนุชา</p>
+                                            </div>
+                                        </div>
+                                        <div class="workload-stats">
+                                            <div class="workload-number">15/24</div>
+                                            <div style="font-size: 12px; color: #64748b;">งาน</div>
+                                        </div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 62%;"></div>
+                                    </div>
+                                    <div class="stats-grid">
+                                        <div class="stat-box">
+                                            <div class="stat-value">10</div>
+                                            <div style="font-size: 10px;">เสร็จ</div>
+                                        </div>
+                                        <div class="stat-box">
+                                            <div class="stat-value">4</div>
+                                            <div style="font-size: 10px;">กำลังทำ</div>
+                                        </div>
+                                        <div class="stat-box">
+                                            <div class="stat-value">1</div>
+                                            <div style="font-size: 10px;">เกิน</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="employee-card">
+                                    <div class="employee-header">
+                                        <div class="employee-info">
+                                            <div class="employee-avatar">
+                                                <div class="status-indicator"></div>
+                                            </div>
+                                            <div class="employee-details">
+                                                <h4>Design Team</h4>
+                                                <p>2 สมาชิก - หัวหน้าทีม: นิดา</p>
+                                            </div>
+                                        </div>
+                                        <div class="workload-stats">
+                                            <div class="workload-number">8/16</div>
+                                            <div style="font-size: 12px; color: #64748b;">งาน</div>
+                                        </div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 50%;"></div>
+                                    </div>
+                                    <div class="stats-grid">
+                                        <div class="stat-box">
+                                            <div class="stat-value">6</div>
+                                            <div style="font-size: 10px;">เสร็จ</div>
+                                        </div>
+                                        <div class="stat-box">
+                                            <div class="stat-value">2</div>
+                                            <div style="font-size: 10px;">กำลังทำ</div>
+                                        </div>
+                                        <div class="stat-box">
+                                            <div class="stat-value">0</div>
+                                            <div style="font-size: 10px;">เกิน</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="employee-card">
+                                    <div class="employee-header">
+                                        <div class="employee-info">
+                                            <div class="employee-avatar">
+                                                <div class="status-indicator" style="background: #dc2626;"></div>
+                                            </div>
+                                            <div class="employee-details">
+                                                <h4>QA Team</h4>
+                                                <p>3 สมาชิก - หัวหน้าทีม: วิชัย</p>
+                                            </div>
+                                        </div>
+                                        <div class="workload-stats">
+                                            <div class="workload-number" style="color: #dc2626;">20/18</div>
+                                            <div style="font-size: 12px; color: #64748b;">งาน</div>
+                                        </div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 100%; background: repeating-linear-gradient(90deg, #dc2626, #dc2626 8px, #b91c1c 8px, #b91c1c 16px);"></div>
+                                    </div>
+                                    <div class="stats-grid">
+                                        <div class="stat-box">
+                                            <div class="stat-value">14</div>
+                                            <div style="font-size: 10px;">เสร็จ</div>
+                                        </div>
+                                        <div class="stat-box">
+                                            <div class="stat-value">4</div>
+                                            <div style="font-size: 10px;">กำลังทำ</div>
+                                        </div>
+                                        <div class="stat-box" style="background: repeating-linear-gradient(45deg, #fecaca, #fecaca 2px, transparent 2px, transparent 4px);">
+                                            <div class="stat-value" style="color: #dc2626;">2</div>
+                                            <div style="font-size: 10px;">เกิน</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="wireframe section" data-label="ORGANIZATION ANALYTICS">
+                            <div class="section-title">Organization Analytics</div>
+                            <div class="chart-area">
+                                📊 Organization Performance<br>
+                                <small>All Teams Overview</small>
+                            </div>
+                            
+                            <div class="quick-actions">
+                                <div style="font-weight: bold; margin-bottom: 12px;">Management Actions</div>
+                                <div class="action-item">📊 Generate Company Report</div>
+                                <div class="action-item">👥 HR Management</div>
+                                <div class="action-item">💰 Budget Planning</div>
+                                <div class="action-item">📈 Performance Review</div>
+                                <div class="action-item">⚙️ System Settings</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Lead Dashboard -->
+    <div class="dashboard" id="teamleadDashboard">
+        <div class="role-indicator teamlead-indicator">Team Lead View</div>
+        
+        <div class="wireframe header" data-label="TEAM LEAD HEADER">
+            <div class="logo-section">
+                <div class="logo"></div>
+                <div style="font-weight: bold; font-size: 18px;">TaskFlow Pro</div>
+                <div class="search-box"></div>
+            </div>
+            <div class="user-section">
+                <div class="current-user">
+                    <div class="current-user-name">สมศักดิ์ หัวหน้าทีม</div>
+                    <div class="current-user-role">Team Lead</div>
+                </div>
+                <div class="notification" data-count="3" onclick="showNotification('teamlead')"></div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="welcome-banner" style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border-color: #3b82f6;">
+                <div class="welcome-title">Team Lead Dashboard</div>
+                <div class="welcome-subtitle">จัดการทีม Frontend Development (4 สมาชิก)</div>
+            </div>
+
+            <div class="main-layout">
+                <div class="wireframe sidebar" data-label="TEAM LEAD SIDEBAR">
+                    <div class="nav-item active">📊 My Team Dashboard</div>
+                    <div class="nav-item">👥 My Team Members</div>
+                    <div class="nav-item">📋 Team Tasks</div>
+                    <div class="nav-item">📈 Team Analytics</div>
+                    <div class="nav-item">📅 Team Calendar</div>
+                    <div class="nav-item">📊 Team Reports</div>
+                </div>
+
+                <div class="content">
+                    <div class="wireframe kpi-grid teamlead-kpis" data-label="TEAM KPIs">
+                        <div class="kpi-card">
+                            <div class="trend">+15%</div>
+                            <div class="kpi-icon"></div>
+                            <div class="kpi-value" id="teamTotalTasks">18</div>
+                            <div class="kpi-label">ทีมงาน</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="trend">+10%</div>
+                            <div class="kpi-icon"></div>
+                            <div class="kpi-value" id="teamCompletedTasks">12</div>
+                            <div class="kpi-label">เสร็จวันนี้</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="trend" style="background: #fecaca; color: #dc2626;">-2%</div>
+                            <div class="kpi-icon"></div>
+                            <div class="kpi-value" id="teamOverdueTasks">1</div>
+                            <div class="kpi-label">เกินกำหนด</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="trend">+7%</div>
+                            <div class="kpi-icon"></div>
+                            <div class="kpi-value">92%</div>
+                            <div class="kpi-label">ประสิทธิภาพทีม</div>
+                        </div>
+                    </div>
+
+                    <div class="content-grid teamlead-grid">
+                        <div class="wireframe section" data-label="MY TEAM MEMBERS">
+                            <div class="section-header">
+                                <div class="section-title">My Team Members (Frontend)</div>
+                                <div class="action-buttons">
+                                    <button class="btn btn-primary">+ Assign Task</button>
+                                </div>
+                            </div>
+
+                            <div class="team-grid">
+                                <div class="employee-card">
+                                    <div class="employee-header">
+                                        <div class="employee-info">
+                                            <div class="employee-avatar">
+                                                <div class="status-indicator"></div>
+                                            </div>
+                                            <div class="employee-details">
+                                                <h4>กิตติพงษ์ สมศรี</h4>
+                                                <p>Senior Developer</p>
+                                            </div>
+                                        </div>
+                                        <div class="workload-stats">
+                                            <div class="workload-number">7/10</div>
+                                            <div style="font-size: 12px; color: #64748b;">งาน</div>
+                                        </div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 70%;"></div>
+                                    </div>
+                                    <div class="stats-grid">
+                                        <div class="stat-box">
+                                            <div class="stat-value">5</div>
+                                            <div style="font-size: 10px;">เสร็จ</div>
+                                        </div>
+                                        <div class="stat-box">
+                                            <div class="stat-value">2</div>
+                                            <div style="font-size: 10px;">กำลังทำ</div>
+                                        </div>
+                                        <div class="stat-box">
+                                            <div class="stat-value">0</div>
+                                            <div style="font-size: 10px;">เกิน</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="employee-card">
+                                    <div class="employee-header">
+                                        <div class="employee-info">
+                                            <div class="employee-avatar">
+                                                <div class="status-indicator"></div>
+                                            </div>
+                                            <div class="employee-details">
+                                                <h4>อรุณ ใจดี</h4>
+                                                <p>Frontend Developer</p>
+                                            </div>
+                                        </div>
+                                        <div class="workload-stats">
+                                            <div class="workload-number">3/8</div>
+                                            <div style="font-size: 12px; color: #64748b;">งาน</div>
+                                        </div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 37.5%;"></div>
+                                    </div>
+                                    <div class="stats-grid">
+                                        <div class="stat-box">
+                                            <div class="stat-value">2</div>
+                                            <div style="font-size: 10px;">เสร็จ</div>
+                                        </div>
+                                        <div class="stat-box">
+                                            <div class="stat-value">1</div>
+                                            <div style="font-size: 10px;">กำลังทำ</div>
+                                        </div>
+                                        <div class="stat-box">
+                                            <div class="stat-value">0</div>
+                                            <div style="font-size: 10px;">เกิน</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="employee-card">
+                                    <div class="employee-header">
+                                        <div class="employee-info">
+                                            <div class="employee-avatar">
+                                                <div class="status-indicator" style="background: #f59e0b;"></div>
+                                            </div>
+                                            <div class="employee-details">
+                                                <h4>นภัสสร จันทร์เพ็ญ</h4>
+                                                <p>UI/UX Designer</p>
+                                            </div>
+                                        </div>
+                                        <div class="workload-stats">
+                                            <div class="workload-number">4/8</div>
+                                            <div style="font-size: 12px; color: #64748b;">งาน</div>
+                                        </div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 50%;"></div>
+                                    </div>
+                                    <div class="stats-grid">
+                                        <div class="stat-box">
+                                            <div class="stat-value">3</div>
+                                            <div style="font-size: 10px;">เสร็จ</div>
+                                        </div>
+                                        <div class="stat-box">
+                                            <div class="stat-value">1</div>
+                                            <div style="font-size: 10px;">กำลังทำ</div>
+                                        </div>
+                                        <div class="stat-box">
+                                            <div class="stat-value">0</div>
+                                            <div style="font-size: 10px;">เกิน</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="employee-card">
+                                    <div class="employee-header">
+                                        <div class="employee-info">
+                                            <div class="employee-avatar">
+                                                <div class="status-indicator" style="background: #f59e0b;"></div>
+                                            </div>
+                                            <div class="employee-details">
+                                                <h4>สมหญิง วัฒนา</h4>
+                                                <p>Junior Developer</p>
+                                            </div>
+                                        </div>
+                                        <div class="workload-stats">
+                                            <div class="workload-number">4/6</div>
+                                            <div style="font-size: 12px; color: #64748b;">งาน</div>
+                                        </div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 66%;"></div>
+                                    </div>
+                                    <div class="stats-grid">
+                                        <div class="stat-box">
+                                            <div class="stat-value">2</div>
+                                            <div style="font-size: 10px;">เสร็จ</div>
+                                        </div>
+                                        <div class="stat-box">
+                                            <div class="stat-value">2</div>
+                                            <div style="font-size: 10px;">กำลังทำ</div>
+                                        </div>
+                                        <div class="stat-box" style="background: repeating-linear-gradient(45deg, #fecaca, #fecaca 2px, transparent 2px, transparent 4px);">
+                                            <div class="stat-value" style="color: #dc2626;">1</div>
+                                            <div style="font-size: 10px;">เกิน</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="access-restriction">
+                                ℹ️ Team Lead เข้าถึงเฉพาะทีมตัวเอง - ไม่เห็นทีมอื่น
+                            </div>
+                        </div>
+
+                        <div class="wireframe section" data-label="TEAM ANALYTICS">
+                            <div class="section-title">Team Performance</div>
+                            <div class="chart-area">
+                                📈 Frontend Team Chart<br>
+                                <small>Team Members Performance</small>
+                            </div>
+                            
+                            <div class="quick-actions">
+                                <div style="font-weight: bold; margin-bottom: 12px;">Team Actions</div>
+                                <div class="action-item">📊 Team Report</div>
+                                <div class="action-item">👥 Team Meeting</div>
+                                <div class="action-item">🎯 Set Team Goals</div>
+                                <div class="action-item">📅 Schedule Review</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Dashboard -->
+    <div class="dashboard" id="employeeDashboard">
+        <div class="role-indicator employee-indicator">Employee View</div>
+        
+        <div class="wireframe header" data-label="EMPLOYEE HEADER">
+            <div class="logo-section">
+                <div class="logo"></div>
+                <div style="font-weight: bold; font-size: 18px;">TaskFlow Pro</div>
+                <div class="search-box"></div>
+            </div>
+            <div class="user-section">
+                <div class="current-user">
+                    <div class="current-user-name">กิตติพงษ์ พนักงาน</div>
+                    <div class="current-user-role">Employee</div>
+                </div>
+                <div class="notification" data-count="2" onclick="showNotification('employee')"></div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="personal-banner">
+                <div class="personal-avatar">ก</div>
+                <div class="personal-info">
+                    <h2>สวัสดี, กิตติพงษ์!</h2>
+                    <p>Senior Developer - Frontend Team</p>
+                    <p style="font-size: 12px; margin-top: 4px;">ประสิทธิภาพ: 95% | Level: Senior</p>
+                </div>
+                <div style="margin-left: auto; text-align: right;">
+                    <div style="font-size: 32px; font-weight: bold;" id="myTaskCount">7/10</div>
+                    <div style="color: #64748b;">งานที่ได้รับมอบหมาย</div>
+                </div>
+            </div>
+
+            <div class="main-layout">
+                <div class="wireframe sidebar" data-label="EMPLOYEE SIDEBAR">
+                    <div class="nav-item active">📊 My Dashboard</div>
+                    <div class="nav-item">📋 My Tasks</div>
+                    <div class="nav-item">⏱️ Time Tracking</div>
+                    <div class="nav-item">📅 My Calendar</div>
+                    <div class="nav-item">👤 My Profile</div>
+                    <div class="nav-item">📚 Learning</div>
+                    <div class="nav-item">🎯 Goals</div>
+                </div>
+
+                <div class="content">
+                    <div class="wireframe kpi-grid employee-kpis" data-label="PERSONAL KPIs">
+                        <div class="kpi-card">
+                            <div class="trend">+20%</div>
+                            <div class="kpi-icon"></div>
+                            <div class="kpi-value" id="myCompletedTasks">5</div>
+                            <div class="kpi-label">เสร็จวันนี้</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="trend">→</div>
+                            <div class="kpi-icon"></div>
+                            <div class="kpi-value" id="myInProgressTasks">2</div>
+                            <div class="kpi-label">กำลังทำ</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="trend" style="background: #dcfce7; color: #16a34a;">0</div>
+                            <div class="kpi-icon"></div>
+                            <div class="kpi-value" id="myOverdueTasks">0</div>
+                            <div class="kpi-label">เกินกำหนด</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="trend">+2%</div>
+                            <div class="kpi-icon"></div>
+                            <div class="kpi-value">95%</div>
+                            <div class="kpi-label">ประสิทธิภาพ</div>
+                        </div>
+                    </div>
+
+                    <div class="content-grid employee-grid">
+                        <div class="wireframe section" data-label="MY TASKS">
+                            <div class="section-header">
+                                <div class="section-title">งานของฉัน</div>
+                                <div class="action-buttons">
+                                    <button class="btn">Filter</button>
+                                    <button class="btn btn-primary">Update Progress</button>
+                                </div>
+                            </div>
+
+                            <div class="task-list">
+                                <div class="task-item">
+                                    <div class="task-header">
+                                        <div>
+                                            <div class="task-title">API Development for User Authentication</div>
+                                            <div class="task-meta">
+                                                <span>📅 ครบกำหนด: 25 มิ.ย. 2025</span>
+                                                <span>⏱️ 8/16 ชม.</span>
+                                                <span>📁 User Management</span>
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; gap: 8px;">
+                                            <span class="priority-badge priority-high">สูง</span>
+                                            <span class="status-badge status-progress">กำลังทำ</span>
+                                        </div>
+                                    </div>
+                                    <div style="margin: 12px 0;">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                            <span style="font-size: 12px;">ความคืบหน้า</span>
+                                            <span style="font-size: 12px;">60%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 60%;"></div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 8px;">
+                                        <span style="background: #dbeafe; padding: 2px 8px; font-size: 10px; border-radius: 12px;">#backend</span>
+                                        <span style="background: #dbeafe; padding: 2px 8px; font-size: 10px; border-radius: 12px;">#security</span>
+                                        <span style="background: #dbeafe; padding: 2px 8px; font-size: 10px; border-radius: 12px;">#api</span>
+                                    </div>
+                                </div>
+
+                                <div class="task-item">
+                                    <div class="task-header">
+                                        <div>
+                                            <div class="task-title">Frontend Component Refactoring</div>
+                                            <div class="task-meta">
+                                                <span>📅 ครบกำหนด: 22 มิ.ย. 2025</span>
+                                                <span>⏱️ 4/8 ชม.</span>
+                                                <span>📁 Component Library</span>
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; gap: 8px;">
+                                            <span class="priority-badge priority-medium">ปานกลาง</span>
+                                            <span class="status-badge status-progress">กำลังทำ</span>
+                                        </div>
+                                    </div>
+                                    <div style="margin: 12px 0;">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                            <span style="font-size: 12px;">ความคืบหน้า</span>
+                                            <span style="font-size: 12px;">50%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 50%;"></div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 8px;">
+                                        <span style="background: #dbeafe; padding: 2px 8px; font-size: 10px; border-radius: 12px;">#frontend</span>
+                                        <span style="background: #dbeafe; padding: 2px 8px; font-size: 10px; border-radius: 12px;">#react</span>
+                                    </div>
+                                </div>
+
+                                <div class="task-item" style="border-color: #dcfce7; background: #f0fdf4;">
+                                    <div class="task-header">
+                                        <div>
+                                            <div class="task-title">Code Review - Payment Module</div>
+                                            <div class="task-meta">
+                                                <span>📅 ครบกำหนด: 20 มิ.ย. 2025</span>
+                                                <span>⏱️ 2/2 ชม.</span>
+                                                <span>📁 Payment System</span>
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; gap: 8px;">
+                                            <span class="priority-badge priority-low">ต่ำ</span>
+                                            <span class="status-badge status-completed">เสร็จแล้ว</span>
+                                        </div>
+                                    </div>
+                                    <div style="margin: 12px 0;">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                            <span style="font-size: 12px;">ความคืบหน้า</span>
+                                            <span style="font-size: 12px;">100%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 100%; background: #16a34a;"></div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 8px;">
+                                        <span style="background: #dcfce7; padding: 2px 8px; font-size: 10px; border-radius: 12px;">#review</span>
+                                        <span style="background: #dcfce7; padding: 2px 8px; font-size: 10px; border-radius: 12px;">#payment</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="access-restriction">
+                                ℹ️ Employee เข้าถึงเฉพาะงานที่ได้รับมอบหมาย - ไม่เห็นงานคนอื่น
+                            </div>
+                        </div>
+
+                        <div class="wireframe section" data-label="PERSONAL SCHEDULE">
+                            <div class="section-title">ตารางวันนี้</div>
+                            <div style="margin: 16px 0;">
+                                <div class="schedule-item" style="background: repeating-linear-gradient(90deg, #dbeafe, #dbeafe 20px, transparent 20px, transparent 40px);">
+                                    <div class="time-dot"></div>
+                                    <div>
+                                        <div style="font-weight: bold;">Daily Standup</div>
+                                        <div style="font-size: 12px; color: #64748b;">9:00 - 9:30 น.</div>
+                                    </div>
+                                </div>
+                                <div class="schedule-item" style="background: repeating-linear-gradient(90deg, #dcfce7, #dcfce7 20px, transparent 20px, transparent 40px);">
+                                    <div class="time-dot" style="background: #16a34a;"></div>
+                                    <div>
+                                        <div style="font-weight: bold;">Code Review Session</div>
+                                        <div style="font-size: 12px; color: #64748b;">14:00 - 15:00 น.</div>
+                                    </div>
+                                </div>
+                                <div class="schedule-item" style="background: repeating-linear-gradient(90deg, #fef3c7, #fef3c7 20px, transparent 20px, transparent 40px);">
+                                    <div class="time-dot" style="background: #f59e0b;"></div>
+                                    <div>
+                                        <div style="font-weight: bold;">Sprint Planning</div>
+                                        <div style="font-size: 12px; color: #64748b;">16:00 - 17:00 น.</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 24px;">
+                                <div style="font-weight: bold; margin-bottom: 12px;">ความสำเร็จ</div>
+                                <div style="display: grid; gap: 8px;">
+                                    <div style="display: flex; align-items: center; gap: 8px; padding: 8px; background: repeating-linear-gradient(45deg, #fef3c7, #fef3c7 3px, transparent 3px, transparent 6px); border: 1px solid #f59e0b;">
+                                        <span>🏆</span>
+                                        <span style="font-size: 12px;">Employee of Month</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px; padding: 8px; background: repeating-linear-gradient(45deg, #fef3c7, #fef3c7 3px, transparent 3px, transparent 6px); border: 1px solid #f59e0b;">
+                                        <span>⭐</span>
+                                        <span style="font-size: 12px;">Best Code Quality</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px; padding: 8px; background: repeating-linear-gradient(45deg, #fef3c7, #fef3c7 3px, transparent 3px, transparent 6px); border: 1px solid #f59e0b;">
+                                        <span>💡</span>
+                                        <span style="font-size: 12px;">Innovation Award</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="access-restriction" style="margin-top: 24px;">
+                                ℹ️ Employee เข้าถึงเฉพาะข้อมูลส่วนตัว - งานของตัวเอง 7 งาน
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://192.168.20.10:777';
+        let currentRole = null;
+        let clickUpData = null;
+
+        function login(role) {
+            currentRole = role;
+            document.getElementById('loginScreen').style.display = 'none';
+            
+            // Hide all dashboards
+            document.querySelectorAll('.dashboard').forEach(dashboard => {
+                dashboard.classList.remove('active');
+            });
+            
+            // Show specific dashboard
+            document.getElementById(role + 'Dashboard').classList.add('active');
+            
+            // Load data after login
+            loadClickUpData();
+        }
+
+        function logout() {
+            currentRole = null;
+            clickUpData = null;
+            document.getElementById('loginScreen').style.display = 'flex';
+            
+            // Hide all dashboards
+            document.querySelectorAll('.dashboard').forEach(dashboard => {
+                dashboard.classList.remove('active');
+            });
+        }
+
+        async function loadClickUpData() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/v1/test/clickup-data`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    clickUpData = result.data;
+                    console.log('ClickUp data loaded:', clickUpData);
+                    // Update any dynamic elements if needed
+                }
+            } catch (error) {
+                console.error('Error loading ClickUp data:', error);
+            }
+        }
+
+        function showNotification(role) {
+            let notifications = {
+                'manager': [
+                    '• QA Team มีงานล้นเกินกำหนด (2 งาน)',
+                    '• Frontend Team ประสิทธิภาพเพิ่มขึ้น 15%', 
+                    '• งบประมาณโครงการใหม่รออนุมัติ',
+                    '• มีคำขอลาจาก 3 คน',
+                    '• ประชุมผู้บริหารวันพรุ่งนี้ 14:00'
+                ],
+                'teamlead': [
+                    '• สมหญิงมีงานเกินกำหนด 1 งาน',
+                    '• กิตติพงษ์ส่งงาน Code Review แล้ว',
+                    '• Sprint Planning วันพรุ่งนี้ 16:00'
+                ],
+                'employee': [
+                    '• งาน "API Development" ถูกอัพเดทโดย Team Lead',
+                    '• Daily Standup ในอีก 30 นาที'
+                ]
+            };
+            
+            alert('Notifications (' + role + '):\n' + notifications[role].join('\n'));
+        }
+
+        // Add interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to cards
+            document.querySelectorAll('.kpi-card, .employee-card, .task-item').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = '';
+                    this.style.boxShadow = '';
+                });
+            });
+
+            // Progress bar animations
+            setTimeout(() => {
+                document.querySelectorAll('.progress-fill').forEach(progress => {
+                    const width = progress.style.width;
+                    progress.style.width = '0%';
+                    setTimeout(() => {
+                        progress.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+        });
+
+        // Auto-demo instruction
+        setTimeout(() => {
+            if (!currentRole) {
+                const instruction = document.createElement('div');
+                instruction.innerHTML = `
+                    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                                background: white; padding: 20px; border: 3px solid #3b82f6; 
+                                box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 2000; text-align: center;">
+                        <h3 style="margin-bottom: 16px; color: #3b82f6;">🎯 TaskFlow Pro - Wireframe Demo</h3>
+                        <p style="margin-bottom: 16px;">เลือกบทบาทใดก็ได้เพื่อดูการทำงานของระบบ</p>
+                        <p style="font-size: 12px; color: #64748b;">แต่ละบทบาทมี Component และสิทธิ์ที่แตกต่างกัน</p>
+                        <button onclick="this.parentElement.parentElement.remove()" 
+                                style="margin-top: 16px; padding: 8px 16px; background: #3b82f6; color: white; border: none; cursor: pointer;">
+                            เข้าใจแล้ว
+                        </button>
+                    </div>
+                    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+                                background: rgba(0,0,0,0.5); z-index: 1999;" onclick="this.parentElement.remove()"></div>
+                `;
+                document.body.appendChild(instruction);
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

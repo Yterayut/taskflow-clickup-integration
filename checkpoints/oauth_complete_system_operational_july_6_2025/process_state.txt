@@ -1,0 +1,9 @@
+one-cli+ 2627170  0.0  0.0   7372  3560 ?        Ss   Jul06   0:00 bash -c cd /home/one-climate/team-workload && tail -f auth_backend.log | grep -E '(OAuth|ClickUp|token|error)'
+one-cli+ 2627171  0.0  0.0   5804  1016 ?        S    Jul06   0:00 tail -f auth_backend.log
+one-cli+ 2639989  0.0  0.0   7372  3636 ?        Ss   Jul06   0:00 bash -c cd /home/one-climate/team-workload && tail -f auth_backend.log | grep -E '(OAuth|ClickUp|token|exchange|State validated|Client secret|ECODE)'
+one-cli+ 2639990  0.0  0.0   5804  1056 ?        S    Jul06   0:00 tail -f auth_backend.log
+one-cli+ 2661239  0.1  0.9 1304436 77544 ?       Ssl  Jul06   0:49 node /home/one-climate/km-base/backend/src/app.js
+one-cli+ 2715792  0.0  0.0   7372  1768 ?        S    00:00   0:00 bash -c cd /home/one-climate/team-workload && JWT_SECRET='taskflow_pro_jwt_secret_2025_secure_key_v2.1' DB_HOST='localhost' DB_USER='taskflow_user' DB_NAME='taskflow_pro' DB_PASSWORD='TaskFlow2025Secure' CLICKUP_CLIENT_ID='F9M7XRHB7T6Q78ZVL5077IT2HM89KTK5' CLICKUP_CLIENT_SECRET='M8W2S8R6YK386H0VV10ZFM1H67PCR3SMC5GU5U0QV6S94EI80FWF9AQL83YUI19J' CLICKUP_REDIRECT_URI='192.168.20.10:7812' MASTER_USER_EMAIL='yterayut@gmail.com' nohup node single_login_backend_with_sync.js > final_oauth_complete.log 2>&1 &
+one-cli+ 2715793  0.3  0.9 11788252 74992 ?      Sl   00:00   0:01 node single_login_backend_with_sync.js
+one-cli+ 2716628  0.0  0.0   7372  3636 ?        Ss   00:05   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/oauth_complete_system_operational_july_6_2025/process_state.txt
+one-cli+ 2716630  0.0  0.0   6612  2276 ?        S    00:05   0:00 grep backend

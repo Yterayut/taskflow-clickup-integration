@@ -1,0 +1,14 @@
+#!/bin/bash
+# EMERGENCY FIX FOR INFINITE LOOP
+# Location: /var/www/taskflow/index.html line 2699
+
+# CRITICAL FIX: Add circuit breaker to showContentWithoutClickUp function
+
+# BACKUP ORIGINAL
+cp /var/www/taskflow/index.html /var/www/taskflow/index.html.backup-emergency-$(date +%Y%m%d_%H%M%S)
+
+# APPLY EMERGENCY FIX
+sed -i '2699s/.*/            \/\/ EMERGENCY FIX: Prevent infinite loop - REMOVED loadComponentData(currentView)/' /var/www/taskflow/index.html
+
+echo "🚨 EMERGENCY FIX APPLIED - Infinite loop prevented"
+echo "🔄 Next: Full circuit breaker implementation required"

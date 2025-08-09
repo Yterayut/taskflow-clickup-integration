@@ -1,0 +1,2 @@
+one-cli+ 1076763  0.0  0.0   7372  3496 ?        Ss   17:29   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/enhanced_loading_system_27_06_2025_1729/process_state.txt
+one-cli+ 1076765  0.0  0.0   6480  2440 ?        R    17:29   0:00 grep backend

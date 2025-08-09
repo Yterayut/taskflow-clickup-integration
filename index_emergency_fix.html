@@ -1,0 +1,1940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - ClickUp Integration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Enhanced Dark Mode CSS Variables */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --bg-accent: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            --border-primary: #e5e7eb;
+            --border-secondary: #d1d5db;
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1d4ed8;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --bg-tertiary: #374151;
+            --bg-accent: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-tertiary: #9ca3af;
+            --border-primary: #374151;
+            --border-secondary: #4b5563;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            transition: var(--transition);
+        }
+
+        /* Login Page Styles */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--bg-primary);
+            padding: 48px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-logo {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-secondary);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 16px;
+        }
+
+        .login-button:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-1px);
+        }
+
+        .login-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .clickup-connect-btn {
+            background: #7b68ee;
+            color: white;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 16px;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .clickup-connect-btn:hover {
+            background: #6a5acd;
+            transform: translateY(-1px);
+        }
+
+        .login-error {
+            color: var(--danger-red);
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .login-info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #1e40af;
+        }
+
+        [data-theme="dark"] .login-info {
+            background: #1e3a8a;
+            border-color: #3b82f6;
+            color: #bfdbfe;
+        }
+
+        /* Main Dashboard Layout */
+        .app-container {
+            display: none;
+        }
+
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-primary);
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2563eb;
+            margin-right: 48px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .theme-toggle {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-secondary);
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .logout-btn {
+            background: var(--danger-red);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 64px;
+            bottom: 0;
+            width: 280px;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-primary);
+            padding: 24px 0;
+            overflow-y: auto;
+            transition: var(--transition);
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--bg-tertiary);
+            color: var(--primary-blue);
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 16px;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            margin-top: 64px;
+            padding: 32px;
+            min-height: calc(100vh - 64px);
+        }
+
+        .dashboard-section {
+            display: none;
+        }
+
+        .dashboard-section.active {
+            display: block;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border-secondary);
+            border-top: 2px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-primary);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-primary);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Table Styles */
+        .table-container {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-primary);
+        }
+
+        .table-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .table-filters {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-secondary);
+            border-radius: 6px;
+            font-size: 14px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-secondary);
+            border-radius: 6px;
+            font-size: 14px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 16px 24px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-primary);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th:hover {
+            background: var(--bg-accent);
+        }
+
+        .sort-icon {
+            margin-left: 8px;
+            opacity: 0.5;
+        }
+
+        .sort-icon.active {
+            opacity: 1;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-todo { background: #fee2e2; color: #991b1b; }
+        .status-open { background: #fee2e2; color: #991b1b; }
+        .status-in-progress { background: #fef3c7; color: #92400e; }
+        .status-review { background: #dbeafe; color: #1e40af; }
+        .status-testing { background: #e0e7ff; color: #3730a3; }
+        .status-complete { background: #dcfce7; color: #166534; }
+        .status-closed { background: #dcfce7; color: #166534; }
+        .status-done { background: #dcfce7; color: #166534; }
+
+        .priority-urgent { color: #dc2626; font-weight: 600; }
+        .priority-high { color: var(--danger-red); font-weight: 600; }
+        .priority-normal { color: var(--warning-orange); font-weight: 600; }
+        .priority-low { color: var(--success-green); font-weight: 600; }
+
+        /* Action Buttons */
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-right: 8px;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-secondary);
+        }
+
+        .btn-success {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-red);
+            color: white;
+        }
+
+        /* Performance Leaderboard */
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .leaderboard-rank {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-right: 16px;
+            min-width: 40px;
+        }
+
+        .leaderboard-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 16px;
+            background: var(--primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .leaderboard-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .leaderboard-info {
+            flex: 1;
+        }
+
+        .leaderboard-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .leaderboard-role {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .leaderboard-score {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--success-green);
+        }
+
+        /* Error States */
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        [data-theme="dark"] .error-message {
+            background: #7f1d1d;
+            border-color: #991b1b;
+            color: #fca5a5;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+        }
+
+        /* Dark mode adjustments */
+        [data-theme="dark"] .status-todo { background: #7f1d1d; color: #fca5a5; }
+        [data-theme="dark"] .status-open { background: #7f1d1d; color: #fca5a5; }
+        [data-theme="dark"] .status-in-progress { background: #78350f; color: #fcd34d; }
+        [data-theme="dark"] .status-review { background: #1e3a8a; color: #93c5fd; }
+        [data-theme="dark"] .status-testing { background: #312e81; color: #a5b4fc; }
+        [data-theme="dark"] .status-complete { background: #14532d; color: #86efac; }
+        [data-theme="dark"] .status-closed { background: #14532d; color: #86efac; }
+        [data-theme="dark"] .status-done { background: #14532d; color: #86efac; }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="login-logo">🚀 TaskFlow Pro</div>
+            <div class="login-subtitle">ClickUp Integration System</div>
+            
+            <div class="login-info">
+                <strong>Demo Accounts:</strong><br>
+                Manager: yterayut@gmail.com<br>
+                Team Lead: chaiwutwck@gmail.com<br>
+                Employee: atthakorn.na@ku.th<br>
+                Password: 12345
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="loginEmail" class="form-input" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" id="loginButton" class="login-button">Sign In</button>
+                <div id="loginError" class="login-error"></div>
+                
+                <div id="clickupConnectSection" style="display: none;">
+                    <p style="color: var(--text-secondary); margin: 16px 0;">Please connect your ClickUp account to access your tasks and data.</p>
+                    <a href="/auth/clickup" class="clickup-connect-btn">🔗 Connect ClickUp Account</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="appContainer" class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                🚀 TaskFlow Pro
+            </div>
+            
+            <div class="header-actions">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">
+                        <span id="userInitials">TY</span>
+                    </div>
+                    <div>
+                        <div id="userName">Teerayut Yeerahem</div>
+                        <small id="userRole" style="color: var(--text-secondary);">(Manager)</small>
+                    </div>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <ul class="nav-menu" id="navMenu">
+                <!-- Navigation will be populated based on user role -->
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Manager Dashboard -->
+            <div id="manager-dashboard" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">Manager Dashboard</h1>
+                    <p class="page-subtitle">Overview of all team activities and performance from ClickUp</p>
+                </div>
+
+                <div class="stats-grid" id="managerStats">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        Loading dashboard data...
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Quick Actions</h2>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn-primary action-btn" onclick="showSection('all-tasks')">View All Tasks</button>
+                        <button class="btn-secondary action-btn" onclick="showSection('team-overview')">Team Overview</button>
+                        <button class="btn-success action-btn" onclick="showSection('employee-management')">Team Members</button>
+                        <button class="btn-primary action-btn" onclick="showSection('team-ranking')">Team Ranking</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Tasks Section -->
+            <div id="all-tasks" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">All Tasks</h1>
+                    <p class="page-subtitle">Manage and track all team tasks from ClickUp</p>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2 class="table-title">Task Management</h2>
+                        <div class="table-filters">
+                            <input type="text" class="filter-input" placeholder="Search tasks..." id="taskSearch">
+                            <select class="filter-select" id="statusFilter">
+                                <option value="">All Status</option>
+                                <option value="todo">To Do</option>
+                                <option value="open">Open</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="review">Review</option>
+                                <option value="testing">Testing</option>
+                                <option value="complete">Complete</option>
+                                <option value="closed">Closed</option>
+                                <option value="done">Done</option>
+                            </select>
+                            <select class="filter-select" id="priorityFilter">
+                                <option value="">All Priority</option>
+                                <option value="urgent">Urgent</option>
+                                <option value="high">High</option>
+                                <option value="normal">Normal</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="tasksTableContainer">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            Loading tasks from ClickUp...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Overview Section -->
+            <div id="team-overview" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">Team Overview</h1>
+                    <p class="page-subtitle">Team analytics and insights from ClickUp data</p>
+                </div>
+
+                <div class="stats-grid" id="teamOverviewStats">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        Loading team analytics...
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Team Performance Insights</h2>
+                    </div>
+                    <p>Real-time analytics calculated from your ClickUp workspace data.</p>
+                </div>
+            </div>
+
+            <!-- Employee Management Section -->
+            <div id="employee-management" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">Team Members</h1>
+                    <p class="page-subtitle">Manage team members from your ClickUp workspace</p>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2 class="table-title">Team Members</h2>
+                    </div>
+                    
+                    <div id="teamMembersContainer">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            Loading team members from ClickUp...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Ranking Section -->
+            <div id="team-ranking" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">Team Ranking</h1>
+                    <p class="page-subtitle">Performance leaderboard calculated from ClickUp task data</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Performance Leaderboard</h2>
+                        <button class="btn-secondary action-btn" onclick="showSection('system-settings')">Configure Scoring</button>
+                    </div>
+                    
+                    <div id="leaderboardContainer">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            Calculating performance scores...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Settings Section -->
+            <div id="system-settings" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">System Settings</h1>
+                    <p class="page-subtitle">Configure system preferences and scoring rules</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Performance Scoring Rules</h2>
+                    </div>
+                    
+                    <div id="scoringSettings" style="display: grid; gap: 16px;">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            Loading scoring configuration...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Lead Dashboard -->
+            <div id="teamlead-dashboard" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">Team Lead Dashboard</h1>
+                    <p class="page-subtitle">Manage your team and track progress from ClickUp</p>
+                </div>
+
+                <div class="stats-grid" id="teamLeadStats">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        Loading team data...
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Quick Actions</h2>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn-primary action-btn" onclick="showSection('my-team-members')">My Team Members</button>
+                        <button class="btn-secondary action-btn" onclick="showSection('team-tasks')">Team Tasks</button>
+                        <button class="btn-success action-btn" onclick="showSection('team-analytics')">Team Analytics</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Team Members Section -->
+            <div id="my-team-members" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">My Team Members</h1>
+                    <p class="page-subtitle">Manage your direct reports from ClickUp</p>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2 class="table-title">Team Members</h2>
+                    </div>
+                    
+                    <div id="myTeamMembersContainer">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            Loading your team members...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Tasks Section -->
+            <div id="team-tasks" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">Team Tasks</h1>
+                    <p class="page-subtitle">Tasks assigned to your team members in ClickUp</p>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2 class="table-title">Team Task Management</h2>
+                        <div class="table-filters">
+                            <input type="text" class="filter-input" placeholder="Search team tasks..." id="teamTaskSearch">
+                            <select class="filter-select" id="teamStatusFilter">
+                                <option value="">All Status</option>
+                                <option value="todo">To Do</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="review">Review</option>
+                                <option value="complete">Complete</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="teamTasksContainer">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            Loading team tasks...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Analytics Section -->
+            <div id="team-analytics" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">Team Analytics</h1>
+                    <p class="page-subtitle">Performance insights for your team from ClickUp data</p>
+                </div>
+
+                <div class="stats-grid" id="teamAnalyticsStats">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        Loading team analytics...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employee Dashboard -->
+            <div id="employee-dashboard" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">My Dashboard</h1>
+                    <p class="page-subtitle">Your personal workspace and tasks from ClickUp</p>
+                </div>
+
+                <div class="stats-grid" id="employeeStats">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        Loading your personal data...
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Quick Actions</h2>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn-primary action-btn" onclick="showSection('my-tasks')">My Tasks</button>
+                        <button class="btn-secondary action-btn" onclick="showSection('my-profile')">My Profile</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Tasks Section -->
+            <div id="my-tasks" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">My Tasks</h1>
+                    <p class="page-subtitle">Your assigned tasks from ClickUp</p>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2 class="table-title">My Task List</h2>
+                        <div class="table-filters">
+                            <input type="text" class="filter-input" placeholder="Search my tasks..." id="myTaskSearch">
+                            <select class="filter-select" id="myStatusFilter">
+                                <option value="">All Status</option>
+                                <option value="todo">To Do</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="review">Review</option>
+                                <option value="complete">Complete</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="myTasksContainer">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            Loading your tasks...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Profile Section -->
+            <div id="my-profile" class="dashboard-section">
+                <div class="page-header">
+                    <h1 class="page-title">My Profile</h1>
+                    <p class="page-subtitle">Your profile information from ClickUp</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Profile Information</h2>
+                    </div>
+                    
+                    <div id="profileContainer">
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            Loading profile information...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE = '/api/v2';
+        
+        // Current user state
+        let currentUser = null;
+        let currentTasks = [];
+        let currentTeamMembers = [];
+        let sortColumn = null;
+        let sortDirection = 'asc';
+
+        // Navigation menus for different roles
+        const NAVIGATION = {
+            Manager: [
+                { id: 'manager-dashboard', label: 'Dashboard', icon: '📊' },
+                { id: 'all-tasks', label: 'All Tasks', icon: '📋' },
+                { id: 'team-overview', label: 'Team Overview', icon: '👥' },
+                { id: 'employee-management', label: 'Team Members', icon: '👤' },
+                { id: 'team-ranking', label: 'Team Ranking', icon: '🏆' },
+                { id: 'system-settings', label: 'System Settings', icon: '⚙️' }
+            ],
+            'Team Lead': [
+                { id: 'teamlead-dashboard', label: 'My Team Dashboard', icon: '📊' },
+                { id: 'my-team-members', label: 'My Team Members', icon: '👥' },
+                { id: 'team-tasks', label: 'Team Tasks', icon: '📋' },
+                { id: 'team-analytics', label: 'Team Analytics', icon: '📈' }
+            ],
+            Employee: [
+                { id: 'employee-dashboard', label: 'My Dashboard', icon: '📊' },
+                { id: 'my-tasks', label: 'My Tasks', icon: '📋' },
+                { id: 'my-profile', label: 'My Profile', icon: '👤' }
+            ]
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check URL parameters for auth results
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('auth') === 'success' || urlParams.get('login') === 'success') {
+                // Auth was successful (ClickUp OAuth or login), try to get user info
+                checkAuthStatus();
+                // Clean URL after successful auth
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (urlParams.get('error')) {
+                showError('Authentication failed: ' + urlParams.get('error'));
+            }
+
+            // Check if user is already logged in
+            checkAuthStatus();
+
+            // Setup login form
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+            // Setup search and filter functionality
+            setupTableFilters();
+            
+            // Initialize theme
+            initializeTheme();
+        });
+
+        // Check authentication status
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/profile`, {
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // Handle both flat and nested user object structures
+                    currentUser = data.user || data;
+                    console.log('✅ User authenticated:', currentUser);
+                    showDashboard();
+                } else {
+                    // Not authenticated, show login page
+                    console.log('❌ Not authenticated, showing login page');
+                    showLoginPage();
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                showLoginPage();
+            }
+        }
+
+        // Handle login
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            const loginButton = document.getElementById('loginButton');
+            const clickupSection = document.getElementById('clickupConnectSection');
+            
+            loginButton.disabled = true;
+            loginButton.textContent = 'Signing in...';
+            errorDiv.style.display = 'none';
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.hasClickUpToken) {
+                        // User has ClickUp token, proceed to dashboard
+                        currentUser = data.user;
+                        showDashboard();
+                    } else if (data.needsClickUpAuth) {
+                        // Show ClickUp connection option
+                        clickupSection.style.display = 'block';
+                        errorDiv.textContent = 'Please connect your ClickUp account to access your tasks.';
+                        errorDiv.style.display = 'block';
+                        errorDiv.style.color = '#2563eb';
+                    }
+                } else {
+                    errorDiv.textContent = data.error;
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorDiv.textContent = 'Network error. Please try again.';
+                errorDiv.style.display = 'block';
+            } finally {
+                loginButton.disabled = false;
+                loginButton.textContent = 'Sign In';
+            }
+        }
+
+        // Show login page
+        function showLoginPage() {
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('appContainer').style.display = 'none';
+        }
+
+        // Show dashboard based on user role
+        function showDashboard() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            
+            // Update user info in header
+            updateUserInfo();
+            
+            // Setup navigation
+            setupNavigation();
+            
+            // Show default section based on role
+            const defaultSection = currentUser.role === 'Manager' ? 'manager-dashboard' :
+                                 currentUser.role === 'Team Lead' ? 'teamlead-dashboard' :
+                                 'employee-dashboard';
+            showSection(defaultSection);
+        }
+
+        // Update user info in header
+        function updateUserInfo() {
+            document.getElementById('userName').textContent = currentUser.fullName || currentUser.name || 'Unknown User';
+            document.getElementById('userRole').textContent = `(${currentUser.role})`;
+            
+            const avatarContainer = document.getElementById('userAvatar');
+            const initialsElement = document.getElementById('userInitials');
+            
+            if (currentUser.profilePicture) {
+                avatarContainer.innerHTML = `<img src="${currentUser.profilePicture}" alt="${currentUser.fullName || currentUser.name || 'User'}">`;
+            } else {
+                initialsElement.textContent = getInitials(currentUser.fullName || currentUser.name || 'Unknown User');
+            }
+        }
+
+        // Setup navigation menu
+        function setupNavigation() {
+            const navMenu = document.getElementById('navMenu');
+            const menuItems = NAVIGATION[currentUser.role] || [];
+            
+            navMenu.innerHTML = menuItems.map(item => `
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showSection('${item.id}')">
+                        <span class="nav-icon">${item.icon}</span>
+                        ${item.label}
+                    </a>
+                </li>
+            `).join('');
+        }
+
+        // Show specific section
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.dashboard-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+            
+            // Update navigation active state
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            const activeLink = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+            
+            // Load section-specific data
+            loadSectionData(sectionId);
+        }
+
+        // Load section-specific data
+        async function loadSectionData(sectionId) {
+            try {
+                switch(sectionId) {
+                    case 'manager-dashboard':
+                        await loadManagerDashboard();
+                        break;
+                    case 'all-tasks':
+                    case 'team-tasks':
+                    case 'my-tasks':
+                        await loadTasks(sectionId);
+                        break;
+                    case 'team-overview':
+                    case 'team-analytics':
+                        await loadTeamAnalytics(sectionId);
+                        break;
+                    case 'employee-management':
+                    case 'my-team-members':
+                        await loadTeamMembers(sectionId);
+                        break;
+                    case 'team-ranking':
+                        await loadLeaderboard();
+                        break;
+                    case 'system-settings':
+                        await loadScoringSettings();
+                        break;
+                    case 'teamlead-dashboard':
+                        await loadTeamLeadDashboard();
+                        break;
+                    case 'employee-dashboard':
+                        await loadEmployeeDashboard();
+                        break;
+                    case 'my-profile':
+                        await loadProfile();
+                        break;
+                }
+            } catch (error) {
+                console.error('Failed to load section data:', error);
+                showError('Failed to load data: ' + error.message);
+            }
+        }
+
+        // Load manager dashboard
+        async function loadManagerDashboard() {
+            const statsContainer = document.getElementById('managerStats');
+            
+            try {
+                // Use local dashboard data for faster loading
+                const response = await fetch(`${API_BASE}/v2/local/dashboard-data`, { credentials: 'include' });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch local dashboard data');
+                }
+
+                const data = await response.json();
+                const localData = data.data || {};
+                
+                // Calculate analytics from local data
+                const tasks = localData.tasks || [];
+                const completedTasks = tasks.filter(task => task.status_type === 'closed').length;
+                const inProgressTasks = tasks.filter(task => task.status_type !== 'closed').length;
+                const members = localData.members || [];
+                const activeMembers = members.filter(m => m.is_active).length;
+                
+                const analytics = {
+                    totalTasks: tasks.length,
+                    completedTasks: completedTasks,
+                    activeEmployees: activeMembers,
+                    completionRate: tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0
+                };
+
+                statsContainer.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${analytics.totalTasks || 0}</div>
+                        <div class="stat-label">Total Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${analytics.completedTasks || 0}</div>
+                        <div class="stat-label">Completed Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${analytics.activeEmployees || 0}</div>
+                        <div class="stat-label">Active Employees</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${analytics.completionRate || 0}%</div>
+                        <div class="stat-label">Team Performance</div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Failed to load manager dashboard:', error);
+                statsContainer.innerHTML = '<div class="error-message">Failed to load dashboard data. Please try again.</div>';
+            }
+        }
+
+        // Load tasks data
+        async function loadTasks(sectionId, filters = {}) {
+            let container;
+            
+            if (sectionId === 'all-tasks') {
+                container = document.getElementById('tasksTableContainer');
+            } else if (sectionId === 'team-tasks') {
+                container = document.getElementById('teamTasksContainer');
+            } else if (sectionId === 'my-tasks') {
+                container = document.getElementById('myTasksContainer');
+            }
+            
+            if (!container) return;
+
+            try {
+                // Use local dashboard data for faster task loading
+                const response = await fetch(`${API_BASE}/v2/local/dashboard-data`, { credentials: 'include' });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch local tasks data');
+                }
+
+                const data = await response.json();
+                let allTasks = data.data.tasks || [];
+                
+                // Apply client-side filtering for better performance
+                currentTasks = allTasks.filter(task => {
+                    if (filters.status && task.status_name !== filters.status) return false;
+                    if (filters.priority && task.priority_name !== filters.priority) return false;
+                    if (filters.search && !task.name.toLowerCase().includes(filters.search.toLowerCase())) return false;
+                    return true;
+                });
+                
+                if (currentTasks.length === 0) {
+                    const filterMessage = Object.keys(filters).length > 0 ? 'No tasks match the current filters.' : 'No tasks found in your ClickUp workspace.';
+                    container.innerHTML = `<div style="padding: 40px; text-align: center; color: var(--text-secondary);">${filterMessage}</div>`;
+                    return;
+                }
+
+                const tableHtml = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('name')">Task Name <span class="sort-icon">↕️</span></th>
+                                <th onclick="sortTable('assigneeName')">Assignee <span class="sort-icon">↕️</span></th>
+                                <th onclick="sortTable('startDate')">Start Date <span class="sort-icon">↕️</span></th>
+                                <th onclick="sortTable('dueDate')">Due Date <span class="sort-icon">↕️</span></th>
+                                <th onclick="sortTable('priority')">Priority <span class="sort-icon">↕️</span></th>
+                                <th onclick="sortTable('status')">Status <span class="sort-icon">↕️</span></th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${currentTasks.map(task => `
+                                <tr>
+                                    <td>
+                                        <div style="font-weight: 500;">${task.name}</div>
+                                        <div style="font-size: 12px; color: var(--text-secondary);">${task.listName || task.spaceName || 'ClickUp Task'}</div>
+                                    </td>
+                                    <td>${task.assigneeName || 'Unassigned'}</td>
+                                    <td>${formatDate(task.startDate)}</td>
+                                    <td>${formatDate(task.dueDate)}</td>
+                                    <td><span class="priority-${task.priority}">${capitalizeFirst(task.priority)}</span></td>
+                                    <td><span class="status-badge status-${task.status}">${task.status.replace('-', ' ')}</span></td>
+                                    <td>
+                                        <button class="btn-primary action-btn" onclick="openTaskInClickUp('${task.url}')">View</button>
+                                        ${currentUser.role === 'Manager' ? '<button class="btn-secondary action-btn">Edit</button>' : ''}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                
+                container.innerHTML = tableHtml;
+                
+            } catch (error) {
+                console.error('Failed to load tasks:', error);
+                container.innerHTML = '<div class="error-message">Failed to load tasks from ClickUp. Please check your connection and try again.</div>';
+            }
+        }
+
+        // Load team members
+        async function loadTeamMembers(sectionId) {
+            let container;
+            
+            if (sectionId === 'employee-management') {
+                container = document.getElementById('teamMembersContainer');
+            } else if (sectionId === 'my-team-members') {
+                container = document.getElementById('myTeamMembersContainer');
+            }
+            
+            if (!container) return;
+
+            try {
+                // Use local dashboard data for faster member loading
+                const response = await fetch(`${API_BASE}/v2/local/dashboard-data`, { credentials: 'include' });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch local team members data');
+                }
+
+                const data = await response.json();
+                currentTeamMembers = data.data.members || [];
+                
+                if (currentTeamMembers.length === 0) {
+                    container.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-secondary);">No team members found in your ClickUp workspace.</div>';
+                    return;
+                }
+
+                const tableHtml = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${currentTeamMembers.map(member => `
+                                <tr>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div class="user-avatar" style="width: 24px; height: 24px; font-size: 10px;">
+                                                ${member.profilePicture ? 
+                                                    `<img src="${member.profilePicture}" alt="${member.name}" style="width: 100%; height: 100%; border-radius: 50%;">` :
+                                                    member.initials || getInitials(member.name)
+                                                }
+                                            </div>
+                                            ${member.name}
+                                        </div>
+                                    </td>
+                                    <td>${member.email}</td>
+                                    <td>${member.role}</td>
+                                    <td><span class="status-badge status-done">${member.status}</span></td>
+                                    <td>
+                                        <button class="btn-primary action-btn">View Tasks</button>
+                                        ${currentUser.role === 'Manager' ? '<button class="btn-secondary action-btn">Manage</button>' : ''}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                
+                container.innerHTML = tableHtml;
+                
+            } catch (error) {
+                console.error('Failed to load team members:', error);
+                container.innerHTML = '<div class="error-message">Failed to load team members from ClickUp. Please check your connection and try again.</div>';
+            }
+        }
+
+        // Load team analytics
+        async function loadTeamAnalytics(sectionId) {
+            let container;
+            
+            if (sectionId === 'team-overview') {
+                container = document.getElementById('teamOverviewStats');
+            } else if (sectionId === 'team-analytics') {
+                container = document.getElementById('teamAnalyticsStats');
+            }
+            
+            if (!container) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/analytics/team`, { credentials: 'include' });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch team analytics');
+                }
+
+                const data = await response.json();
+                const analytics = data.data || {};
+
+                container.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${analytics.completionRate || 0}%</div>
+                        <div class="stat-label">Task Completion Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${analytics.avgTaskDuration || 0}h</div>
+                        <div class="stat-label">Avg. Task Duration</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${analytics.inProgressTasks || 0}</div>
+                        <div class="stat-label">Active Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${analytics.teamPerformance || 0}%</div>
+                        <div class="stat-label">Team Performance</div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Failed to load team analytics:', error);
+                container.innerHTML = '<div class="error-message">Failed to load team analytics. Please check your connection and try again.</div>';
+            }
+        }
+
+        // Load performance leaderboard
+        async function loadLeaderboard() {
+            const container = document.getElementById('leaderboardContainer');
+            
+            try {
+                const response = await fetch(`${API_BASE}/analytics/leaderboard`, { credentials: 'include' });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch leaderboard');
+                }
+
+                const data = await response.json();
+                const leaderboard = data.data || [];
+
+                if (leaderboard.length === 0) {
+                    container.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-secondary);">No performance data available yet.</div>';
+                    return;
+                }
+
+                container.innerHTML = leaderboard.map((member, index) => `
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank">${index + 1}</div>
+                        <div class="leaderboard-avatar">
+                            ${member.profilePicture ? 
+                                `<img src="${member.profilePicture}" alt="${member.name}">` :
+                                getInitials(member.name)
+                            }
+                        </div>
+                        <div class="leaderboard-info">
+                            <div class="leaderboard-name">${member.name}</div>
+                            <div class="leaderboard-role">${member.tasksCompleted}/${member.totalTasks} tasks (${member.completionRate}%)</div>
+                        </div>
+                        <div class="leaderboard-score">${member.score}</div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Failed to load leaderboard:', error);
+                container.innerHTML = '<div class="error-message">Failed to load performance leaderboard. Please check your connection and try again.</div>';
+            }
+        }
+
+        // Load scoring settings
+        async function loadScoringSettings() {
+            const container = document.getElementById('scoringSettings');
+            
+            try {
+                const response = await fetch(`${API_BASE}/settings/scoring`, { credentials: 'include' });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch scoring settings');
+                }
+
+                const data = await response.json();
+                const settings = data.data || {};
+
+                container.innerHTML = `
+                    <div class="form-group">
+                        <label class="form-label">Task Completion Points</label>
+                        <input type="number" class="form-input" value="${settings.taskCompletion || 10}" style="max-width: 200px;" id="taskCompletion">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Early Completion Bonus</label>
+                        <input type="number" class="form-input" value="${settings.earlyCompletionBonus || 5}" style="max-width: 200px;" id="earlyCompletionBonus">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Quality Score Multiplier</label>
+                        <input type="number" class="form-input" value="${settings.qualityMultiplier || 1.5}" step="0.1" style="max-width: 200px;" id="qualityMultiplier">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Late Completion Penalty</label>
+                        <input type="number" class="form-input" value="${settings.lateCompletionPenalty || -3}" style="max-width: 200px;" id="lateCompletionPenalty">
+                    </div>
+                    <button class="btn-primary action-btn" onclick="updateScoringSettings()">Save Settings</button>
+                `;
+                
+            } catch (error) {
+                console.error('Failed to load scoring settings:', error);
+                container.innerHTML = '<div class="error-message">Failed to load scoring settings. Please check your connection and try again.</div>';
+            }
+        }
+
+        // Update scoring settings
+        async function updateScoringSettings() {
+            try {
+                const settings = {
+                    taskCompletion: parseInt(document.getElementById('taskCompletion').value),
+                    earlyCompletionBonus: parseInt(document.getElementById('earlyCompletionBonus').value),
+                    qualityMultiplier: parseFloat(document.getElementById('qualityMultiplier').value),
+                    lateCompletionPenalty: parseInt(document.getElementById('lateCompletionPenalty').value)
+                };
+
+                const response = await fetch(`${API_BASE}/settings/scoring`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(settings)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update scoring settings');
+                }
+
+                alert('Scoring settings updated successfully!');
+                
+            } catch (error) {
+                console.error('Failed to update scoring settings:', error);
+                alert('Failed to update scoring settings. Please try again.');
+            }
+        }
+
+        // Load team lead dashboard
+        async function loadTeamLeadDashboard() {
+            const container = document.getElementById('teamLeadStats');
+            await loadTeamAnalytics('teamlead-dashboard');
+            
+            // Update container reference for team lead stats
+            const analytics = await fetch(`${API_BASE}/analytics/team`, { credentials: 'include' })
+                .then(response => response.json())
+                .then(data => data.data || {});
+
+            container.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${analytics.inProgressTasks || 0}</div>
+                    <div class="stat-label">My Team Tasks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${analytics.activeEmployees || 0}</div>
+                    <div class="stat-label">Team Members</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${analytics.completionRate || 0}%</div>
+                    <div class="stat-label">Completion Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${analytics.teamPerformance || 0}%</div>
+                    <div class="stat-label">Team Performance</div>
+                </div>
+            `;
+        }
+
+        // Load employee dashboard
+        async function loadEmployeeDashboard() {
+            const container = document.getElementById('employeeStats');
+            
+            try {
+                // Use local dashboard data for faster loading (same as Manager dashboard)
+                const response = await fetch(`${API_BASE}/v2/local/dashboard-data`, { credentials: 'include' });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch local dashboard data');
+                }
+
+                const data = await response.json();
+                const localData = data.data || {};
+                
+                // Calculate analytics from local ClickUp data format
+                const tasks = localData.tasks || [];
+                const completedTasks = tasks.filter(task => task.status_type === 'closed').length;
+                const inProgressTasks = tasks.filter(task => task.status_type !== 'closed').length;
+                const upcomingDeadlines = tasks.filter(task => {
+                    if (!task.due_date || task.status_type === 'closed') return false;
+                    const dueDate = new Date(task.due_date);
+                    const threeDaysFromNow = new Date();
+                    threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
+                    return dueDate <= threeDaysFromNow;
+                }).length;
+
+                container.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${inProgressTasks}</div>
+                        <div class="stat-label">My Active Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${completedTasks}</div>
+                        <div class="stat-label">Completed Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0}%</div>
+                        <div class="stat-label">My Performance</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${upcomingDeadlines}</div>
+                        <div class="stat-label">Upcoming Deadlines</div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Failed to load employee dashboard:', error);
+                container.innerHTML = '<div class="error-message">Failed to load your dashboard data. Please check your connection and try again.</div>';
+            }
+        }
+
+        // Load user profile
+        async function loadProfile() {
+            const container = document.getElementById('profileContainer');
+            
+            container.innerHTML = `
+                <div style="display: grid; gap: 16px; max-width: 500px;">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-input" value="${currentUser.name}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" value="${currentUser.email}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Role</label>
+                        <input type="text" class="form-input" value="${currentUser.role}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ClickUp ID</label>
+                        <input type="text" class="form-input" value="${currentUser.id}" readonly>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Setup table filters
+        function setupTableFilters() {
+            // Task search
+            ['taskSearch', 'teamTaskSearch', 'myTaskSearch'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('input', applyFilters);
+                }
+            });
+
+            // Status filters
+            ['statusFilter', 'teamStatusFilter', 'myStatusFilter'].forEach(id => {
+                const select = document.getElementById(id);
+                if (select) {
+                    select.addEventListener('change', applyFilters);
+                }
+            });
+
+            // Priority filter
+            const priorityFilter = document.getElementById('priorityFilter');
+            if (priorityFilter) {
+                priorityFilter.addEventListener('change', applyFilters);
+            }
+        }
+
+        // Apply filters to current tasks
+        function applyFilters() {
+            // This will be implemented when the table is loaded
+            console.log('Filters applied');
+        }
+
+        // Sort table by column
+        function sortTable(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+
+            currentTasks.sort((a, b) => {
+                let aValue = a[column];
+                let bValue = b[column];
+
+                // Handle date sorting
+                if (column.includes('Date')) {
+                    aValue = new Date(aValue || 0);
+                    bValue = new Date(bValue || 0);
+                }
+
+                if (sortDirection === 'asc') {
+                    return aValue > bValue ? 1 : -1;
+                } else {
+                    return aValue < bValue ? 1 : -1;
+                }
+            });
+
+            // Update sort icons
+            document.querySelectorAll('.sort-icon').forEach(icon => {
+                icon.classList.remove('active');
+                icon.textContent = '↕️';
+            });
+
+            const activeIcon = document.querySelector(`th[onclick="sortTable('${column}')"] .sort-icon`);
+            if (activeIcon) {
+                activeIcon.classList.add('active');
+                activeIcon.textContent = sortDirection === 'asc' ? '↑' : '↓';
+            }
+
+            // Reload current section to show sorted data
+            const activeSection = document.querySelector('.dashboard-section.active');
+            if (activeSection) {
+                loadSectionData(activeSection.id);
+            }
+        }
+
+        // Open task in ClickUp
+        function openTaskInClickUp(url) {
+            if (url) {
+                window.open(url, '_blank');
+            }
+        }
+
+        // Utility functions
+        function getInitials(name) {
+            if (!name || typeof name !== 'string') {
+                return '??';
+            }
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'Not set';
+            return new Date(dateString).toLocaleDateString();
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function showError(message) {
+            console.error(message);
+            // You can implement a toast notification here
+        }
+
+        // Theme functions
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            
+            const themeToggle = document.querySelector('.theme-toggle');
+            if (themeToggle) {
+                themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            const themeToggle = document.querySelector('.theme-toggle');
+            themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                await fetch(`${API_BASE}/auth/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+            
+            currentUser = null;
+            showLoginPage();
+            
+            // Reset form
+            document.getElementById('loginForm').reset();
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('clickupConnectSection').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

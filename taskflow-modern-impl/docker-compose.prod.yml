@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  # Frontend (React + Vite - Production Build)
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: ../../infrastructure/docker/Dockerfile.frontend
+      target: production
+    environment:
+      - NODE_ENV=production
+    networks:
+      - taskflow-network
+
+  # Backend (Node.js + Express - Production)
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: ../../infrastructure/docker/Dockerfile.backend
+      target: production
+    environment:
+      - NODE_ENV=production
+      - HOST=0.0.0.0
+      - PORT=5000
+      - DATABASE_PATH=/app/data/taskflow.db
+      - JWT_SECRET=${JWT_SECRET}
+      - CLICKUP_CLIENT_ID=${CLICKUP_CLIENT_ID}
+      - CLICKUP_CLIENT_SECRET=${CLICKUP_CLIENT_SECRET}
+      - CLICKUP_REDIRECT_URI=${CLICKUP_REDIRECT_URI}
+      - CORS_ORIGINS=${CORS_ORIGINS}
+      - REDIS_URL=redis://redis:6379
+      - LOG_LEVEL=info
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./backups:/app/backups
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - taskflow-network
+
+  # Redis (Production Configuration)
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - taskflow-network
+
+  # Nginx (Production Reverse Proxy with SSL)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/nginx/ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    networks:
+      - taskflow-network
+
+  # Backup Service
+  backup:
+    build:
+      context: ./infrastructure/docker
+      dockerfile: Dockerfile.backup
+    environment:
+      - BACKUP_SCHEDULE=0 2 * * *  # Daily at 2 AM
+      - RETENTION_DAYS=30
+    volumes:
+      - ./data:/data:ro
+      - ./backups:/backups
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - taskflow-network
+
+volumes:
+  redis-data:
+    driver: local
+
+networks:
+  taskflow-network:
+    driver: bridge

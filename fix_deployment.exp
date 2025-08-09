@@ -1,0 +1,84 @@
+#!/usr/bin/expect
+
+set timeout 30
+set server "one-climate@192.168.20.10"
+set password "U8@1v3z#14"
+
+puts "🔧 FIXING LOGIN LOOP DEPLOYMENT"
+puts "================================"
+
+# SSH to server
+spawn ssh -t $server
+expect {
+    "password:" {
+        send "$password\r"
+        exp_continue
+    }
+    "$ " {
+        puts "✅ Connected to server"
+    }
+}
+
+# Go to correct directory
+puts "📁 Going to team-workload directory..."
+send "cd team-workload\r"
+expect "$ "
+
+# Kill old backend
+puts "🔪 Killing old backend process..."
+send "pkill -f single_login_backend\r"
+expect "$ "
+send "sleep 3\r"
+expect "$ "
+
+# Start new backend
+puts "🚀 Starting updated backend..."
+send "nohup node single_login_backend.js > backend_login_fix.log 2>&1 &\r"
+expect "$ "
+
+# Wait and test
+puts "⏳ Waiting for backend to start..."
+send "sleep 8\r"
+expect "$ "
+
+# Test system status
+puts "🧪 Testing system status..."
+send "curl -s http://localhost:7812/api/v2/system/status\r"
+expect {
+    "is_operational" {
+        puts "✅ Backend is operational!"
+    }
+    "$ " {}
+}
+
+# Test OAuth user rejection
+puts "🔐 Testing OAuth user rejection..."
+send "curl -X POST -H 'Content-Type: application/json' -d '{\"email\":\"yterayut@gmail.com\",\"password\":\"12345\"}' http://localhost:7812/api/v2/auth/login\r"
+expect {
+    "This account requires OAuth authentication" {
+        puts "✅ OAuth user properly rejected!"
+    }
+    "Login successful" {
+        puts "❌ OAuth user still allows regular login"
+    }
+    "$ " {}
+}
+
+# Test regular user
+puts "👤 Testing regular user..."
+send "curl -X POST -H 'Content-Type: application/json' -d '{\"email\":\"chaiwutwck@gmail.com\",\"password\":\"12345\"}' http://localhost:7812/api/v2/auth/login\r"
+expect {
+    "Login successful" {
+        puts "✅ Regular user login working!"
+    }
+    "$ " {}
+}
+
+puts ""
+puts "🎉 DEPLOYMENT FIXED!"
+puts "✅ Backend: http://192.168.20.10:7812"
+puts "✅ Frontend: http://192.168.20.10:8888"
+puts "🔐 Test: http://192.168.20.10:8888/login"
+
+send "exit\r"
+expect eof

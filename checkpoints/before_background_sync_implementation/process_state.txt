@@ -1,0 +1,4 @@
+one-cli+ 1003067  0.1  0.9 1307332 79140 ?       Ssl  Jul24  35:21 node /home/one-climate/km-base/backend/src/app.js
+one-cli+ 2817921  0.1  0.8 11525220 71980 ?      Ssl  00:37   0:42 node /home/one-climate/team-workload/single_login_backend.
+one-cli+ 2862895  0.0  0.0   7372  3664 ?        Ss   09:08   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/before_background_sync_implementation/process_state.txt
+one-cli+ 2862897  0.0  0.0   6612  2496 ?        S    09:08   0:00 grep backend

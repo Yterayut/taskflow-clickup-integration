@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - Complete Fix</title>
+    <script>
+        // COMPREHENSIVE FRONTEND FIX
+        // Fixes: Infinite loop + ClickUp OAuth + Circuit breaker + Error handling
+        
+        // 1. CIRCUIT BREAKER IMPLEMENTATION
+        class CircuitBreaker {
+            constructor(threshold = 3, timeout = 60000) {
+                this.threshold = threshold;
+                this.timeout = timeout;
+                this.failureCount = 0;
+                this.state = 'CLOSED'; // CLOSED, OPEN, HALF_OPEN
+                this.nextAttempt = Date.now();
+                this.calls = new Map(); // Track function calls
+            }
+            
+            async call(key, fn, ...args) {
+                if (this.state === 'OPEN') {
+                    if (Date.now() < this.nextAttempt) {
+                        throw new Error(`Circuit breaker OPEN for ${key}`);
+                    }
+                    this.state = 'HALF_OPEN';
+                }
+                
+                // Check for recursive calls
+                if (this.calls.has(key)) {
+                    console.warn(`🚨 RECURSIVE CALL DETECTED: ${key} - Preventing infinite loop`);
+                    return null;
+                }
+                
+                this.calls.set(key, true);
+                
+                try {
+                    const result = await fn.apply(this, args);
+                    this.onSuccess(key);
+                    return result;
+                } catch (error) {
+                    this.onFailure(key);
+                    throw error;
+                } finally {
+                    this.calls.delete(key);
+                }
+            }
+            
+            onSuccess(key) {
+                this.failureCount = 0;
+                this.state = 'CLOSED';
+                console.log(`✅ Circuit breaker success for ${key}`);
+            }
+            
+            onFailure(key) {
+                this.failureCount++;
+                console.warn(`❌ Circuit breaker failure ${this.failureCount}/${this.threshold} for ${key}`);
+                
+                if (this.failureCount >= this.threshold) {
+                    this.state = 'OPEN';
+                    this.nextAttempt = Date.now() + this.timeout;
+                    console.error(`🔴 Circuit breaker OPEN for ${key} - timeout: ${this.timeout}ms`);
+                }
+            }
+        }
+        
+        // Global circuit breaker instance
+        const circuitBreaker = new CircuitBreaker(3, 60000);
+        
+        // 2. SAFE DATA LOADING WITH CIRCUIT BREAKER
+        async function safeLoadClickUpData() {
+            return circuitBreaker.call('loadClickUpData', async function() {
+                console.log('🔒 Safe ClickUp data loading with circuit breaker protection');
+                
+                try {
+                    const response = await fetch(`/api/v1/clickup-data?t=${Date.now()}`, {
+                        credentials: 'include'
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    return data;
+                } catch (error) {
+                    console.error('Error loading ClickUp data:', error);
+                    throw error;
+                }
+            });
+        }
+        
+        // 3. SAFE COMPONENT DATA LOADING (NO RECURSION)
+        async function safeLoadComponentData(viewId) {
+            return circuitBreaker.call(`loadComponentData_${viewId}`, async function() {
+                console.log(`📋 Safe component data loading for: ${viewId}`);
+                
+                // Prevent infinite loop: NO recursive calls to showContentWithoutClickUp
+                switch (viewId) {
+                    case 'my-tasks':
+                        await renderMyTasks();
+                        break;
+                    case 'team-overview':
+                        await renderTeamOverview();
+                        break;
+                    case 'employee-management':
+                        await renderEmployeeManagement();
+                        break;
+                    default:
+                        console.log(`📄 Default component rendering for: ${viewId}`);
+                        break;
+                }
+                
+                console.log(`✅ Component ${viewId} loaded successfully`);
+            });
+        }
+        
+        // 4. SAFE USER CAPABILITY CHECKING
+        function getUserCapabilities(user) {
+            // Provide safe defaults if backend doesn't send capabilities
+            if (!user || !user.capabilities) {
+                console.log('⚠️ No capabilities from backend - using role-based defaults');
+                
+                // Default capabilities based on role
+                const roleCapabilities = {
+                    'Manager': {
+                        canUseClickUpOAuth: true,
+                        canManageTeam: true,
+                        canViewReports: true,
+                        canEditSettings: true
+                    },
+                    'Team Lead': {
+                        canUseClickUpOAuth: true,
+                        canManageTeam: true,
+                        canViewReports: true,
+                        canEditSettings: false
+                    },
+                    'Employee': {
+                        canUseClickUpOAuth: false,
+                        canManageTeam: false,
+                        canViewReports: false,
+                        canEditSettings: false
+                    }
+                };
+                
+                return roleCapabilities[user?.role] || roleCapabilities['Employee'];
+            }
+            
+            return user.capabilities;
+        }
+        
+        // 5. IMPROVED CONTENT LOADING WITHOUT INFINITE LOOPS
+        function safeShowContentWithoutClickUp() {
+            console.log('📱 Safe limited mode content display');
+            
+            // Clear any existing ClickUp data
+            clickUpData = null;
+            
+            // Hide loading and error states
+            const loadingState = document.getElementById('loadingState');
+            const errorState = document.getElementById('errorState');
+            
+            if (loadingState) loadingState.style.display = 'none';
+            if (errorState) errorState.style.display = 'none';
+            
+            // Show dashboard with limited functionality
+            const dashboard = document.getElementById('dashboard');
+            if (dashboard) {
+                dashboard.classList.add('active');
+                dashboard.style.display = 'block';
+                
+                // Update content safely
+                updateLimitedModeContent();
+            }
+            
+            // NO RECURSIVE CALLS - This was the bug!
+            console.log('✅ Limited mode displayed safely without recursion');
+        }
+        
+        // 6. UPDATE LIMITED MODE CONTENT
+        function updateLimitedModeContent() {
+            const kpiGrid = document.getElementById('kpiGrid');
+            if (kpiGrid && currentUser) {
+                kpiGrid.innerHTML = `
+                    <div class="kpi-card" style="grid-column: 1 / -1;">
+                        <h3 style="color: #f59e0b; margin-bottom: 16px; text-align: center;">
+                            👤 ${currentUser.displayName || currentUser.name || currentUser.email} - Limited Access Mode
+                        </h3>
+                        <div style="text-align: center; margin-top: 20px; padding: 16px; background: var(--bg-tertiary, #f3f4f6); border-radius: 8px; border-left: 4px solid #f59e0b;">
+                            <p style="color: #6b7280; margin: 0; font-size: 14px;">
+                                Your account (${currentUser.role || 'Unknown'}) does not have ClickUp integration permissions.<br>
+                                Contact your system administrator for access to task management features.
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Update other components with limited access message
+            const teamGrid = document.getElementById('teamGrid');
+            if (teamGrid) {
+                teamGrid.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #6b7280;">
+                        <h3 style="color: #f59e0b; margin-bottom: 16px;">⚠️ Limited Access</h3>
+                        <p>Task and team data requires ClickUp integration permissions.</p>
+                    </div>
+                `;
+            }
+            
+            const activityFeed = document.getElementById('activityFeed');
+            if (activityFeed) {
+                activityFeed.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #6b7280;">
+                        <p>Activity data requires ClickUp integration permissions.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 7. ENHANCED ERROR HANDLING
+        function handleError(error, context) {
+            console.error(`❌ Error in ${context}:`, error);
+            
+            // Show user-friendly error message
+            const errorContainer = document.getElementById('errorState') || createErrorContainer();
+            errorContainer.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <h3 style="color: #ef4444; margin-bottom: 16px;">⚠️ System Error</h3>
+                    <p style="color: #6b7280; margin-bottom: 24px;">
+                        An error occurred in ${context}.<br>
+                        ${error.message || 'Please try again or contact support.'}
+                    </p>
+                    <button class="btn btn-primary" onclick="location.reload()" style="margin-right: 12px;">
+                        🔄 Reload Page
+                    </button>
+                    <button class="btn btn-secondary" onclick="safeShowContentWithoutClickUp()">
+                        📱 Continue in Limited Mode
+                    </button>
+                </div>
+            `;
+            errorContainer.style.display = 'block';
+        }
+        
+        function createErrorContainer() {
+            const container = document.createElement('div');
+            container.id = 'errorState';
+            container.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center;';
+            document.body.appendChild(container);
+            return container;
+        }
+        
+        // 8. MAIN INITIALIZATION WITH CIRCUIT BREAKER
+        async function initializeTaskFlowPro() {
+            try {
+                console.log('🚀 TaskFlow Pro initializing with comprehensive error handling...');
+                
+                // Load user data safely
+                const user = await circuitBreaker.call('loadUser', async function() {
+                    const response = await fetch('/api/auth/verify', { credentials: 'include' });
+                    if (!response.ok) throw new Error('Authentication failed');
+                    return response.json();
+                });
+                
+                if (user && user.user) {
+                    currentUser = user.user;
+                    currentUser.capabilities = getUserCapabilities(currentUser);
+                    
+                    console.log('👤 User loaded:', currentUser.email, 'Role:', currentUser.role);
+                    console.log('🔧 Capabilities:', currentUser.capabilities);
+                    
+                    // Check capabilities and load appropriate content
+                    if (currentUser.capabilities.canUseClickUpOAuth) {
+                        console.log('✅ User has ClickUp OAuth - loading full features');
+                        await safeLoadClickUpData();
+                    } else {
+                        console.log('⚠️ User lacks ClickUp OAuth - showing limited mode');
+                        safeShowContentWithoutClickUp();
+                    }
+                } else {
+                    throw new Error('Invalid user data received');
+                }
+                
+                console.log('✅ TaskFlow Pro initialized successfully');
+                
+            } catch (error) {
+                handleError(error, 'initialization');
+            }
+        }
+        
+        // 9. SAFE VIEW SWITCHING
+        async function safeViewSwitch(viewId) {
+            try {
+                console.log(`🔄 Safe view switch to: ${viewId}`);
+                
+                // Hide all components
+                document.querySelectorAll('.component').forEach(comp => {
+                    comp.classList.remove('active');
+                });
+                
+                // Show target component
+                const targetComponent = document.getElementById(viewId);
+                if (targetComponent) {
+                    targetComponent.classList.add('active');
+                    currentView = viewId;
+                    
+                    // Load component data with circuit breaker protection
+                    if (currentUser && currentUser.capabilities && currentUser.capabilities.canUseClickUpOAuth) {
+                        await safeLoadComponentData(viewId);
+                    } else {
+                        console.log(`📱 Limited mode - showing placeholder for ${viewId}`);
+                        // Show limited mode content for this view
+                    }
+                }
+                
+                console.log(`✅ View switched safely to ${viewId}`);
+                
+            } catch (error) {
+                handleError(error, `view switching to ${viewId}`);
+            }
+        }
+        
+        // 10. GLOBAL ERROR HANDLER
+        window.addEventListener('error', function(event) {
+            console.error('🚨 Global error:', event.error);
+            handleError(event.error, 'global error handler');
+        });
+        
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('🚨 Unhandled promise rejection:', event.reason);
+            handleError(event.reason, 'unhandled promise rejection');
+        });
+        
+        // Export functions for use in main application
+        window.TaskFlowProFix = {
+            initializeTaskFlowPro,
+            safeViewSwitch,
+            safeLoadClickUpData,
+            safeLoadComponentData,
+            safeShowContentWithoutClickUp,
+            getUserCapabilities,
+            handleError,
+            circuitBreaker
+        };
+        
+        console.log('🛠️ TaskFlow Pro Comprehensive Fix loaded successfully');
+        
+    </script>
+</head>
+<body>
+    <h1>TaskFlow Pro - Comprehensive Frontend Fix</h1>
+    <p>This file contains the complete frontend fix for infinite loops, ClickUp OAuth issues, and error handling.</p>
+    
+    <h2>Features Included:</h2>
+    <ul>
+        <li>✅ Circuit Breaker Pattern - Prevents infinite loops</li>
+        <li>✅ Safe OAuth Capability Checking - Role-based defaults</li>
+        <li>✅ Comprehensive Error Handling - User-friendly messages</li>
+        <li>✅ Safe Component Loading - No recursive calls</li>
+        <li>✅ Global Error Handlers - Catches all errors</li>
+        <li>✅ Production-Ready Code - Robust and scalable</li>
+    </ul>
+    
+    <h2>Integration Instructions:</h2>
+    <ol>
+        <li>Include this script in your main HTML file</li>
+        <li>Replace problematic functions with safe versions</li>
+        <li>Initialize with: <code>TaskFlowProFix.initializeTaskFlowPro()</code></li>
+        <li>Use safe view switching: <code>TaskFlowProFix.safeViewSwitch(viewId)</code></li>
+    </ol>
+</body>
+</html>

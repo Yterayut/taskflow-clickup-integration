@@ -1,0 +1,2 @@
+one-cli+  596387  0.0  0.0   7372  3688 ?        Ss   19:44   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/complete_clickup_data_integration/process_state.txt
+one-cli+  596389  0.0  0.0   6480  2300 ?        R    19:44   0:00 grep backend

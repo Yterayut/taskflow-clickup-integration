@@ -1,0 +1,5 @@
+one-cli+ 2280457  0.1  0.9 1305460 78220 ?       Ssl  02:34   1:24 node /home/one-climate/km-base/backend/src/app.js
+one-cli+ 2409642  0.0  0.0   7372   244 ?        S    11:32   0:00 bash -c cd /home/one-climate/team-workload && nohup node single_login_backend.js > enhanced_backend.log 2>&1 &
+one-cli+ 2409643  0.0  0.9 11789064 76532 ?      Sl   11:32   0:06 node single_login_backend.js
+one-cli+ 2443781  0.0  0.0   7372  3560 ?        Ss   17:17   0:00 bash -c cd /home/one-climate/team-workload && ps aux | grep backend > checkpoints/system_health_check_july_5_2025/process_state.txt
+one-cli+ 2443783  0.0  0.0   6480  2308 ?        R    17:17   0:00 grep backend
