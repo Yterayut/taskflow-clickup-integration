@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Interactive Team Management Dashboard</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/recharts@2.8.0/umd/Recharts.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f9fafb;
+            color: #111827;
+            line-height: 1.5;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Dark Mode */
+        body.dark {
+            background: #0f172a;
+            color: #f1f5f9;
+        }
+        
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        body.dark .header {
+            background: #1e293b;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: #2563eb;
+        }
+        
+        .header-controls {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 8px 12px;
+            width: 300px;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark .search-bar {
+            background: #374151;
+            border-color: #4b5563;
+        }
+        
+        .search-bar input {
+            border: none;
+            background: transparent;
+            outline: none;
+            flex: 1;
+            margin-left: 8px;
+        }
+        
+        body.dark .search-bar input {
+            color: #f1f5f9;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        body.dark .theme-toggle {
+            border-color: #4b5563;
+        }
+        
+        .notification-bell {
+            position: relative;
+            background: transparent;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        body.dark .notification-bell {
+            border-color: #4b5563;
+        }
+        
+        .notification-bell::after {
+            content: '🔔';
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 64px;
+            width: 280px;
+            height: calc(100vh - 64px);
+            background: #f9fafb;
+            border-right: 1px solid #e5e7eb;
+            padding: 24px 0;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark .sidebar {
+            background: #1e293b;
+            border-right: 1px solid #334155;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 0 16px;
+        }
+        
+        .nav-item {
+            margin-bottom: 4px;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #6b7280;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .nav-link:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        body.dark .nav-link:hover {
+            background: #374151;
+            color: #f1f5f9;
+        }
+        
+        .nav-link.active {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        
+        body.dark .nav-link.active {
+            background: #1e40af;
+            color: #bfdbfe;
+        }
+        
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+        
+        .nav-badge {
+            margin-left: auto;
+            background: #ef4444;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            margin-top: 64px;
+            padding: 32px;
+            min-height: calc(100vh - 64px);
+            background: #ffffff;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark .main-content {
+            background: #0f172a;
+        }
+        
+        .page-header {
+            margin-bottom: 32px;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+        
+        body.dark .page-title {
+            color: #f1f5f9;
+        }
+        
+        .page-subtitle {
+            font-size: 16px;
+            color: #6b7280;
+        }
+        
+        body.dark .page-subtitle {
+            color: #9ca3af;
+        }
+        
+        /* Component Content Styles */
+        .component-content {
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 24px;
+        }
+        
+        body.dark .component-content {
+            background: #1e293b;
+            border-color: #334155;
+        }
+        
+        .component-content h2 {
+            color: #2563eb;
+            margin-bottom: 16px;
+            font-size: 24px;
+        }
+        
+        body.dark .component-content h2 {
+            color: #60a5fa;
+        }
+        
+        .component-content p {
+            color: #6b7280;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        body.dark .component-content p {
+            color: #9ca3af;
+        }
+        
+        /* Loading states */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #6b7280;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+        
+        const TeamTaskTracker = () => {
+            const [rechartsLoaded, setRechartsLoaded] = useState(false);
+            const [isAuthenticated, setIsAuthenticated] = useState(false);
+            const [authToken, setAuthToken] = useState(null);
+            const [isLoading, setIsLoading] = useState(true);
+            const [authLoading, setAuthLoading] = useState(false);
+            const [syncStatus, setSyncStatus] = useState(null);
+            const [nextAutoSync, setNextAutoSync] = useState(null);
+            const [isDarkMode, setIsDarkMode] = useState(() => {
+                return localStorage.getItem('taskflow_theme') === 'dark';
+            });
+            
+            // Add activeComponent state for navigation
+            const [activeComponent, setActiveComponent] = useState('dashboard');
+            
+            const [realData, setRealData] = useState({
+                totalTasks: 0,
+                completedTasks: 0,
+                inProgressTasks: 0,
+                todoTasks: 0,
+                overdueTasks: 0
+            });
+
+            // Navigation handler for component switching
+            const handleNavigationClick = (component) => {
+                setActiveComponent(component);
+                // Update URL (optional)
+                window.history.pushState({}, '', `#${component}`);
+                
+                // Load component-specific data
+                loadComponentData(component);
+            };
+            
+            // Component data loading functions
+            const loadComponentData = async (component) => {
+                switch(component) {
+                    case 'team':
+                        console.log('Loading team data...');
+                        // Load team data from /api/v2/team/overview
+                        break;
+                    case 'tasks':
+                        console.log('Loading tasks data...');
+                        // Load tasks from /api/v2/tasks/my-tasks
+                        break;
+                    case 'analytics':
+                        console.log('Loading analytics data...');
+                        // Load analytics data
+                        break;
+                    case 'projects':
+                        console.log('Loading projects data...');
+                        // Load projects from /api/v2/projects
+                        break;
+                    default:
+                        console.log('Loading dashboard data...');
+                        // Dashboard - already loading
+                }
+            };
+
+            // Toggle dark mode
+            const toggleDarkMode = () => {
+                const newMode = !isDarkMode;
+                setIsDarkMode(newMode);
+                localStorage.setItem('taskflow_theme', newMode ? 'dark' : 'light');
+                
+                // Apply to body
+                document.body.classList.toggle('dark', newMode);
+            };
+
+            // Load dashboard data function
+            const loadDashboardData = async (token) => {
+                try {
+                    console.log('📊 Loading ClickUp dashboard data...');
+                    const dashboardResponse = await fetch('http://192.168.20.10:7812/api/v1/production/clickup-data');
+                    
+                    if (dashboardResponse.ok) {
+                        const dashboardData = await dashboardResponse.json();
+                        console.log('✅ Real ClickUp data loaded:', dashboardData);
+                        
+                        if (dashboardData.workload) {
+                            setRealData({
+                                totalTasks: dashboardData.workload.totalTasks || 0,
+                                completedTasks: dashboardData.workload.completedTasks || 0,
+                                inProgressTasks: dashboardData.workload.inProgressTasks || 0,
+                                todoTasks: dashboardData.workload.todoTasks || 0,
+                                overdueTasks: dashboardData.workload.overdueTasks || 0
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to load dashboard data:', error);
+                }
+                
+                setIsLoading(false);
+            };
+
+            // Auto-load data on component mount
+            useEffect(() => {
+                console.log('🚀 Auto-loading real ClickUp data...');
+                setIsAuthenticated(true);
+                setAuthToken('demo-token');
+                localStorage.setItem('taskflow_token', 'demo-token');
+                loadDashboardData('demo-token');
+            }, []);
+
+            // Apply dark mode on mount
+            useEffect(() => {
+                document.body.classList.toggle('dark', isDarkMode);
+            }, [isDarkMode]);
+
+            // Handle notification click
+            const handleNotificationClick = () => {
+                alert('แจ้งเตือนระบบ: คุณมี 3 รายการแจ้งเตือนใหม่');
+            };
+
+            // Render different components based on activeComponent
+            const renderMainContent = () => {
+                switch(activeComponent) {
+                    case 'dashboard':
+                        return renderDashboard();
+                    case 'team':
+                        return renderTeamManagement();
+                    case 'tasks':
+                        return renderTaskCenter();
+                    case 'analytics':
+                        return renderAnalytics();
+                    case 'projects':
+                        return renderProjects();
+                    case 'settings':
+                        return renderSettings();
+                    default:
+                        return renderDashboard();
+                }
+            };
+
+            const renderDashboard = () => {
+                return (
+                    <>
+                        <div className="page-header">
+                            <h1 className="page-title">แดชบอร์ดทีม</h1>
+                            <p className="page-subtitle">ภาพรวมการทำงานและประสิทธิภาพทีมในแต่ละสัปดาห์</p>
+                        </div>
+                        
+                        <div className="component-content">
+                            <h2>📊 ข้อมูลภาพรวม</h2>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: '16px' }}>
+                                <div style={{ background: '#dbeafe', padding: '16px', borderRadius: '8px' }}>
+                                    <h3 style={{ color: '#1d4ed8', margin: '0 0 8px 0' }}>งานทั้งหมด</h3>
+                                    <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#1d4ed8', margin: 0 }}>{realData.totalTasks}</p>
+                                </div>
+                                <div style={{ background: '#dcfce7', padding: '16px', borderRadius: '8px' }}>
+                                    <h3 style={{ color: '#15803d', margin: '0 0 8px 0' }}>เสร็จแล้ว</h3>
+                                    <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#15803d', margin: 0 }}>{realData.completedTasks}</p>
+                                </div>
+                                <div style={{ background: '#fef3c7', padding: '16px', borderRadius: '8px' }}>
+                                    <h3 style={{ color: '#d97706', margin: '0 0 8px 0' }}>กำลังดำเนินการ</h3>
+                                    <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#d97706', margin: 0 }}>{realData.inProgressTasks}</p>
+                                </div>
+                                <div style={{ background: '#fee2e2', padding: '16px', borderRadius: '8px' }}>
+                                    <h3 style={{ color: '#dc2626', margin: '0 0 8px 0' }}>ต้องทำ</h3>
+                                    <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#dc2626', margin: 0 }}>{realData.todoTasks}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                );
+            };
+
+            const renderTeamManagement = () => {
+                return (
+                    <>
+                        <div className="page-header">
+                            <h1 className="page-title">การจัดการทีม</h1>
+                            <p className="page-subtitle">จัดการสมาชิกทีมและการมอบหมายงาน</p>
+                        </div>
+                        
+                        <div className="component-content">
+                            <h2>👥 ข้อมูลทีม</h2>
+                            <p>หน้านี้จะแสดงข้อมูลสมาชิกทีม การมอบหมายงาน และการติดตามประสิทธิภาพของแต่ละคน</p>
+                            
+                            <div style={{ marginTop: '20px' }}>
+                                <h3 style={{ color: '#374151', marginBottom: '12px' }}>ฟีเจอร์ที่จะมี:</h3>
+                                <ul style={{ color: '#6b7280', lineHeight: '1.8' }}>
+                                    <li>รายการสมาชิกทีมพร้อมสถานะการทำงาน</li>
+                                    <li>การมอบหมายงานใหม่</li>
+                                    <li>ติดตามโหลดงานของแต่ละคน</li>
+                                    <li>ประวัติการทำงานและผลงาน</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </>
+                );
+            };
+
+            const renderTaskCenter = () => {
+                return (
+                    <>
+                        <div className="page-header">
+                            <h1 className="page-title">ศูนย์งาน</h1>
+                            <p className="page-subtitle">จัดการและติดตามงานทั้งหมดในระบบ</p>
+                        </div>
+                        
+                        <div className="component-content">
+                            <h2>📋 จัดการงาน</h2>
+                            <p>หน้านี้จะแสดงรายการงานทั้งหมด สถานะงาน และเครื่องมือจัดการงาน</p>
+                            
+                            <div style={{ marginTop: '20px' }}>
+                                <h3 style={{ color: '#374151', marginBottom: '12px' }}>ฟีเจอร์ที่จะมี:</h3>
+                                <ul style={{ color: '#6b7280', lineHeight: '1.8' }}>
+                                    <li>รายการงานทั้งหมดพร้อมกรองและค้นหา</li>
+                                    <li>สร้างงานใหม่และแก้ไขงานที่มีอยู่</li>
+                                    <li>ติดตามสถานะและความคืบหน้า</li>
+                                    <li>การแจ้งเตือนและกำหนดเวลา</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </>
+                );
+            };
+
+            const renderAnalytics = () => {
+                return (
+                    <>
+                        <div className="page-header">
+                            <h1 className="page-title">การวิเคราะห์</h1>
+                            <p className="page-subtitle">รายงานและสถิติการทำงานของทีม</p>
+                        </div>
+                        
+                        <div className="component-content">
+                            <h2>📈 รายงานผลงาน</h2>
+                            <p>หน้านี้จะแสดงกราฟและสถิติการทำงานของทีมในมุมมองต่างๆ</p>
+                            
+                            <div style={{ marginTop: '20px' }}>
+                                <h3 style={{ color: '#374151', marginBottom: '12px' }}>รายงานที่จะมี:</h3>
+                                <ul style={{ color: '#6b7280', lineHeight: '1.8' }}>
+                                    <li>กราฟแสดงความคืบหน้างานรายวัน/รายสัปดาห์</li>
+                                    <li>สถิติประสิทธิภาพของแต่ละสมาชิก</li>
+                                    <li>การวิเคราะห์โหลดงานและการกระจายงาน</li>
+                                    <li>รายงานการทำงานล่าช้าและปัญหา</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </>
+                );
+            };
+
+            const renderProjects = () => {
+                return (
+                    <>
+                        <div className="page-header">
+                            <h1 className="page-title">โปรเจคต์</h1>
+                            <p className="page-subtitle">จัดการโปรเจคต์และแผนงานต่างๆ</p>
+                        </div>
+                        
+                        <div className="component-content">
+                            <h2>📁 การจัดการโปรเจคต์</h2>
+                            <p>หน้านี้จะแสดงโปรเจคต์ทั้งหมด ความคืบหน้า และการจัดการทรัพยากร</p>
+                            
+                            <div style={{ marginTop: '20px' }}>
+                                <h3 style={{ color: '#374151', marginBottom: '12px' }}>ฟีเจอร์ที่จะมี:</h3>
+                                <ul style={{ color: '#6b7280', lineHeight: '1.8' }}>
+                                    <li>รายการโปรเจคต์ทั้งหมดและสถานะ</li>
+                                    <li>ไทม์ไลน์และเป้าหมายโปรเจคต์</li>
+                                    <li>การจัดสรรทรัพยากรและบุคลากร</li>
+                                    <li>ติดตามความคืบหน้าและไมล์สโตน</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </>
+                );
+            };
+
+            const renderSettings = () => {
+                return (
+                    <>
+                        <div className="page-header">
+                            <h1 className="page-title">การตั้งค่า</h1>
+                            <p className="page-subtitle">กำหนดค่าระบบและการตั้งค่าส่วนตัว</p>
+                        </div>
+                        
+                        <div className="component-content">
+                            <h2>⚙️ การตั้งค่าระบบ</h2>
+                            <p>หน้านี้จะให้คุณสามารถปรับแต่งการทำงานของระบบตามความต้องการ</p>
+                            
+                            <div style={{ marginTop: '20px' }}>
+                                <h3 style={{ color: '#374151', marginBottom: '12px' }}>การตั้งค่าที่มี:</h3>
+                                <ul style={{ color: '#6b7280', lineHeight: '1.8' }}>
+                                    <li>การตั้งค่าโปรไฟล์ผู้ใช้</li>
+                                    <li>การแจ้งเตือนและการแจ้งเตือน</li>
+                                    <li>การเชื่อมต่อกับ ClickUp และระบบอื่น</li>
+                                    <li>การตั้งค่าธีมและการแสดงผล</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </>
+                );
+            };
+
+            if (isLoading) {
+                return (
+                    <div className="loading">
+                        <span>🔄 กำลังโหลด...</span>
+                    </div>
+                );
+            }
+
+            return (
+                <div>
+                    {/* Header */}
+                    <header className="header">
+                        <div className="logo">
+                            <span>📊</span>
+                            <span style={{ marginLeft: '8px' }}>TaskFlow Pro</span>
+                        </div>
+                        
+                        <div className="header-controls">
+                            <div className="search-bar">
+                                <span>🔍</span>
+                                <input type="text" placeholder="ค้นหางาน, สมาชิก, หรือโปรเจค..." />
+                            </div>
+                            
+                            <button 
+                                className="theme-toggle"
+                                onClick={toggleDarkMode}
+                                title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                            >
+                                {isDarkMode ? '☀️' : '🌙'}
+                            </button>
+                            
+                            <div className="notification-bell" onClick={handleNotificationClick}>
+                                <span className="notification-badge">3</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Sidebar */}
+                    <aside className="sidebar">
+                        <nav>
+                            <ul className="nav-menu">
+                                {[
+                                    { icon: '📊', label: 'Dashboard', component: 'dashboard' },
+                                    { icon: '👥', label: 'Team Management', component: 'team' },
+                                    { icon: '📋', label: 'Task Center', component: 'tasks', badge: '12' },
+                                    { icon: '📈', label: 'Analytics', component: 'analytics' },
+                                    { icon: '📁', label: 'Projects', component: 'projects' },
+                                    { icon: '⚙️', label: 'Settings', component: 'settings' }
+                                ].map((item, index) => (
+                                    <li key={index} className="nav-item">
+                                        <a 
+                                            href="#" 
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                handleNavigationClick(item.component);
+                                            }} 
+                                            className={`nav-link ${activeComponent === item.component ? 'active' : ''}`}
+                                        >
+                                            <span className="nav-icon">{item.icon}</span>
+                                            {item.label}
+                                            {item.badge && <span className="nav-badge">{item.badge}</span>}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </nav>
+                    </aside>
+
+                    {/* Main Content */}
+                    <main className="main-content">
+                        {renderMainContent()}
+                    </main>
+                </div>
+            );
+        };
+
+        // Render the application
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<TeamTaskTracker />);
+    </script>
+</body>
+</html>

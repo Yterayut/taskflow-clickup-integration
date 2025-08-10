@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Pro - Team Task Management Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Enhanced Dark Mode CSS Variables */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --bg-accent: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            --border-primary: #e5e7eb;
+            --border-secondary: #d1d5db;
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1d4ed8;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --bg-tertiary: #374151;
+            --bg-accent: #4b5563;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-tertiary: #9ca3af;
+            --border-primary: #374151;
+            --border-secondary: #4b5563;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            transition: var(--transition);
+            padding-top: 64px;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-primary);
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            transition: var(--transition);
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2563eb;
+            margin-right: 48px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-bar {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+            margin-right: 24px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 8px 40px 8px 16px;
+            border: 1px solid var(--border-secondary);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .notification-bell {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .notification-bell:hover {
+            background: var(--bg-accent);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 18px;
+            height: 18px;
+            background: #dc2626;
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--bg-tertiary);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-accent);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            margin-bottom: 32px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .dashboard-header p {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-card .change {
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .positive { color: var(--success-green); }
+        .negative { color: var(--danger-red); }
+
+        /* Content Section */
+        .content-section {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .data-source-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .real-data {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .sample-data {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        .loading-data {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 50%;
+            border-top-color: var(--primary-blue);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error Message */
+        .error-message {
+            color: var(--danger-red);
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 16px;
+            }
+            
+            .search-bar {
+                max-width: 200px;
+            }
+            
+            .main-content {
+                padding: 16px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <span>📊</span>&nbsp;TaskFlow Pro
+        </div>
+        
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search tasks, projects, or team members...">
+            <span class="search-icon">🔍</span>
+        </div>
+        
+        <div class="header-actions">
+            <div class="notification-bell">
+                <span>🔔</span>
+                <div class="notification-badge" id="notificationCount">3</div>
+            </div>
+            
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="themeIcon">🌙</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="dashboard-header">
+            <h1>Dashboard</h1>
+            <p>Welcome back! Here's what's happening with your team today.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Tasks</h3>
+                <div class="value" id="totalTasks">
+                    <span class="spinner"></span>Loading...
+                </div>
+            </div>
+            <div class="stat-card">
+                <h3>Completed Tasks</h3>
+                <div class="value" id="completedTasks">
+                    <span class="spinner"></span>Loading...
+                </div>
+            </div>
+            <div class="stat-card">
+                <h3>Team Members</h3>
+                <div class="value" id="teamMembers">
+                    <span class="spinner"></span>Loading...
+                </div>
+            </div>
+            <div class="stat-card">
+                <h3>Completion Rate</h3>
+                <div class="value" id="completionRate">
+                    <span class="spinner"></span>Loading...
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">System Status</h2>
+                <div class="data-source-indicator loading-data" id="dataSourceIndicator">
+                    <span class="spinner"></span>
+                    Connecting to system...
+                </div>
+            </div>
+            <div id="systemContent">
+                <p>Loading dashboard data...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load saved theme
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('themeIcon').textContent = '☀️';
+            }
+            
+            // Check authentication and load data
+            checkAuthAndLoadData();
+        });
+
+        // Authentication check and data loading
+        async function checkAuthAndLoadData() {
+            try {
+                // Check authentication by trying to fetch dashboard data
+                const response = await fetch('/api/v2/dashboard/analytics', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        loadDashboardData(data.data);
+                        updateDataSourceIndicator('real');
+                    } else {
+                        redirectToLogin();
+                    }
+                } else {
+                    redirectToLogin();
+                }
+            } catch (error) {
+                console.error('Authentication check failed:', error);
+                redirectToLogin();
+            }
+        }
+
+        function redirectToLogin() {
+            window.location.href = '/login.html';
+        }
+
+        function loadDashboardData(data) {
+            // Update stats
+            document.getElementById('totalTasks').textContent = data.totalTasks || 0;
+            document.getElementById('completedTasks').textContent = data.completedTasks || 0;
+            document.getElementById('teamMembers').textContent = data.teamMembers || 0;
+            document.getElementById('completionRate').textContent = `${data.completionRate || 0}%`;
+            
+            // Update notification count
+            const taskCount = data.totalTasks || 0;
+            document.getElementById('notificationCount').textContent = taskCount > 99 ? '99+' : taskCount;
+            
+            // Update system content
+            const systemContent = document.getElementById('systemContent');
+            systemContent.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                    <div>
+                        <strong>Database:</strong> ${data.dataSource || 'PostgreSQL'}
+                    </div>
+                    <div>
+                        <strong>Last Sync:</strong> ${formatDate(data.lastSync)}
+                    </div>
+                    <div>
+                        <strong>Assignments:</strong> ${data.assignments || 0}
+                    </div>
+                    <div>
+                        <strong>In Progress:</strong> ${data.inProgressTasks || 0}
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateDataSourceIndicator(type) {
+            const indicator = document.getElementById('dataSourceIndicator');
+            
+            if (type === 'real') {
+                indicator.className = 'data-source-indicator real-data';
+                indicator.innerHTML = '✅ Real ClickUp Data - Live System';
+            } else if (type === 'sample') {
+                indicator.className = 'data-source-indicator sample-data';
+                indicator.innerHTML = '⚠️ Sample Data - Demo Mode';
+            } else {
+                indicator.className = 'data-source-indicator loading-data';
+                indicator.innerHTML = '<span class="spinner"></span>Loading...';
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'Unknown';
+            return new Date(dateString).toLocaleString();
+        }
+
+        // Search functionality
+        document.querySelector('.search-input').addEventListener('input', function(e) {
+            const query = e.target.value;
+            if (query.length > 2) {
+                // Implement search functionality here
+                console.log('Searching for:', query);
+            }
+        });
+
+        // Auto-refresh data every 30 seconds
+        setInterval(checkAuthAndLoadData, 30000);
+    </script>
+</body>
+</html>
